@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" fill="none">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f0a1e"/>
+      <stop offset="50%" style="stop-color:#1a1040"/>
+      <stop offset="100%" style="stop-color:#0d1b3e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#FF6B35"/>
+      <stop offset="100%" style="stop-color:#E63946"/>
+    </linearGradient>
+    <linearGradient id="purple" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7c3aed"/>
+      <stop offset="100%" style="stop-color:#a855f7"/>
+    </linearGradient>
+  </defs>
+  
+  <rect width="1200" height="630" fill="url(#bgGrad)"/>
+  
+  <!-- Background pattern -->
+  <g opacity="0.03">
+    <circle cx="100" cy="100" r="80" stroke="#7c3aed" stroke-width="1" fill="none"/>
+    <circle cx="300" cy="500" r="120" stroke="#7c3aed" stroke-width="1" fill="none"/>
+    <circle cx="900" cy="150" r="100" stroke="#FF6B35" stroke-width="1" fill="none"/>
+    <circle cx="1100" cy="450" r="90" stroke="#7c3aed" stroke-width="1" fill="none"/>
+  </g>
+  
+  <!-- Left content -->
+  <g transform="translate(80, 150)">
+    <!-- Brand -->
+    <rect x="0" y="0" width="140" height="36" fill="url(#accent)" rx="18"/>
+    <text x="70" y="24" font-family="Inter,sans-serif" font-size="16" font-weight="800" fill="white" text-anchor="middle">SimdiGetir</text>
+    
+    <!-- Main heading -->
+    <text x="0" y="90" font-family="Inter,sans-serif" font-size="52" font-weight="800" fill="white">Hızlı ve Güvenilir</text>
+    <text x="0" y="150" font-family="Inter,sans-serif" font-size="52" font-weight="800" fill="url(#purple)">Kurye Hizmeti</text>
+    
+    <!-- Subtext -->
+    <text x="0" y="200" font-family="Inter,sans-serif" font-size="20" fill="#a78bfa">İstanbul'un en hızlı kurye ağı</text>
+    <text x="0" y="230" font-family="Inter,sans-serif" font-size="18" fill="#888">Akıllı rotalama • Anlık takip • 7/24 hizmet</text>
+    
+    <!-- Stats -->
+    <g transform="translate(0, 270)">
+      <text x="0" y="20" font-family="Inter,sans-serif" font-size="28" font-weight="800" fill="white">500+</text>
+      <text x="0" y="42" font-family="Inter,sans-serif" font-size="12" fill="#a78bfa">Kurye</text>
+      
+      <text x="120" y="20" font-family="Inter,sans-serif" font-size="28" font-weight="800" fill="white">10K+</text>
+      <text x="120" y="42" font-family="Inter,sans-serif" font-size="12" fill="#a78bfa">Teslimat/Ay</text>
+      
+      <text x="260" y="20" font-family="Inter,sans-serif" font-size="28" font-weight="800" fill="white">23dk</text>
+      <text x="260" y="42" font-family="Inter,sans-serif" font-size="12" fill="#a78bfa">Ort. Teslimat</text>
+    </g>
+  </g>
+  
+  <!-- Right side - Motorcycle courier illustration -->
+  <g transform="translate(750, 120)">
+    <!-- Glow circle -->
+    <circle cx="200" cy="200" r="180" fill="url(#purple)" opacity="0.05"/>
+    <circle cx="200" cy="200" r="130" fill="url(#purple)" opacity="0.08"/>
+    
+    <!-- Motorcycle -->
+    <g transform="translate(80, 150)">
+      <!-- Back wheel -->
+      <circle cx="30" cy="100" r="35" fill="none" stroke="#666" stroke-width="4"/>
+      <circle cx="30" cy="100" r="24" fill="none" stroke="#555" stroke-width="1.5"/>
+      <circle cx="30" cy="100" r="8" fill="#777"/>
+      <!-- Front wheel -->
+      <circle cx="180" cy="100" r="35" fill="none" stroke="#666" stroke-width="4"/>
+      <circle cx="180" cy="100" r="24" fill="none" stroke="#555" stroke-width="1.5"/>
+      <circle cx="180" cy="100" r="8" fill="#777"/>
+      <!-- Frame -->
+      <path d="M40 80 L70 40 L130 32 L180 72 L160 82 L100 82 L50 86 Z" fill="#2a2a3a"/>
+      <path d="M70 40 L90 20 L130 20 L130 32 Z" fill="url(#accent)"/>
+      <!-- Box -->
+      <rect x="35" y="-15" width="60" height="42" fill="url(#accent)" rx="8"/>
+      <text x="65" y="14" font-family="Inter,sans-serif" font-size="18" font-weight="800" fill="white" text-anchor="middle">SG</text>
+      <!-- Courier -->
+      <ellipse cx="100" cy="-10" rx="18" ry="16" fill="#2a2a3a"/>
+      <path d="M83 -12 C83 -25 117 -25 117 -12" fill="url(#accent)" opacity="0.8"/>
+      <rect x="87" y="8" width="26" height="40" fill="#2a2a3a" rx="5"/>
+      <rect x="87" y="18" width="26" height="4" fill="url(#accent)" opacity="0.7" rx="1"/>
+      <!-- Headlight -->
+      <circle cx="195" cy="72" r="6" fill="#FFD700" opacity="0.5"/>
+      <circle cx="195" cy="72" r="3" fill="white" opacity="0.8"/>
+    </g>
+    
+    <!-- Speed lines -->
+    <line x1="30" y1="290" x2="100" y2="290" stroke="#FF6B35" stroke-width="3" opacity="0.3" stroke-linecap="round"/>
+    <line x1="20" y1="300" x2="90" y2="300" stroke="#FF6B35" stroke-width="2" opacity="0.2" stroke-linecap="round"/>
+    <line x1="40" y1="310" x2="95" y2="310" stroke="#7c3aed" stroke-width="2" opacity="0.2" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Bottom bar -->
+  <rect x="0" y="590" width="1200" height="40" fill="url(#accent)" opacity="0.15"/>
+  <text x="600" y="616" font-family="Inter,sans-serif" font-size="14" fill="#a78bfa" text-anchor="middle">simdigetir.com • 0532 484 72 92 • İstanbul</text>
+</svg>

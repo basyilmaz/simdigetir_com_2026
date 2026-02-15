@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 450" fill="none">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f0a1e"/>
+      <stop offset="50%" style="stop-color:#1a1040"/>
+      <stop offset="100%" style="stop-color:#0d1b3e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#FF6B35"/>
+      <stop offset="100%" style="stop-color:#E63946"/>
+    </linearGradient>
+    <linearGradient id="purple" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7c3aed"/>
+      <stop offset="100%" style="stop-color:#a855f7"/>
+    </linearGradient>
+    <linearGradient id="green" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981"/>
+      <stop offset="100%" style="stop-color:#22d3ee"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  
+  <rect width="700" height="450" fill="url(#bgGrad)" rx="20"/>
+  
+  <!-- Road background -->
+  <g opacity="0.08">
+    <path d="M0 350 Q100 320, 200 350 Q300 380, 400 340 Q500 300, 600 330 Q650 345, 700 340" stroke="#7c3aed" stroke-width="60" fill="none"/>
+  </g>
+  
+  <!-- Courier on motorcycle (left side, large) -->
+  <g transform="translate(80, 80)">
+    <!-- Motorcycle -->
+    <g transform="translate(0, 130)">
+      <!-- Shadow -->
+      <ellipse cx="80" cy="105" rx="70" ry="8" fill="black" opacity="0.2"/>
+      
+      <!-- Back wheel -->
+      <circle cx="25" cy="90" r="28" fill="none" stroke="#666" stroke-width="4"/>
+      <circle cx="25" cy="90" r="20" fill="none" stroke="#555" stroke-width="1.5"/>
+      <circle cx="25" cy="90" r="6" fill="#777"/>
+      
+      <!-- Front wheel -->
+      <circle cx="130" cy="90" r="28" fill="none" stroke="#666" stroke-width="4"/>
+      <circle cx="130" cy="90" r="20" fill="none" stroke="#555" stroke-width="1.5"/>
+      <circle cx="130" cy="90" r="6" fill="#777"/>
+      
+      <!-- Frame -->
+      <path d="M30 70 L55 35 L100 28 L130 62 L115 72 L80 72 L40 77 Z" fill="#2a2a3a"/>
+      <!-- Tank -->
+      <path d="M55 35 L72 18 L100 18 L100 28 Z" fill="url(#accent)"/>
+      
+      <!-- Delivery box (large, prominent) -->
+      <rect x="25" y="-20" width="52" height="38" fill="url(#accent)" rx="6"/>
+      <rect x="28" y="-17" width="46" height="32" fill="url(#accent)" rx="4" stroke="white" stroke-width="0.5" stroke-opacity="0.3"/>
+      <text x="51" y="3" font-family="Inter,sans-serif" font-size="14" font-weight="800" fill="white" text-anchor="middle">SG</text>
+      
+      <!-- Headlight -->
+      <circle cx="145" cy="62" r="10" fill="#FFD700" opacity="0.1" filter="url(#glow)"/>
+      <circle cx="145" cy="62" r="5" fill="#FFD700" opacity="0.4"/>
+      <circle cx="145" cy="62" r="2.5" fill="white" opacity="0.8"/>
+      
+      <!-- Tail light -->
+      <circle cx="-2" cy="72" r="4" fill="#E63946" opacity="0.6"/>
+    </g>
+    
+    <!-- Courier figure -->
+    <g transform="translate(55, 70)">
+      <!-- Helmet -->
+      <ellipse cx="25" cy="10" rx="18" ry="16" fill="#2a2a3a"/>
+      <path d="M8 8 C8 -5 42 -5 42 8" fill="url(#accent)" opacity="0.8"/>
+      <rect x="18" y="3" width="20" height="8" fill="rgba(255,255,255,0.2)" rx="4"/>
+      <!-- Body -->
+      <rect x="12" y="26" width="26" height="40" fill="#2a2a3a" rx="5"/>
+      <!-- Jacket with brand stripe -->
+      <rect x="12" y="35" width="26" height="5" fill="url(#accent)" opacity="0.7" rx="2"/>
+      <!-- Arms -->
+      <path d="M38 35 L55 60" stroke="#2a2a3a" stroke-width="6" stroke-linecap="round"/>
+      <path d="M12 40 L-5 20" stroke="#2a2a3a" stroke-width="6" stroke-linecap="round"/>
+    </g>
+    
+    <!-- Speed lines -->
+    <line x1="-50" y1="220" x2="10" y2="220" stroke="#FF6B35" stroke-width="3" stroke-linecap="round" opacity="0.3"/>
+    <line x1="-60" y1="230" x2="5" y2="230" stroke="#FF6B35" stroke-width="2" stroke-linecap="round" opacity="0.2"/>
+    <line x1="-40" y1="240" x2="15" y2="240" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" opacity="0.2"/>
+  </g>
+  
+  <!-- Benefits panel (right side) -->
+  <g transform="translate(350, 40)">
+    <text x="0" y="20" font-family="Inter,sans-serif" font-size="16" font-weight="800" fill="white">Kurye Avantajları</text>
+    
+    <!-- Benefit 1 -->
+    <g transform="translate(0, 40)">
+      <rect x="0" y="0" width="290" height="55" fill="rgba(124,58,237,0.08)" rx="12" stroke="#7c3aed" stroke-width="0.5" stroke-opacity="0.2"/>
+      <circle cx="30" cy="28" r="18" fill="url(#purple)" opacity="0.2"/>
+      <text x="30" y="35" font-family="sans-serif" font-size="18" text-anchor="middle">💰</text>
+      <text x="60" y="22" font-family="Inter,sans-serif" font-size="11" font-weight="600" fill="white">Esnek Çalışma</text>
+      <text x="60" y="38" font-family="Inter,sans-serif" font-size="9" fill="#a78bfa">Kendi programınızı belirleyin</text>
+    </g>
+    
+    <!-- Benefit 2 -->
+    <g transform="translate(0, 105)">
+      <rect x="0" y="0" width="290" height="55" fill="rgba(255,107,53,0.08)" rx="12" stroke="#FF6B35" stroke-width="0.5" stroke-opacity="0.2"/>
+      <circle cx="30" cy="28" r="18" fill="url(#accent)" opacity="0.2"/>
+      <text x="30" y="35" font-family="sans-serif" font-size="18" text-anchor="middle">⚡</text>
+      <text x="60" y="22" font-family="Inter,sans-serif" font-size="11" font-weight="600" fill="white">Haftalık Ödeme</text>
+      <text x="60" y="38" font-family="Inter,sans-serif" font-size="9" fill="#FF9B73">Kazancınızı beklemeden alın</text>
+    </g>
+    
+    <!-- Benefit 3 -->
+    <g transform="translate(0, 170)">
+      <rect x="0" y="0" width="290" height="55" fill="rgba(34,211,238,0.08)" rx="12" stroke="#22d3ee" stroke-width="0.5" stroke-opacity="0.2"/>
+      <circle cx="30" cy="28" r="18" fill="url(#green)" opacity="0.2"/>
+      <text x="30" y="35" font-family="sans-serif" font-size="18" text-anchor="middle">🧭</text>
+      <text x="60" y="22" font-family="Inter,sans-serif" font-size="11" font-weight="600" fill="white">Akıllı Navigasyon</text>
+      <text x="60" y="38" font-family="Inter,sans-serif" font-size="9" fill="#67e8f9">Rota optimizasyonu ile tasarruf</text>
+    </g>
+    
+    <!-- Benefit 4 -->
+    <g transform="translate(0, 235)">
+      <rect x="0" y="0" width="290" height="55" fill="rgba(16,185,129,0.08)" rx="12" stroke="#10b981" stroke-width="0.5" stroke-opacity="0.2"/>
+      <circle cx="30" cy="28" r="18" fill="#10b981" opacity="0.15"/>
+      <text x="30" y="35" font-family="sans-serif" font-size="18" text-anchor="middle">📱</text>
+      <text x="60" y="22" font-family="Inter,sans-serif" font-size="11" font-weight="600" fill="white">Kolay Uygulama</text>
+      <text x="60" y="38" font-family="Inter,sans-serif" font-size="9" fill="#6ee7b7">Siparişleri kolayca yönetin</text>
+    </g>
+  </g>
+  
+  <!-- Earnings badge -->
+  <g transform="translate(380, 340)">
+    <rect x="0" y="0" width="230" height="70" fill="rgba(124,58,237,0.12)" rx="16" stroke="#7c3aed" stroke-width="1" stroke-opacity="0.3"/>
+    <text x="20" y="28" font-family="Inter,sans-serif" font-size="10" fill="#a78bfa">Aylık Kazanç Potansiyeli</text>
+    <text x="20" y="52" font-family="Inter,sans-serif" font-size="24" font-weight="800" fill="white">₺15.000+</text>
+    <text x="145" y="52" font-family="Inter,sans-serif" font-size="10" fill="#10b981">↑ %20</text>
+    <animate attributeName="opacity" values="1;0.7;1" dur="3s" repeatCount="indefinite"/>
+  </g>
+</svg>

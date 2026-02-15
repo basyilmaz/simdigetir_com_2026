@@ -1,0 +1,230 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" fill="none">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f0a1e"/>
+      <stop offset="50%" style="stop-color:#1a1040"/>
+      <stop offset="100%" style="stop-color:#0d1b3e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#FF6B35"/>
+      <stop offset="100%" style="stop-color:#E63946"/>
+    </linearGradient>
+    <linearGradient id="purple" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7c3aed"/>
+      <stop offset="100%" style="stop-color:#a855f7"/>
+    </linearGradient>
+    <linearGradient id="road" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#2a2a4a"/>
+      <stop offset="100%" style="stop-color:#1a1a3a"/>
+    </linearGradient>
+    <linearGradient id="skyGlow" x1="50%" y1="100%" x2="50%" y2="0%">
+      <stop offset="0%" style="stop-color:#7c3aed;stop-opacity:0.15"/>
+      <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:0"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="500" fill="url(#bgGrad)" rx="20"/>
+  
+  <!-- Sky glow behind city -->
+  <ellipse cx="400" cy="320" rx="500" ry="200" fill="url(#skyGlow)"/>
+  
+  <!-- Stars -->
+  <circle cx="60" cy="40" r="1.5" fill="white" opacity="0.5">
+    <animate attributeName="opacity" values="0.5;0.1;0.5" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="180" cy="70" r="1" fill="white" opacity="0.3"/>
+  <circle cx="320" cy="25" r="2" fill="white" opacity="0.6">
+    <animate attributeName="opacity" values="0.6;0.2;0.6" dur="4s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="500" cy="55" r="1" fill="white" opacity="0.3"/>
+  <circle cx="650" cy="35" r="1.5" fill="white" opacity="0.4">
+    <animate attributeName="opacity" values="0.4;0.1;0.4" dur="2.5s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="750" cy="60" r="1" fill="white" opacity="0.25"/>
+  <circle cx="120" cy="100" r="1" fill="white" opacity="0.2"/>
+  <circle cx="440" cy="90" r="1.5" fill="white" opacity="0.35"/>
+  <circle cx="590" cy="80" r="1" fill="white" opacity="0.2"/>
+  
+  <!-- Istanbul Skyline - Mosques & Buildings -->
+  <!-- Distant buildings left -->
+  <rect x="20" y="230" width="35" height="100" fill="#1e1e3e" rx="2"/>
+  <rect x="65" y="200" width="50" height="130" fill="#222244" rx="3"/>
+  <rect x="125" y="250" width="30" height="80" fill="#1e1e3e" rx="2"/>
+  
+  <!-- Mosque silhouette (center-left) -->
+  <g transform="translate(180, 180)">
+    <rect x="0" y="40" width="80" height="110" fill="#252550" rx="3"/>
+    <ellipse cx="40" cy="40" rx="40" ry="20" fill="#252550"/>
+    <ellipse cx="40" cy="30" rx="25" ry="18" fill="#2a2a55"/>
+    <ellipse cx="40" cy="22" rx="15" ry="12" fill="#2e2e5a"/>
+    <circle cx="40" cy="14" r="4" fill="#FFD700" opacity="0.6"/>
+    <!-- Minaret -->
+    <rect x="-10" y="10" width="6" height="130" fill="#252550" rx="2"/>
+    <circle cx="-7" cy="10" r="5" fill="#2a2a55"/>
+    <circle cx="-7" cy="6" r="2" fill="#FFD700" opacity="0.4"/>
+    <rect x="84" y="20" width="6" height="120" fill="#252550" rx="2"/>
+    <circle cx="87" cy="20" r="5" fill="#2a2a55"/>
+    <circle cx="87" cy="16" r="2" fill="#FFD700" opacity="0.4"/>
+  </g>
+  
+  <!-- Modern tower (center) -->
+  <rect x="340" y="170" width="40" height="160" fill="#222248" rx="4"/>
+  <rect x="345" y="178" width="8" height="5" fill="#FFB347" opacity="0.3" rx="1"/>
+  <rect x="358" y="190" width="8" height="5" fill="#FFB347" opacity="0.5" rx="1"/>
+  <rect x="345" y="205" width="8" height="5" fill="#7c3aed" opacity="0.4" rx="1"/>
+  <rect x="358" y="218" width="8" height="5" fill="#FFB347" opacity="0.2" rx="1"/>
+  <rect x="345" y="235" width="8" height="5" fill="#FFB347" opacity="0.4" rx="1"/>
+  <rect x="358" y="248" width="8" height="5" fill="#7c3aed" opacity="0.3" rx="1"/>
+  <rect x="345" y="262" width="8" height="5" fill="#FFB347" opacity="0.3" rx="1"/>
+  
+  <!-- Skyscraper right -->
+  <rect x="400" y="210" width="35" height="120" fill="#1e1e40" rx="3"/>
+  <rect x="406" y="220" width="6" height="4" fill="#FFB347" opacity="0.4" rx="1"/>
+  <rect x="418" y="235" width="6" height="4" fill="#FFB347" opacity="0.2" rx="1"/>
+  <rect x="406" y="250" width="6" height="4" fill="#22d3ee" opacity="0.3" rx="1"/>
+  
+  <!-- Buildings right side -->
+  <rect x="500" y="220" width="45" height="110" fill="#252545" rx="3"/>
+  <rect x="508" y="230" width="8" height="5" fill="#FFB347" opacity="0.3" rx="1"/>
+  <rect x="523" y="245" width="8" height="5" fill="#FFB347" opacity="0.5" rx="1"/>
+  <rect x="508" y="260" width="8" height="5" fill="#7c3aed" opacity="0.3" rx="1"/>
+  
+  <rect x="555" y="245" width="40" height="85" fill="#1e1e3e" rx="3"/>
+  <rect x="563" y="255" width="7" height="4" fill="#FFB347" opacity="0.4" rx="1"/>
+  <rect x="575" y="268" width="7" height="4" fill="#FFB347" opacity="0.3" rx="1"/>
+  
+  <!-- Bosphorus Bridge silhouette -->
+  <g opacity="0.3">
+    <rect x="610" y="250" width="6" height="80" fill="#2a2a55" rx="1"/>
+    <rect x="730" y="260" width="6" height="70" fill="#2a2a55" rx="1"/>
+    <path d="M613 255 Q670 290, 733 265" stroke="#2a2a55" stroke-width="3" fill="none"/>
+    <line x1="625" y1="268" x2="625" y2="290" stroke="#2a2a55" stroke-width="1" opacity="0.5"/>
+    <line x1="650" y1="278" x2="650" y2="293" stroke="#2a2a55" stroke-width="1" opacity="0.5"/>
+    <line x1="675" y1="282" x2="675" y2="290" stroke="#2a2a55" stroke-width="1" opacity="0.5"/>
+    <line x1="700" y1="278" x2="700" y2="288" stroke="#2a2a55" stroke-width="1" opacity="0.5"/>
+  </g>
+
+  <!-- Road -->
+  <rect x="0" y="330" width="800" height="170" fill="url(#road)" rx="0"/>
+  <line x1="0" y1="395" x2="800" y2="395" stroke="#555" stroke-width="2" stroke-dasharray="25 18" opacity="0.4"/>
+  
+  <!-- Route path (glowing) -->
+  <path d="M50 380 Q150 350, 250 370 Q350 400, 500 360 Q600 330, 750 380" stroke="#7c3aed" stroke-width="3" stroke-dasharray="8 6" fill="none" opacity="0.5" filter="url(#glow)">
+    <animate attributeName="stroke-dashoffset" values="0;-28" dur="1.5s" repeatCount="indefinite"/>
+  </path>
+  
+  <!-- GPS Pin A (start) -->
+  <g transform="translate(100, 340)">
+    <circle cx="0" cy="0" r="12" fill="#7c3aed" opacity="0.2" filter="url(#softGlow)">
+      <animate attributeName="r" values="12;18;12" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <path d="M0-20 C-10-20,-15-12,-15-5 C-15 5,0 18,0 18 C0 18,15 5,15-5 C15-12,10-20,0-20Z" fill="url(#purple)"/>
+    <circle cx="0" cy="-6" r="5" fill="white" opacity="0.9"/>
+    <text x="0" y="-3" font-family="Inter,sans-serif" font-size="7" font-weight="700" fill="#7c3aed" text-anchor="middle">A</text>
+  </g>
+  
+  <!-- GPS Pin B (destination) -->
+  <g transform="translate(680, 345)">
+    <circle cx="0" cy="0" r="12" fill="#FF6B35" opacity="0.2" filter="url(#softGlow)">
+      <animate attributeName="r" values="12;18;12" dur="2s" repeatCount="indefinite" begin="1s"/>
+    </circle>
+    <path d="M0-20 C-10-20,-15-12,-15-5 C-15 5,0 18,0 18 C0 18,15 5,15-5 C15-12,10-20,0-20Z" fill="url(#accent)"/>
+    <circle cx="0" cy="-6" r="5" fill="white" opacity="0.9"/>
+    <text x="0" y="-3" font-family="Inter,sans-serif" font-size="7" font-weight="700" fill="#E63946" text-anchor="middle">B</text>
+  </g>
+  
+  <!-- Motorcycle Courier (main element) -->
+  <g transform="translate(320, 300)">
+    <!-- Speed lines -->
+    <line x1="-90" y1="50" x2="-30" y2="50" stroke="#FF6B35" stroke-width="3" stroke-linecap="round" opacity="0.3"/>
+    <line x1="-100" y1="58" x2="-25" y2="58" stroke="#FF6B35" stroke-width="2" stroke-linecap="round" opacity="0.2"/>
+    <line x1="-75" y1="66" x2="-20" y2="66" stroke="#E63946" stroke-width="2" stroke-linecap="round" opacity="0.25"/>
+    <line x1="-85" y1="74" x2="-35" y2="74" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" opacity="0.15"/>
+    
+    <!-- Shadow -->
+    <ellipse cx="55" cy="82" rx="50" ry="5" fill="black" opacity="0.3"/>
+    
+    <!-- Back wheel -->
+    <circle cx="15" cy="72" r="22" fill="none" stroke="#777" stroke-width="4"/>
+    <circle cx="15" cy="72" r="15" fill="none" stroke="#555" stroke-width="1.5"/>
+    <circle cx="15" cy="72" r="5" fill="#888"/>
+    <!-- Spokes -->
+    <line x1="15" y1="54" x2="15" y2="90" stroke="#555" stroke-width="0.5" opacity="0.4"/>
+    <line x1="-3" y1="72" x2="33" y2="72" stroke="#555" stroke-width="0.5" opacity="0.4"/>
+    
+    <!-- Front wheel -->
+    <circle cx="95" cy="72" r="22" fill="none" stroke="#777" stroke-width="4"/>
+    <circle cx="95" cy="72" r="15" fill="none" stroke="#555" stroke-width="1.5"/>
+    <circle cx="95" cy="72" r="5" fill="#888"/>
+    <line x1="95" y1="54" x2="95" y2="90" stroke="#555" stroke-width="0.5" opacity="0.4"/>
+    <line x1="77" y1="72" x2="113" y2="72" stroke="#555" stroke-width="0.5" opacity="0.4"/>
+    
+    <!-- Frame -->
+    <path d="M20 55 L40 28 L75 22 L95 50 L85 58 L60 58 L30 60 Z" fill="#2a2a3a"/>
+    <!-- Tank -->
+    <path d="M40 28 L55 15 L75 15 L75 22 Z" fill="url(#accent)"/>
+    <!-- Exhaust -->
+    <rect x="5" y="55" width="20" height="5" fill="#444" rx="2"/>
+    
+    <!-- Delivery box -->
+    <rect x="20" y="-2" width="38" height="28" fill="url(#accent)" rx="5"/>
+    <rect x="23" y="1" width="32" height="22" fill="url(#accent)" rx="3" stroke="white" stroke-width="0.5" stroke-opacity="0.3"/>
+    <text x="39" y="17" font-family="Inter,sans-serif" font-size="11" font-weight="800" fill="white" text-anchor="middle">SG</text>
+    
+    <!-- Courier helmet -->
+    <ellipse cx="65" cy="-2" rx="13" ry="12" fill="#2a2a3a"/>
+    <path d="M52 -2 C52 -12, 78 -12, 78 -2" fill="url(#accent)"/>
+    <rect x="63" y="-6" width="16" height="6" fill="rgba(255,255,255,0.25)" rx="3"/>
+    
+    <!-- Courier body -->
+    <rect x="55" y="10" width="18" height="28" fill="#2a2a3a" rx="4"/>
+    <!-- Jacket stripe -->
+    <rect x="55" y="18" width="18" height="3" fill="url(#accent)" opacity="0.7" rx="1"/>
+    
+    <!-- Arms -->
+    <path d="M73 15 L85 35" stroke="#2a2a3a" stroke-width="5" stroke-linecap="round"/>
+    <path d="M55 20 L40 10" stroke="#2a2a3a" stroke-width="5" stroke-linecap="round"/>
+    
+    <!-- Headlight glow -->
+    <circle cx="108" cy="50" r="15" fill="#FFD700" opacity="0.08" filter="url(#softGlow)"/>
+    <circle cx="108" cy="50" r="8" fill="#FFD700" opacity="0.15"/>
+    <circle cx="108" cy="50" r="4" fill="#FFD700" opacity="0.5"/>
+    <circle cx="108" cy="50" r="2" fill="white" opacity="0.9"/>
+    
+    <!-- Tail light -->
+    <circle cx="-2" cy="55" r="3" fill="#E63946" opacity="0.7"/>
+    <circle cx="-2" cy="55" r="6" fill="#E63946" opacity="0.15"/>
+  </g>
+  
+  <!-- Floating UI Elements -->
+  <!-- Timer badge -->
+  <g transform="translate(560, 150)" opacity="0.85">
+    <rect x="0" y="0" width="90" height="45" fill="rgba(124,58,237,0.2)" rx="12" stroke="#7c3aed" stroke-width="1" stroke-opacity="0.3"/>
+    <text x="35" y="20" font-family="Inter,sans-serif" font-size="9" fill="#a78bfa">Teslimat</text>
+    <text x="45" y="36" font-family="Inter,sans-serif" font-size="16" font-weight="800" fill="white" text-anchor="middle">23 dk</text>
+    <animate attributeName="opacity" values="0.85;0.6;0.85" dur="3s" repeatCount="indefinite"/>
+  </g>
+  
+  <!-- Status badge -->
+  <g transform="translate(80, 160)" opacity="0.75">
+    <rect x="0" y="0" width="100" height="40" fill="rgba(34,211,238,0.15)" rx="10" stroke="#22d3ee" stroke-width="1" stroke-opacity="0.3"/>
+    <circle cx="18" cy="20" r="5" fill="#22d3ee" opacity="0.8"/>
+    <text x="30" y="24" font-family="Inter,sans-serif" font-size="10" fill="#22d3ee">Yolda</text>
+    <animate attributeName="opacity" values="0.75;0.45;0.75" dur="2.5s" repeatCount="indefinite"/>
+  </g>
+  
+  <!-- Package icon floating -->
+  <g transform="translate(680, 220)" opacity="0.6">
+    <rect x="0" y="0" width="35" height="30" fill="rgba(255,107,53,0.2)" rx="8"/>
+    <text x="17" y="22" font-family="sans-serif" font-size="18" text-anchor="middle">📦</text>
+    <animate attributeName="transform" values="translate(680,220);translate(680,210);translate(680,220)" dur="4s" repeatCount="indefinite"/>
+  </g>
+</svg>

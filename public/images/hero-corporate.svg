@@ -1,0 +1,162 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 450" fill="none">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f0a1e"/>
+      <stop offset="100%" style="stop-color:#1a1040"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#FF6B35"/>
+      <stop offset="100%" style="stop-color:#E63946"/>
+    </linearGradient>
+    <linearGradient id="purple" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7c3aed"/>
+      <stop offset="100%" style="stop-color:#a855f7"/>
+    </linearGradient>
+    <linearGradient id="green" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981"/>
+      <stop offset="100%" style="stop-color:#22d3ee"/>
+    </linearGradient>
+  </defs>
+  
+  <rect width="700" height="450" fill="url(#bgGrad)" rx="20"/>
+  
+  <!-- Network nodes background -->
+  <g opacity="0.06">
+    <circle cx="100" cy="100" r="3" fill="#7c3aed"/>
+    <circle cx="250" cy="60" r="3" fill="#7c3aed"/>
+    <circle cx="400" cy="90" r="3" fill="#7c3aed"/>
+    <circle cx="550" cy="70" r="3" fill="#7c3aed"/>
+    <circle cx="150" cy="350" r="3" fill="#7c3aed"/>
+    <circle cx="500" cy="380" r="3" fill="#7c3aed"/>
+    <circle cx="600" cy="300" r="3" fill="#7c3aed"/>
+    <line x1="100" y1="100" x2="250" y2="60" stroke="#7c3aed" stroke-width="0.5"/>
+    <line x1="250" y1="60" x2="400" y2="90" stroke="#7c3aed" stroke-width="0.5"/>
+    <line x1="400" y1="90" x2="550" y2="70" stroke="#7c3aed" stroke-width="0.5"/>
+    <line x1="100" y1="100" x2="150" y2="350" stroke="#7c3aed" stroke-width="0.5"/>
+    <line x1="500" y1="380" x2="600" y2="300" stroke="#7c3aed" stroke-width="0.5"/>
+  </g>
+  
+  <!-- Building with handshake (center) -->
+  <g transform="translate(250, 80)">
+    <!-- Building outline -->
+    <rect x="30" y="40" width="140" height="180" fill="rgba(124,58,237,0.06)" rx="12" stroke="#7c3aed" stroke-width="1" stroke-opacity="0.15"/>
+    
+    <!-- Windows -->
+    <rect x="50" y="60" width="20" height="15" fill="rgba(124,58,237,0.15)" rx="3"/>
+    <rect x="80" y="60" width="20" height="15" fill="rgba(255,107,53,0.15)" rx="3"/>
+    <rect x="110" y="60" width="20" height="15" fill="rgba(124,58,237,0.15)" rx="3"/>
+    <rect x="140" y="60" width="20" height="15" fill="rgba(34,211,238,0.15)" rx="3"/>
+    
+    <rect x="50" y="90" width="20" height="15" fill="rgba(255,107,53,0.1)" rx="3"/>
+    <rect x="80" y="90" width="20" height="15" fill="rgba(124,58,237,0.2)" rx="3"/>
+    <rect x="110" y="90" width="20" height="15" fill="rgba(34,211,238,0.1)" rx="3"/>
+    <rect x="140" y="90" width="20" height="15" fill="rgba(124,58,237,0.15)" rx="3"/>
+    
+    <rect x="50" y="120" width="20" height="15" fill="rgba(124,58,237,0.15)" rx="3"/>
+    <rect x="80" y="120" width="20" height="15" fill="rgba(255,107,53,0.2)" rx="3"/>
+    <rect x="110" y="120" width="20" height="15" fill="rgba(124,58,237,0.1)" rx="3"/>
+    <rect x="140" y="120" width="20" height="15" fill="rgba(255,107,53,0.15)" rx="3"/>
+    
+    <!-- Door -->
+    <rect x="80" y="160" width="40" height="60" fill="url(#purple)" rx="6" opacity="0.3"/>
+    <circle cx="112" cy="190" r="3" fill="#FFD700" opacity="0.6"/>
+    
+    <!-- SG brand on building -->
+    <rect x="65" y="18" width="70" height="25" fill="url(#accent)" rx="8" opacity="0.8"/>
+    <text x="100" y="35" font-family="Inter,sans-serif" font-size="13" font-weight="800" fill="white" text-anchor="middle">SimdiGetir</text>
+  </g>
+  
+  <!-- Left panel - Partnership benefits -->
+  <g transform="translate(30, 100)">
+    <rect x="0" y="0" width="185" height="240" fill="rgba(26,26,58,0.6)" rx="14" stroke="#7c3aed" stroke-width="0.5" stroke-opacity="0.15"/>
+    
+    <text x="20" y="30" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="white">Kurumsal Avantajlar</text>
+    
+    <g transform="translate(20, 45)">
+      <circle cx="8" cy="8" r="8" fill="url(#purple)" opacity="0.3"/>
+      <text x="8" y="12" font-family="sans-serif" font-size="10" text-anchor="middle">✓</text>
+      <text x="25" y="12" font-family="Inter,sans-serif" font-size="9" fill="#a78bfa">Öncelikli Kurye</text>
+    </g>
+    <g transform="translate(20, 75)">
+      <circle cx="8" cy="8" r="8" fill="url(#accent)" opacity="0.3"/>
+      <text x="8" y="12" font-family="sans-serif" font-size="10" text-anchor="middle">✓</text>
+      <text x="25" y="12" font-family="Inter,sans-serif" font-size="9" fill="#FF9B73">Toplu İndirim</text>
+    </g>
+    <g transform="translate(20, 105)">
+      <circle cx="8" cy="8" r="8" fill="url(#green)" opacity="0.3"/>
+      <text x="8" y="12" font-family="sans-serif" font-size="10" text-anchor="middle">✓</text>
+      <text x="25" y="12" font-family="Inter,sans-serif" font-size="9" fill="#67e8f9">API Entegrasyonu</text>
+    </g>
+    <g transform="translate(20, 135)">
+      <circle cx="8" cy="8" r="8" fill="#FFD700" opacity="0.2"/>
+      <text x="8" y="12" font-family="sans-serif" font-size="10" text-anchor="middle">✓</text>
+      <text x="25" y="12" font-family="Inter,sans-serif" font-size="9" fill="#fde68a">Özel Temsilci</text>
+    </g>
+    <g transform="translate(20, 165)">
+      <circle cx="8" cy="8" r="8" fill="#10b981" opacity="0.3"/>
+      <text x="8" y="12" font-family="sans-serif" font-size="10" text-anchor="middle">✓</text>
+      <text x="25" y="12" font-family="Inter,sans-serif" font-size="9" fill="#6ee7b7">SLA Garantisi</text>
+    </g>
+    
+    <!-- CTA -->
+    <rect x="20" y="200" width="145" height="28" fill="url(#accent)" rx="8"/>
+    <text x="92" y="218" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="white" text-anchor="middle">Teklif İsteyin</text>
+  </g>
+  
+  <!-- Right panel - Integration graphic -->
+  <g transform="translate(490, 100)">
+    <rect x="0" y="0" width="180" height="240" fill="rgba(26,26,58,0.6)" rx="14" stroke="#22d3ee" stroke-width="0.5" stroke-opacity="0.15"/>
+    
+    <text x="20" y="30" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="white">Entegrasyon</text>
+    
+    <!-- Code-like display -->
+    <rect x="15" y="45" width="150" height="80" fill="rgba(0,0,0,0.3)" rx="8"/>
+    <text x="25" y="65" font-family="monospace" font-size="8" fill="#7c3aed">POST</text>
+    <text x="52" y="65" font-family="monospace" font-size="8" fill="#a78bfa">/api/orders</text>
+    <text x="25" y="80" font-family="monospace" font-size="7" fill="#555">{</text>
+    <text x="33" y="92" font-family="monospace" font-size="7" fill="#22d3ee">"from"</text>
+    <text x="65" y="92" font-family="monospace" font-size="7" fill="#888">: "Kağıthane"</text>
+    <text x="33" y="104" font-family="monospace" font-size="7" fill="#22d3ee">"to"</text>
+    <text x="55" y="104" font-family="monospace" font-size="7" fill="#888">: "Şişli"</text>
+    <text x="25" y="116" font-family="monospace" font-size="7" fill="#555">}</text>
+    
+    <!-- Webhook indicator -->
+    <rect x="15" y="140" width="150" height="35" fill="rgba(16,185,129,0.1)" rx="8" stroke="#10b981" stroke-width="0.5" stroke-opacity="0.3"/>
+    <circle cx="30" cy="158" r="5" fill="#10b981" opacity="0.6">
+      <animate attributeName="opacity" values="0.6;0.2;0.6" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+    <text x="42" y="155" font-family="Inter,sans-serif" font-size="8" font-weight="600" fill="#6ee7b7">Webhook Aktif</text>
+    <text x="42" y="167" font-family="monospace" font-size="7" fill="#555">status: delivered</text>
+    
+    <!-- Response time -->
+    <g transform="translate(15, 190)">
+      <text x="0" y="15" font-family="Inter,sans-serif" font-size="9" fill="#a78bfa">Ortalama Yanıt</text>
+      <text x="0" y="35" font-family="Inter,sans-serif" font-size="20" font-weight="800" fill="white">&lt;200ms</text>
+    </g>
+  </g>
+  
+  <!-- Bottom trust badges -->
+  <g transform="translate(130, 380)">
+    <rect x="0" y="0" width="440" height="45" fill="rgba(124,58,237,0.08)" rx="12"/>
+    <text x="30" y="20" font-family="sans-serif" font-size="16">🏢</text>
+    <text x="55" y="18" font-family="Inter,sans-serif" font-size="9" font-weight="600" fill="white">500+</text>
+    <text x="55" y="32" font-family="Inter,sans-serif" font-size="8" fill="#a78bfa">İş Ortağı</text>
+    
+    <line x1="120" y1="8" x2="120" y2="37" stroke="#7c3aed" stroke-width="0.5" opacity="0.2"/>
+    
+    <text x="150" y="20" font-family="sans-serif" font-size="16">📦</text>
+    <text x="175" y="18" font-family="Inter,sans-serif" font-size="9" font-weight="600" fill="white">10K+</text>
+    <text x="175" y="32" font-family="Inter,sans-serif" font-size="8" fill="#a78bfa">Aylık Teslimat</text>
+    
+    <line x1="260" y1="8" x2="260" y2="37" stroke="#7c3aed" stroke-width="0.5" opacity="0.2"/>
+    
+    <text x="290" y="20" font-family="sans-serif" font-size="16">⚡</text>
+    <text x="315" y="18" font-family="Inter,sans-serif" font-size="9" font-weight="600" fill="white">%99.8</text>
+    <text x="315" y="32" font-family="Inter,sans-serif" font-size="8" fill="#a78bfa">SLA Başarı</text>
+    
+    <line x1="385" y1="8" x2="385" y2="37" stroke="#7c3aed" stroke-width="0.5" opacity="0.2"/>
+    
+    <text x="410" y="20" font-family="sans-serif" font-size="16">🔒</text>
+    <text x="435" y="28" font-family="Inter,sans-serif" font-size="8" fill="#a78bfa">SSL Güvenli</text>
+  </g>
+</svg>
