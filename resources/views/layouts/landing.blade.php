@@ -2827,7 +2827,10 @@
             </div>
             <div class="footer-bottom">
                 <p>&copy; {{ date('Y') }} SimdiGetir. Tüm hakları saklıdır.</p>
-                <p>Zamanın paradan daha değerli olduğu anlarda yanınızdayız.</p>
+                <p>
+                    Powered by <a href="https://castintech.com" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;">Castintech.com</a>
+                    | <span style="color: var(--text-secondary);">v{{ config('app.version') }}</span>
+                </p>
             </div>
         </div>
     </footer>
