@@ -182,7 +182,7 @@
                             <i class="fa-solid fa-phone"></i>
                             <div>
                                 <strong>Telefon</strong>
-                                <span>{{ \Modules\Settings\Models\Setting::getValue('contact.phone', '+90 532 484 72 92') }}</span>
+                                <span>{{ \Modules\Settings\Models\Setting::getValue('contact.phone', '+90 551 356 72 92') }}</span>
                             </div>
                         </div>
                     </div>

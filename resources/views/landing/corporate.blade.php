@@ -1,26 +1,35 @@
 @extends('layouts.landing')
 
-@section('title', 'Kurumsal Çözümler - SimdiGetir Kurye')
-@section('meta_description', 'E-ticaret ve kurumsal firmalar için özel teslimat çözümleri. API entegrasyonu, özel fiyatlandırma, öncelikli destek.')
-@section('meta_keywords', 'kurumsal kurye, firma kurye hizmeti, toplu gönderi, e-ticaret kurye, API kurye entegrasyonu, kurumsal teslimat, B2B kurye istanbul')
+@section('title', $landingContent['meta_title'] ?? 'Kurumsal Çözümler - SimdiGetir Kurye')
+@section('meta_description', $landingContent['meta_description'] ?? 'E-ticaret ve kurumsal firmalar için özel teslimat çözümleri. API entegrasyonu, özel fiyatlandırma, öncelikli destek.')
+@section('meta_keywords', $landingContent['meta_keywords'] ?? 'kurumsal kurye, firma kurye hizmeti, b2b kurye')
+
+@section('robots', $landingContent['robots'] ?? 'index, follow')
+@section('canonical_url', $landingContent['canonical_url'] ?? url()->current())
+@section('og_title', $landingContent['og_title'] ?? ($landingContent['meta_title'] ?? 'SimdiGetir'))
+@section('og_description', $landingContent['og_description'] ?? ($landingContent['meta_description'] ?? 'Hizli ve guvenilir kurye hizmeti'))
+@section('og_image', $landingContent['og_image'] ?? asset('images/og-default.jpg'))
 
 @section('structured_data')
+@php
+    $corporateSchema = $landingContent['structured_data'] ?? [
+        '@context' => 'https://schema.org',
+        '@type' => 'Service',
+        'name' => (string) ($landingContent['corporate_service_name'] ?? 'SimdiGetir Kurumsal Kurye Hizmeti'),
+        'description' => (string) ($landingContent['meta_description'] ?? 'E-ticaret ve kurumsal firmalar için özel teslimat çözümleri. API entegrasyonu, özel fiyatlandırma, öncelikli destek.'),
+        'provider' => ['@id' => url('/').'#organization'],
+        'areaServed' => ['@type' => 'City', 'name' => 'İstanbul'],
+        'serviceType' => (string) ($landingContent['corporate_service_type'] ?? 'Kurumsal Kurye Hizmeti'),
+        'url' => url('/kurumsal'),
+        'offers' => [
+            '@type' => 'Offer',
+            'description' => (string) ($landingContent['corporate_offer_description'] ?? 'Kurumsal firmalar için özel fiyatlandırma ve aylık faturalama'),
+            'eligibleRegion' => ['@type' => 'City', 'name' => 'İstanbul'],
+        ],
+    ];
+@endphp
 <script type="application/ld+json">
-{
-    "@context": "https://schema.org",
-    "@type": "Service",
-    "name": "SimdiGetir Kurumsal Kurye Hizmeti",
-    "description": "E-ticaret ve kurumsal firmalar için özel teslimat çözümleri. API entegrasyonu, özel fiyatlandırma, öncelikli destek.",
-    "provider": {"@id": "{{ url('/') }}/#organization"},
-    "areaServed": {"@type": "City", "name": "İstanbul"},
-    "serviceType": "Kurumsal Kurye Hizmeti",
-    "url": "{{ url('/kurumsal') }}",
-    "offers": {
-        "@type": "Offer",
-        "description": "Kurumsal firmalar için özel fiyatlandırma ve aylık faturalama",
-        "eligibleRegion": {"@type": "City", "name": "İstanbul"}
-    }
-}
+{!! json_encode($corporateSchema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE) !!}
 </script>
 @endsection
 
@@ -28,25 +37,23 @@
 <!-- Hero Section -->
 <section class="hero" style="min-height: auto; padding: 10rem 0 4rem;">
     <div class="container">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
+        <div class="responsive-stack" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
             <div>
                 <div class="hero-badge animate__animated animate__fadeInUp">
                     <span class="pulse"></span>
-                    Kurumsal Çözümler
+                    {{ $landingContent['hero_badge_text'] ?? 'Kurumsal Çözümler' }}
                 </div>
                 <h1 class="animate__animated animate__fadeInUp animate__delay-1s" style="font-size: 3rem;">
-                    İşletmeniz İçin<br>
-                    <span class="gradient-text">Özel Teslimat</span><br>
-                    Çözümleri
+                    {!! $landingContent['hero_title_html'] ?? "İşletmeniz İçin<br><span class='gradient-text'>Özel Teslimat</span><br>Çözümleri" !!}
                 </h1>
                 <p class="animate__animated animate__fadeInUp animate__delay-2s" style="color: var(--text-secondary); margin-bottom: 2rem; font-size: 1.125rem;">
-                    E-ticaret siteniz, mağazanız veya kurumunuz için ölçeklenebilir, güvenilir ve akıllı teslimat altyapısı.
+                    {{ $landingContent['hero_description_text'] ?? 'E-ticaret siteniz, mağazanız veya kurumunuz için ölçeklenebilir, güvenilir ve akıllı teslimat altyapısı.' }}
                 </p>
                 <div class="hero-buttons animate__animated animate__fadeInUp animate__delay-3s">
                     <a href="#teklif-form" class="btn btn-accent">
                         <i class="fa-solid fa-building"></i> Teklif İsteyin
                     </a>
-                    <a href="tel:+905324847292" class="btn btn-outline">
+                    <a href="tel:+905513567292" class="btn btn-outline">
                         <i class="fa-solid fa-phone"></i> Hemen Arayın
                     </a>
                 </div>
@@ -54,7 +61,7 @@
             <div class="animate__animated animate__fadeInRight animate__delay-2s">
                 <div class="glass corporate-stats-card" style="padding: 2.5rem;">
                     <div class="floating-orb orb-1"></div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <div class="responsive-stack" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
                         <div class="corp-stat">
                             <div class="corp-stat-value"><span data-count="500">0</span>+</div>
                             <div class="corp-stat-label">Kurumsal Müşteri</div>
@@ -126,7 +133,7 @@
         <div class="services-grid">
             <div class="service-card">
                 <div class="service-card-number">01</div>
-                <div class="service-card-icon">🔌</div>
+                <div class="service-card-icon">🔗</div>
                 <h3>API Entegrasyonu</h3>
                 <p>E-ticaret platformunuza kolay entegrasyon. Trendyol, Hepsiburada, WooCommerce ve daha fazlası.</p>
                 <ul class="service-card-features">
@@ -177,7 +184,7 @@
 
             <div class="service-card">
                 <div class="service-card-number">05</div>
-                <div class="service-card-icon" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);">📅</div>
+                <div class="service-card-icon" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);">🧾</div>
                 <h3>Aylık Faturalama</h3>
                 <p>Her teslimat için ödeme yerine aylık toplu fatura seçeneği ile nakit akışınızı yönetin.</p>
                 <ul class="service-card-features">
@@ -245,7 +252,7 @@
 <!-- Quote Form Section -->
 <section class="section" id="teklif-form" style="background: linear-gradient(180deg, transparent 0%, rgba(124, 58, 237, 0.05) 100%);">
     <div class="container">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
+        <div class="responsive-stack" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
             <div>
                 <div class="section-badge">
                     <i class="fa-solid fa-rocket"></i> Hemen Başlayın
@@ -277,7 +284,7 @@
 
             <div class="glass" style="padding: 2.5rem;">
                 <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
-                    <div class="ai-avatar">💼</div>
+                    <div class="ai-avatar">📼</div>
                     <div>
                         <h3 style="margin: 0; font-size: 1.5rem;">Kurumsal Teklif</h3>
                         <span style="color: var(--text-muted); font-size: 0.9rem;">Talebiniz hızla değerlendirilecek</span>
@@ -290,7 +297,7 @@
                         <input type="text" name="company_name" required placeholder="Şirket adınız">
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="responsive-stack" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="form-group">
                             <label>Yetkili Adı *</label>
                             <input type="text" name="name" required placeholder="Ad Soyad">
@@ -354,10 +361,10 @@
                     Kurumsal teslimat çözümlerimiz hakkında bilgi almak için bizi arayın!
                 </p>
                 <div class="cta-buttons">
-                    <a href="tel:+905324847292" class="btn btn-accent">
-                        <i class="fa-solid fa-phone"></i> 0532 484 72 92
+                    <a href="tel:+905513567292" class="btn btn-accent">
+                        <i class="fa-solid fa-phone"></i> 0551 356 72 92
                     </a>
-                    <a href="https://wa.me/905324847292" class="btn btn-outline">
+                    <a href="https://wa.me/905513567292" class="btn btn-outline">
                         <i class="fa-brands fa-whatsapp"></i> WhatsApp
                     </a>
                 </div>
@@ -436,7 +443,7 @@
         };
 
         try {
-            const response = await fetch('/api/leads', {
+            let response = await fetch('/api/forms/corporate-quote/submit', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -444,6 +451,17 @@
                 },
                 body: JSON.stringify(data),
             });
+
+            if (response.status === 404) {
+                response = await fetch('/api/leads', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+            }
 
             const result = await response.json();
 
@@ -464,3 +482,5 @@
     }
 </script>
 @endpush
+
+

@@ -1,97 +1,47 @@
 @extends('layouts.landing')
 
-@section('title', 'Sıkça Sorulan Sorular - SimdiGetir')
-@section('meta_description', 'SimdiGetir kurye hizmetleri hakkında sıkça sorulan sorular. Merak ettiklerinizi anında öğrenin!')
-@section('meta_keywords', 'kurye sss, kurye sıkça sorulan sorular, moto kurye soru, kurye hizmeti bilgi, istanbul kurye bilgi')
+@section('title', $landingContent['meta_title'] ?? 'Sıkça Sorulan Sorular - SimdiGetir')
+@section('meta_description', $landingContent['meta_description'] ?? 'SimdiGetir kurye hizmetleri hakkında sıkça sorulan sorular. Merak ettiklerinizi anında öğrenin!')
+@section('meta_keywords', $landingContent['meta_keywords'] ?? 'kurye sss, kurye sikca sorulan sorular')
+
+@section('robots', $landingContent['robots'] ?? 'index, follow')
+@section('canonical_url', $landingContent['canonical_url'] ?? url()->current())
+@section('og_title', $landingContent['og_title'] ?? ($landingContent['meta_title'] ?? 'SimdiGetir'))
+@section('og_description', $landingContent['og_description'] ?? ($landingContent['meta_description'] ?? 'Hizli ve guvenilir kurye hizmeti'))
+@section('og_image', $landingContent['og_image'] ?? asset('images/og-default.jpg'))
 
 @section('structured_data')
-<script type="application/ld+json">
-{
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-        {
-            "@type": "Question",
-            "name": "SimdiGetir.com hangi kurye hizmetlerini sunmaktadır?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Motorlu kurye, acil kurye ve araçlı kurye hizmetleri sunuyoruz. Gönderiniz için en uygun kurye tipini ve rotayı belirleriz."
-            }
-        },
-        {
-            "@type": "Question",
-            "name": "Çalışma saatleriniz nedir?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "7 gün 24 saat aktif hizmet veriyoruz! Gece veya gündüz fark etmeksizin kurye hizmetlerimizden yararlanabilirsiniz."
-            }
-        },
-        {
-            "@type": "Question",
-            "name": "Hangi bölgelerde kurye hizmeti sunuyorsunuz?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "İstanbul genelinde tüm ilçelere ve semtlere hizmet vermekteyiz. Akıllı rota optimizasyonumuz sayesinde en uzak noktalara bile hızlı teslimat sağlıyoruz."
-            }
-        },
-        {
-            "@type": "Question",
-            "name": "Acil gönderilerimi nasıl hızlı teslim edebilirsiniz?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Acil gönderileri saniyeler içinde en yakın müsait kuryeye atarız. Akıllı rotalama ile trafik durumunu analiz eder ve en hızlı güzergahı belirleriz. En uzun mesafe gönderileri bile 3 saat içinde teslim edilir."
-            }
-        },
-        {
-            "@type": "Question",
-            "name": "Büyük eşyalarımı nasıl gönderebilirim?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Araçlı kurye hizmetimiz ile otomobil veya minibüs kullanarak büyük eşyalarınızı güvenle taşıyoruz. Gönderi boyutuna göre uygun araç tipi önerilir."
-            }
-        },
-        {
-            "@type": "Question",
-            "name": "Gönderi ücretleri nasıl hesaplanmaktadır?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Fiyatı mesafe, gönderi boyutu, aciliyet ve trafik durumuna göre şeffaf olarak hesaplıyoruz. Sürpriz masraf yoktur!"
-            }
-        },
-        {
-            "@type": "Question",
-            "name": "Gönderilerimin güvenliğini nasıl sağlıyorsunuz?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Tüm kuryelerimiz titizlikle seçilmiş ve güvenlik taramalarından geçirilmiştir. Takip sistemimiz gönderinizi anlık olarak izler ve herhangi bir anormallikte sizi bilgilendirir. %99 başarılı teslimat oranımız bunun kanıtıdır."
-            }
-        },
-        {
-            "@type": "Question",
-            "name": "Gönderi takibi yapabilir miyim?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Evet! Gerçek zamanlı takip sistemimiz sayesinde gönderinizin konumunu anlık olarak izleyebilirsiniz. Her aşamada SMS/bildirim alırsınız."
-            }
-        },
-        {
-            "@type": "Question",
-            "name": "İstanbul dışına gönderi yapıyor musunuz?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Evet, şehirler arası gönderi hizmeti de sunuyoruz. En uygun rotayı ve taşıma yöntemini belirleriz. Detaylı bilgi için lütfen bizimle iletişime geçin."
-            }
-        },
-        {
-            "@type": "Question",
-            "name": "Ödemeyi hangi yöntemlerle yapabilirim?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Nakit, kredi kartı veya banka transferi ile ödeme yapabilirsiniz. Kurumsal müşterilerimiz için aylık faturalama seçeneği de mevcuttur."
-            }
+@php
+    $faqSchemaItems = [];
+    foreach (($landingContent['faq_items'] ?? []) as $item) {
+        $question = trim((string) ($item['question'] ?? ''));
+        if ($question === '') {
+            continue;
         }
-    ]
-}
+
+        $answer = trim((string) ($item['answer_text'] ?? strip_tags((string) ($item['answer_html'] ?? ''))));
+        if ($answer === '') {
+            continue;
+        }
+
+        $faqSchemaItems[] = [
+            '@type' => 'Question',
+            'name' => $question,
+            'acceptedAnswer' => [
+                '@type' => 'Answer',
+                'text' => $answer,
+            ],
+        ];
+    }
+
+    $faqSchema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'FAQPage',
+        'mainEntity' => $faqSchemaItems,
+    ];
+@endphp
+<script type="application/ld+json">
+{!! json_encode($faqSchema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE) !!}
 </script>
 @endsection
 
@@ -101,13 +51,13 @@
     <div class="container" style="text-align: center;">
         <div class="hero-badge animate__animated animate__fadeInUp">
             <span class="pulse"></span>
-            Yardım Merkezi
+            {{ $landingContent['hero_badge_text'] ?? 'Yardım Merkezi' }}
         </div>
         <h1 class="animate__animated animate__fadeInUp animate__delay-1s" style="font-size: 3rem;">
-            <span class="gradient-text">Sıkça Sorulan</span> Sorular
+            {!! $landingContent['hero_title_html'] ?? "<span class='gradient-text'>Sıkça Sorulan</span> Sorular" !!}
         </h1>
         <p class="animate__animated animate__fadeInUp animate__delay-2s" style="max-width: 600px; margin: 0 auto;">
-            Kurye hizmetlerimiz hakkında merak ettiklerinizi öğrenin. Sorunuz cevaplanmadıysa bize ulaşın!
+            {{ $landingContent['hero_description_text'] ?? 'Kurye hizmetlerimiz hakkında merak ettiklerinizi öğrenin. Sorunuz cevaplanmadıysa bize ulaşın!' }}
         </p>
     </div>
 </section>
@@ -117,151 +67,24 @@
     <div class="container">
         <div style="max-width: 900px; margin: 0 auto;">
             <div class="faq-grid">
-                
-                <div class="faq-item">
-                    <div class="faq-question" onclick="toggleFaq(this)">
-                        <div class="faq-icon">📦</div>
-                        <span>SimdiGetir.com hangi kurye hizmetlerini sunmaktadır?</span>
-                        <i class="fa-solid fa-plus faq-toggle"></i>
+                @foreach (($landingContent['faq_items'] ?? []) as $item)
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">
+                            <div class="faq-icon">{{ $item['icon'] ?? '?' }}</div>
+                            <span>{{ $item['question'] ?? '' }}</span>
+                            <i class="fa-solid fa-plus faq-toggle"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>
+                                @if (! empty($item['answer_html']))
+                                    {!! $item['answer_html'] !!}
+                                @else
+                                    {{ $item['answer_text'] ?? '' }}
+                                @endif
+                            </p>
+                        </div>
                     </div>
-                    <div class="faq-answer">
-                        <p>
-                            <strong>Motorlu kurye</strong>, <strong>acil kurye</strong> ve <strong>araçlı kurye</strong> hizmetleri sunuyoruz. 
-                            Gönderiniz için en uygun kurye tipini ve rotayı belirleriz.
-                        </p>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question" onclick="toggleFaq(this)">
-                        <div class="faq-icon">⏰</div>
-                        <span>Çalışma saatleriniz nedir?</span>
-                        <i class="fa-solid fa-plus faq-toggle"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p>
-                            <strong>7 gün 24 saat</strong> aktif hizmet veriyoruz! Gece veya gündüz fark etmeksizin, 
-                            kurye hizmetlerimizden yararlanabilirsiniz.
-                        </p>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question" onclick="toggleFaq(this)">
-                        <div class="faq-icon">📍</div>
-                        <span>Hangi bölgelerde kurye hizmeti sunuyorsunuz?</span>
-                        <i class="fa-solid fa-plus faq-toggle"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p>
-                            <strong>İstanbul genelinde</strong> tüm ilçelere ve semtlere hizmet vermekteyiz. 
-                            Akıllı rota optimizasyonumuz sayesinde en uzak noktalara bile hızlı teslimat sağlıyoruz.
-                        </p>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question" onclick="toggleFaq(this)">
-                        <div class="faq-icon">⚡</div>
-                        <span>Acil gönderilerimi nasıl hızlı teslim edebilirsiniz?</span>
-                        <i class="fa-solid fa-plus faq-toggle"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p>
-                            Acil gönderileriniz <strong>saniyeler içinde</strong> en yakın müsait kuryeye atanır. 
-                            Akıllı rotalama ile trafik durumunu analiz eder ve en hızlı güzergahı belirler. 
-                            En uzun mesafe gönderileri bile <strong>3 saat içinde</strong> teslim edilir.
-                        </p>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question" onclick="toggleFaq(this)">
-                        <div class="faq-icon">📦</div>
-                        <span>Büyük eşyalarımı nasıl gönderebilirim?</span>
-                        <i class="fa-solid fa-plus faq-toggle"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p>
-                            <strong>Araçlı kurye</strong> hizmetimiz ile otomobil veya minibüs kullanarak büyük eşyalarınızı güvenle taşıyoruz. 
-                            Gönderi boyutuna göre uygun araç tipi önerilir.
-                        </p>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question" onclick="toggleFaq(this)">
-                        <div class="faq-icon">💰</div>
-                        <span>Gönderi ücretleri nasıl hesaplanmaktadır?</span>
-                        <i class="fa-solid fa-plus faq-toggle"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p>
-                            Fiyatı <strong>mesafe</strong>, <strong>gönderi boyutu</strong>, 
-                            <strong>aciliyet</strong> ve <strong>trafik durumu</strong>na göre şeffaf fiyatlandırma sunar. 
-                            Sürpriz masraf yoktur!
-                        </p>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question" onclick="toggleFaq(this)">
-                        <div class="faq-icon">🔒</div>
-                        <span>Gönderilerimin güvenliğini nasıl sağlıyorsunuz?</span>
-                        <i class="fa-solid fa-plus faq-toggle"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p>
-                            Tüm kuryelerimiz <strong>titizlikle seçilmiş</strong> ve güvenlik taramalarından geçirilmiştir. 
-                            Takip sistemimiz gönderinizi <strong>anlık olarak</strong> izler ve herhangi bir anormallikte sizi bilgilendirir. 
-                            <strong>%99 başarılı teslimat</strong> oranımız bunun kanıtıdır.
-                        </p>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question" onclick="toggleFaq(this)">
-                        <div class="faq-icon">📱</div>
-                        <span>Gönderim takibi yapabilir miyim?</span>
-                        <i class="fa-solid fa-plus faq-toggle"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p>
-                            Evet! <strong>Gerçek zamanlı takip</strong> sistemimiz sayesinde gönderinizin konumunu 
-                            anlık olarak izleyebilirsiniz. Her aşamada <strong>SMS/bildirim</strong> alırsınız.
-                        </p>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question" onclick="toggleFaq(this)">
-                        <div class="faq-icon">🌍</div>
-                        <span>İstanbul dışına gönderi yapıyor musunuz?</span>
-                        <i class="fa-solid fa-plus faq-toggle"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p>
-                            Evet, <strong>şehirler arası</strong> gönderi hizmeti de sunuyoruz. 
-                            En uygun rotayı ve taşıma yöntemini belirleriz. 
-                            Detaylı bilgi için lütfen bizimle iletişime geçin.
-                        </p>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question" onclick="toggleFaq(this)">
-                        <div class="faq-icon">💳</div>
-                        <span>Ödemeyi hangi yöntemlerle yapabilirim?</span>
-                        <i class="fa-solid fa-plus faq-toggle"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p>
-                            <strong>Nakit</strong>, <strong>kredi kartı</strong> veya <strong>banka transferi</strong> ile ödeme yapabilirsiniz. 
-                            Kurumsal müşterilerimiz için aylık faturalama seçeneği de mevcuttur.
-                        </p>
-                    </div>
-                </div>
-                
+                @endforeach
             </div>
         </div>
     </div>
@@ -277,8 +100,8 @@
                     Müşteri temsilcilerimiz size yardımcı olmaya hazır!
                 </p>
                 <div class="cta-buttons">
-                    <a href="tel:+905324847292" class="btn btn-accent">
-                        <i class="fa-solid fa-phone"></i> 0532 484 72 92
+                    <a href="tel:+905513567292" class="btn btn-accent">
+                        <i class="fa-solid fa-phone"></i> 0551 356 72 92
                     </a>
                     <a href="/iletisim" class="btn btn-outline">
                         <i class="fa-solid fa-envelope"></i> İletişime Geçin
@@ -404,3 +227,8 @@
     });
 </script>
 @endpush
+
+
+
+
+

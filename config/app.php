@@ -24,7 +24,7 @@ return [
     |
     */
 
-    'version' => '1.0.0',
+    'version' => env('APP_VERSION', trim((string) @file_get_contents(base_path('VERSION'))) ?: '1.0.0'),
 
     /*
     |--------------------------------------------------------------------------

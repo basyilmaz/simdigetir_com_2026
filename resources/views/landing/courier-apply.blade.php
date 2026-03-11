@@ -57,7 +57,7 @@
             Akıllı rota önerileri ve hızlı ödemelerle hayatınızı kolaylaştırın.
         </p>
         <div class="animate__animated animate__fadeInUp animate__delay-3s" style="margin-top: 3rem;">
-            <img src="{{ asset('images/hero-courier.svg') }}" alt="SimdiGetir Kurye Ol" style="max-width: 600px; width: 100%; border-radius: 20px;">
+            <img src="{{ asset('images/hero-courier.svg') }}" alt="SimdiGetir Kurye Ol" width="600" height="400" loading="lazy" decoding="async" style="max-width: 600px; width: 100%; border-radius: 20px;">
         </div>
     </div>
 </section>
@@ -103,7 +103,7 @@
 <!-- Application Form Section -->
 <section class="section" style="background: linear-gradient(180deg, rgba(124, 58, 237, 0.05) 0%, transparent 100%);">
     <div class="container">
-        <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 4rem; align-items: flex-start;">
+        <div class="responsive-stack" style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 4rem; align-items: flex-start;">
             <!-- Requirements -->
             <div>
                 <div class="section-badge">
@@ -175,7 +175,7 @@
                 </div>
                 
                 <form id="courier-form" onsubmit="submitCourierForm(event)">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="responsive-stack" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="form-group">
                             <label>Ad *</label>
                             <input type="text" name="first_name" required placeholder="Adınız">
@@ -186,7 +186,7 @@
                         </div>
                     </div>
                     
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="responsive-stack" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="form-group">
                             <label>Telefon *</label>
                             <input type="tel" name="phone" required placeholder="05XX XXX XX XX" pattern="0[0-9]{10}" title="Lütfen 05XX XXX XX XX formatında girin">
@@ -267,8 +267,8 @@
                     Kurye olmak hakkında detaylı bilgi almak için bizi arayın!
                 </p>
                 <div class="cta-buttons">
-                    <a href="tel:+905324847292" class="btn btn-accent">
-                        <i class="fa-solid fa-phone"></i> 0532 484 72 92
+                    <a href="tel:+905513567292" class="btn btn-accent">
+                        <i class="fa-solid fa-phone"></i> 0551 356 72 92
                     </a>
                 </div>
             </div>

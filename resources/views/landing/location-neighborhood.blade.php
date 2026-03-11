@@ -14,7 +14,7 @@
     "name": "SimdiGetir {{ $neighborhoodName }} Kurye",
     "description": "{{ $neighborhoodName }} mahallesi {{ $district['name'] }} bölgesinde 7/24 kurye hizmeti. Hızlı ve güvenilir teslimat.",
     "url": "{{ url()->current() }}",
-    "telephone": "+905324847292",
+    "telephone": "+905513567292",
     "address": {
         "@type": "PostalAddress",
         "addressLocality": "{{ $district['name'] }}",
@@ -73,10 +73,10 @@
             Akıllı rota optimizasyonu ile {{ $district['name'] }} bölgesinin en hızlı teslimatı.
         </p>
         <div class="hero-buttons animate__animated animate__fadeInUp animate__delay-3s" style="justify-content: center;">
-            <a href="tel:+905324847292" class="btn btn-primary">
+            <a href="tel:+905513567292" class="btn btn-primary">
                 <i class="fa-solid fa-phone"></i> Kurye Çağır
             </a>
-            <a href="https://wa.me/905324847292?text={{ urlencode($neighborhoodName . ', ' . $district['name'] . ' bölgesinde kurye istiyorum') }}" target="_blank" class="btn btn-outline">
+            <a href="https://wa.me/905513567292?text={{ urlencode($neighborhoodName . ', ' . $district['name'] . ' bölgesinde kurye istiyorum') }}" target="_blank" class="btn btn-outline">
                 <i class="fa-brands fa-whatsapp"></i> WhatsApp
             </a>
         </div>
@@ -166,8 +166,8 @@
                 <h2>{{ $neighborhoodName }}{{ \App\Helpers\TurkishHelper::locativeSuffix($neighborhoodName) }} <span class="gradient-text">Kurye Çağırın</span></h2>
                 <p>{{ $neighborhoodName }} mahallesindeki en yakın kuryeyi saniyeler içinde atayız.</p>
                 <div class="cta-buttons">
-                    <a href="tel:+905324847292" class="btn btn-accent">
-                        <i class="fa-solid fa-phone"></i> 0532 484 72 92
+                    <a href="tel:+905513567292" class="btn btn-accent">
+                        <i class="fa-solid fa-phone"></i> 0551 356 72 92
                     </a>
                     <a href="/iletisim" class="btn btn-outline">
                         <i class="fa-solid fa-envelope"></i> İletişime Geç
