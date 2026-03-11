@@ -7,6 +7,19 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## SimdiGetir Operations Docs
+
+- Frontend/backend parity matrix:
+  `docs/ops/frontend-backend-gonogo-matrix-2026-03-10.md`
+- Module runtime status:
+  `docs/ops/module-runtime-status-2026-03-10.md`
+- Hostinger release governance checklist:
+  `docs/ops/hostinger-release-governance-checklist-2026-03-10.md`
+- Ads admin usage guide:
+  `docs/ops/ads-admin-calisma-bilgilendirmesi-2026-03-11.md`
+- Sprint 6 runbook:
+  `docs/SPRINT6-RUNBOOK.md`
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
