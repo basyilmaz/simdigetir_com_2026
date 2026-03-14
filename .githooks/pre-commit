@@ -1,0 +1,38 @@
+#!/usr/bin/env sh
+set -eu
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+run_powershell() {
+  if command -v pwsh >/dev/null 2>&1; then
+    pwsh -NoLogo -NoProfile -Command "$1"
+    return $?
+  fi
+
+  if command -v powershell >/dev/null 2>&1; then
+    powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "$1"
+    return $?
+  fi
+
+  if [ -x "/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe" ]; then
+    "/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe" -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "$1"
+    return $?
+  fi
+
+  if [ -x "/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe" ]; then
+    "/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe" -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "$1"
+    return $?
+  fi
+
+  return 127
+}
+
+if command -v php >/dev/null 2>&1; then
+  php scripts/hygiene/check-file-hygiene.php --staged
+elif run_powershell "php scripts/hygiene/check-file-hygiene.php --staged"; then
+  exit 0
+else
+  echo "[pre-commit] PHP runtime not found in shell or PowerShell PATH."
+  exit 1
+fi

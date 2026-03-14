@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Enforce Version Bump On Push
         if: github.event_name == 'push'
@@ -41,6 +43,27 @@ jobs:
           extensions: mbstring, bcmath, pdo_sqlite, sqlite3
           tools: composer:v2
           coverage: none
+
+      - name: Hygiene Check (Changed Files)
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            BEFORE="${{ github.event.before }}"
+            if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+              git diff-tree --no-commit-id --name-only -r --diff-filter=ACMR "${{ github.sha }}" \
+                | php scripts/hygiene/check-file-hygiene.php --files-from-stdin
+              exit 0
+            else
+              RANGE_FROM="$BEFORE"
+            fi
+            RANGE_TO="${{ github.sha }}"
+          else
+            RANGE_FROM="${{ github.event.pull_request.base.sha }}"
+            RANGE_TO="${{ github.sha }}"
+          fi
+
+          git diff --name-only --diff-filter=ACMR "$RANGE_FROM" "$RANGE_TO" \
+            | php scripts/hygiene/check-file-hygiene.php --files-from-stdin
 
       - name: Cache Composer
         uses: actions/cache@v4
