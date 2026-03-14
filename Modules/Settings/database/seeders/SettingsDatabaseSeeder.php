@@ -17,6 +17,7 @@ class SettingsDatabaseSeeder extends Seeder
             ['key' => 'marketing.gtm_head', 'value' => '', 'group' => 'marketing'],
             ['key' => 'marketing.gtm_body', 'value' => '', 'group' => 'marketing'],
             ['key' => 'marketing.ga4_id', 'value' => '', 'group' => 'marketing'],
+            ['key' => 'marketing.meta_pixel_id', 'value' => '1657531168735846', 'group' => 'marketing'],
 
             // Contact
             ['key' => 'contact.phone', 'value' => '+90 551 356 72 92', 'group' => 'contact'],

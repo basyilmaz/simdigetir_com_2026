@@ -1,35 +1,44 @@
 @extends('layouts.landing')
 
-@section('title', 'Hakkımızda - SimdiGetir Hızlı ve Güvenilir Kurye')
-@section('meta_description', 'SimdiGetir - 7/24 güvenilir ve hızlı teslimat ile İstanbul\'un lider kurye şirketi.')
-@section('meta_keywords', 'simdigetir hakkında, kurye şirketi istanbul, güvenilir kurye firması, profesyonel kurye şirketi, moto kurye firması istanbul')
+@section('title', $landingContent['meta_title'] ?? 'Hakkımızda - SimdiGetir Hızlı ve Güvenilir Kurye')
+@section('meta_description', $landingContent['meta_description'] ?? 'SimdiGetir - 7/24 güvenilir ve hızlı teslimat ile İstanbul\'un lider kurye şirketi.')
+@section('meta_keywords', $landingContent['meta_keywords'] ?? 'simdigetir hakkimizda, kurye sirketi istanbul')
+
+@section('robots', $landingContent['robots'] ?? 'index, follow')
+@section('canonical_url', $landingContent['canonical_url'] ?? url()->current())
+@section('og_title', $landingContent['og_title'] ?? ($landingContent['meta_title'] ?? 'SimdiGetir'))
+@section('og_description', $landingContent['og_description'] ?? ($landingContent['meta_description'] ?? 'Hizli ve guvenilir kurye hizmeti'))
+@section('og_image', $landingContent['og_image'] ?? asset('images/og-default.jpg'))
 
 @section('structured_data')
+@php
+    $aboutSchema = $landingContent['structured_data'] ?? [
+        '@context' => 'https://schema.org',
+        '@type' => 'Organization',
+        'name' => 'SimdiGetir Kurye',
+        'alternateName' => 'SimdiGetir',
+        'url' => url('/'),
+        'description' => (string) ($landingContent['meta_description'] ?? '7/24 güvenilir ve hızlı teslimat ile İstanbul\'un lider kurye şirketi.'),
+        'telephone' => '+905513567292',
+        'email' => 'webgetir@simdigetir.com',
+        'foundingDate' => '2020',
+        'address' => [
+            '@type' => 'PostalAddress',
+            'streetAddress' => 'Yeşilce Mahallesi Aytekin Sokak No:5/2',
+            'addressLocality' => 'Kağıthane',
+            'addressRegion' => 'İstanbul',
+            'postalCode' => '34418',
+            'addressCountry' => 'TR',
+        ],
+        'areaServed' => [
+            '@type' => 'City',
+            'name' => 'İstanbul',
+        ],
+        'knowsAbout' => ['Kurye Hizmeti', 'Moto Kurye', 'Acil Teslimat', 'Akıllı Lojistik'],
+    ];
+@endphp
 <script type="application/ld+json">
-{
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "SimdiGetir Kurye",
-    "alternateName": "SimdiGetir",
-    "url": "{{ url('/') }}",
-    "description": "7/24 güvenilir ve hızlı teslimat ile İstanbul'un lider kurye şirketi.",
-    "telephone": "+905324847292",
-    "email": "webgetir@simdigetir.com",
-    "foundingDate": "2020",
-    "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "Yeşilce Mahallesi Aytekin Sokak No:5/2",
-        "addressLocality": "Kağıthane",
-        "addressRegion": "İstanbul",
-        "postalCode": "34418",
-        "addressCountry": "TR"
-    },
-    "areaServed": {
-        "@type": "City",
-        "name": "İstanbul"
-    },
-    "knowsAbout": ["Kurye Hizmeti", "Moto Kurye", "Acil Teslimat", "Akıllı Lojistik"]
-}
+{!! json_encode($aboutSchema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE) !!}
 </script>
 @endsection
 
@@ -39,17 +48,16 @@
     <div class="container" style="text-align: center;">
         <div class="hero-badge animate__animated animate__fadeInUp">
             <span class="pulse"></span>
-            Teknoloji & İnovasyon
+            {{ $landingContent['hero_badge_text'] ?? 'Teknoloji & İnovasyon' }}
         </div>
         <h1 class="animate__animated animate__fadeInUp animate__delay-1s" style="font-size: 3rem;">
-            Kuryenin <span class="gradient-text">Geleceğini</span> İnşa Ediyoruz
+            {!! $landingContent['hero_title_html'] ?? "Kuryenin <span class='gradient-text'>Geleceğini</span> İnşa Ediyoruz" !!}
         </h1>
         <p class="animate__animated animate__fadeInUp animate__delay-2s" style="max-width: 650px; margin: 0 auto;">
-            İstanbul'da hızlı ve güvenilir teslimat. 
-            Her gönderide daha hızlı, daha güvenli.
+            {{ $landingContent['hero_description_text'] ?? "İstanbul'da hızlı ve güvenilir teslimat. Her gönderide daha hızlı, daha güvenli." }}
         </p>
         <div class="animate__animated animate__fadeInUp animate__delay-3s" style="margin-top: 3rem;">
-            <img src="{{ asset('images/hero-about.svg') }}" alt="SimdiGetir Ekibi" style="max-width: 600px; width: 100%; border-radius: 20px;">
+            <img src="{{ asset('images/hero-about.svg') }}" alt="SimdiGetir Ekibi" width="600" height="400" loading="lazy" decoding="async" style="max-width: 600px; width: 100%; border-radius: 20px;">
         </div>
     </div>
 </section>
@@ -57,7 +65,7 @@
 <!-- About Section -->
 <section class="section">
     <div class="container">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
+        <div class="responsive-stack" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
             <div>
                 <div class="section-badge">
                     <i class="fa-solid fa-eye"></i> Vizyonumuz
@@ -90,7 +98,7 @@
                 <div class="glass about-visual" style="padding: 2rem; position: relative;">
                     <div class="floating-orb orb-1"></div>
                     <div class="about-visual-header">
-                        <div class="ai-avatar">🤖</div>
+                        <div class="ai-avatar">🧠</div>
                         <div>
                             <strong>SimdiGetir Kurye Sistemi</strong>
                             <span style="color: var(--success); display: block; font-size: 0.875rem;">● Aktif</span>
@@ -138,7 +146,7 @@
         
         <div class="values-grid">
             <div class="value-card">
-                <div class="value-icon">🚀</div>
+                <div class="value-icon">⚡</div>
                 <h4>Hız</h4>
                 <p>Saniyeler içinde kurye eşleştirme ve dakikalar içinde teslimat.</p>
             </div>
@@ -194,7 +202,7 @@
                 <div class="team-stat-label">Lojistik Uzmanı</div>
             </div>
             <div class="team-stat">
-                <div class="team-stat-icon">📞</div>
+                <div class="team-stat-icon">🧑</div>
                 <div class="team-stat-value"><span data-count="20">0</span>+</div>
                 <div class="team-stat-label">Müşteri Temsilcisi</div>
             </div>
@@ -385,3 +393,5 @@
     }
 </style>
 @endpush
+
+

@@ -1,100 +1,70 @@
 @extends('layouts.landing')
 
-@section('title', 'SimdiGetir - Hızlı ve Güvenilir Kurye Hizmeti')
-@section('meta_description', 'Hızlı ve güvenilir kurye hizmeti. Akıllı rotalama, anlık takip, 7/24 hizmet. İstanbul\'un en hızlı kurye ağı.')
-@section('meta_keywords', 'kurye istanbul, moto kurye, acil kurye, araçlı kurye, aynı gün teslimat, hızlı kurye, 7/24 kurye hizmeti, istanbul kurye hizmeti, online kurye çağır')
+@section('title', $landingContent['meta_title'] ?? 'SimdiGetir - Hizli ve Guvenilir Kurye Hizmeti')
+@section('meta_description', $landingContent['meta_description'] ?? 'Hizli ve guvenilir kurye hizmeti. Akilli rotalama, anlik takip, 7/24 hizmet.')
+@section('meta_keywords', $landingContent['meta_keywords'] ?? 'kurye, moto kurye, acil kurye, istanbul kurye')
+
+@section('robots', $landingContent['robots'] ?? 'index, follow')
+@section('canonical_url', $landingContent['canonical_url'] ?? url()->current())
+@section('og_title', $landingContent['og_title'] ?? ($landingContent['meta_title'] ?? 'SimdiGetir'))
+@section('og_description', $landingContent['og_description'] ?? ($landingContent['meta_description'] ?? 'Hizli ve guvenilir kurye hizmeti'))
+@section('og_image', $landingContent['og_image'] ?? asset('images/og-default.jpg'))
 
 @section('structured_data')
-<script type="application/ld+json">
-{
-    "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    "@id": "{{ url('/') }}/#organization",
-    "name": "SimdiGetir Kurye",
-    "alternateName": "SimdiGetir",
-    "description": "Hızlı ve güvenilir kurye hizmeti. Akıllı rotalama, anlık takip, 7/24 hizmet ile İstanbul'un en hızlı kurye ağı.",
-    "url": "{{ url('/') }}",
-    "telephone": "+905324847292",
-    "email": "webgetir@simdigetir.com",
-    "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "Yeşilce Mahallesi Aytekin Sokak No:5/2",
-        "addressLocality": "Kağıthane",
-        "addressRegion": "İstanbul",
-        "postalCode": "34418",
-        "addressCountry": "TR"
-    },
-    "geo": {
-        "@type": "GeoCoordinates",
-        "latitude": 41.0882,
-        "longitude": 29.0014
-    },
-    "areaServed": {
-        "@type": "City",
-        "name": "İstanbul",
-        "sameAs": "https://tr.wikipedia.org/wiki/%C4%B0stanbul"
-    },
-    "openingHoursSpecification": {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
-        "opens": "00:00",
-        "closes": "23:59"
-    },
-    "priceRange": "₺₺",
-    "image": "{{ asset('images/og-default.svg') }}",
-    "sameAs": [
-        "https://www.instagram.com/simdigetir",
-        "https://www.facebook.com/simdigetir"
-    ],
-    "hasOfferCatalog": {
-        "@type": "OfferCatalog",
-        "name": "Kurye Hizmetleri",
-        "itemListElement": [
-            {
-                "@type": "Offer",
-                "itemOffered": {
-                    "@type": "Service",
-                    "name": "Motorlu Kurye",
-                    "description": "Trafiği atlatarak dakikalar içinde teslimat. Akıllı rota optimizasyonu."
-                }
-            },
-            {
-                "@type": "Offer",
-                "itemOffered": {
-                    "@type": "Service",
-                    "name": "Acil Kurye",
-                    "description": "3 saat içinde garantili teslimat. Öncelikli kurye ataması."
-                }
-            },
-            {
-                "@type": "Offer",
-                "itemOffered": {
-                    "@type": "Service",
-                    "name": "Araçlı Kurye",
-                    "description": "Büyük ve ağır gönderiler için araçlı kurye hizmeti."
-                }
+@php
+    $structuredDataBlocks = [];
+
+    if (is_array($landingContent['structured_data_blocks'] ?? null)) {
+        foreach ($landingContent['structured_data_blocks'] as $block) {
+            if (is_array($block) && ! empty($block)) {
+                $structuredDataBlocks[] = $block;
             }
-        ]
+        }
+    } elseif (is_array($landingContent['structured_data'] ?? null)) {
+        $structuredDataBlocks[] = $landingContent['structured_data'];
     }
-}
-</script>
+
+    if (empty($structuredDataBlocks)) {
+        $structuredDataBlocks = [
+            [
+                '@context' => 'https://schema.org',
+                '@type' => 'LocalBusiness',
+                '@id' => url('/').'#organization',
+                'name' => 'SimdiGetir Kurye',
+                'alternateName' => 'SimdiGetir',
+                'description' => (string) ($landingContent['meta_description'] ?? 'Hizli ve guvenilir kurye hizmeti. Akilli rotalama, anlik takip, 7/24 hizmet.'),
+                'url' => url('/'),
+                'telephone' => '+905513567292',
+                'email' => 'webgetir@simdigetir.com',
+            ],
+            [
+                '@context' => 'https://schema.org',
+                '@type' => 'WebSite',
+                'name' => 'SimdiGetir',
+                'url' => url('/'),
+                'description' => (string) ($landingContent['meta_description'] ?? 'Hizli ve guvenilir kurye hizmeti'),
+                'publisher' => [
+                    '@id' => url('/').'#organization',
+                ],
+            ],
+        ];
+    }
+@endphp
+@foreach($structuredDataBlocks as $schemaBlock)
 <script type="application/ld+json">
-{
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "SimdiGetir",
-    "url": "{{ url('/') }}",
-    "description": "Hızlı ve güvenilir kurye hizmeti",
-    "publisher": {
-        "@id": "{{ url('/') }}/#organization"
-    }
-}
+{!! json_encode($schemaBlock, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE) !!}
 </script>
+@endforeach
 @endsection
 
 @section('content')
+@php
+    $heroSlide2Fallback = asset('images/kuryeman.jpg');
+    $heroSlide2Resolved = \App\Support\ResponsiveImage::resolveUrl($landingContent['hero_slide2_image_url'] ?? null) ?: $heroSlide2Fallback;
+@endphp
 <!-- Hero Section -->
 <!-- Hero Section Slider -->
+@if(data_get($landingContent, 'sections_visible.hero', true))
 <section class="hero-slider-section" style="position: relative; overflow: hidden;">
     <div class="swiper hero-swiper">
         <div class="swiper-wrapper">
@@ -106,21 +76,19 @@
                             <div>
                                 <div class="hero-badge animate__animated animate__fadeInUp">
                                     <span class="pulse"></span>
-                                    7/24 Aktif Hizmet
+                                    {{ $landingContent['hero_badge_text'] ?? '7/24 Aktif Hizmet' }}
                                 </div>
                                 
                                 <h1 class="animate__animated animate__fadeInUp animate__delay-1s">
-                                    Zamanın <span class="gradient-text">Değerli</span> Olduğu<br>
-                                    Anlarda Yanınızdayız
+                                    {!! $landingContent['hero_title_html'] ?? "Zamanın <span class='gradient-text'>Değerli</span> Olduğu<br>Anlarda Yanınızdayız" !!}
                                 </h1>
                                 
                                 <p class="animate__animated animate__fadeInUp animate__delay-2s">
-                                    İstanbul'un en hızlı kurye ağı. Gönderinizi teslim alır, 
-                                    en kısa rotadan güvenle ulaştırırız.
+                                    {{ $landingContent['hero_description_text'] ?? "İstanbul'un en hızlı kurye ağı. Gönderinizi teslim alır, en kısa rotadan güvenle ulaştırırız." }}
                                 </p>
                                 
                                 <div class="hero-buttons animate__animated animate__fadeInUp animate__delay-3s">
-                                    <a href="tel:+905324847292" class="btn btn-primary">
+                                    <a href="tel:+905513567292" class="btn btn-primary">
                                         <i class="fa-solid fa-phone"></i> Kurye Çağır
                                     </a>
                                     <a href="#hizmetler" class="btn btn-outline">
@@ -150,7 +118,7 @@
                                     <div class="floating-orb orb-2"></div>
                                     
                                     <div class="hero-card-header">
-                                        <div class="ai-avatar">🚀</div>
+                                        <div class="ai-avatar">⚡</div>
                                         <div class="ai-status">
                                             <span class="ai-status-name">SimdiGetir Kurye</span>
                                             <span class="ai-status-text">
@@ -210,7 +178,18 @@
                             
                             <div class="hero-visual animate__animated animate__fadeInRight animate__delay-2s">
                                 <div class="hero-card" style="padding:0; overflow:hidden; border:none; background:transparent; box-shadow:none;">
-                                    <img src="{{ asset('images/kuryeman.jpg') }}" alt="Kuryeman" style="width:100%; height:auto; border-radius:20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+                                    <img
+                                        src="{{ $heroSlide2Resolved }}"
+                                        alt="{{ $landingContent['hero_slide2_image_alt'] ?? 'Kuryeman' }}"
+                                        srcset="{{ $landingContent['hero_slide2_image_srcset'] ?? \App\Support\ResponsiveImage::buildSrcset($heroSlide2Resolved) }}"
+                                        sizes="{{ \App\Support\ResponsiveImage::normalizeSizes($landingContent['hero_slide2_image_sizes'] ?? null, '(max-width: 768px) 100vw, 50vw') }}"
+                                        width="853"
+                                        height="361"
+                                        loading="lazy"
+                                        decoding="async"
+                                        onerror="this.onerror=null;this.src='{{ $heroSlide2Fallback }}';"
+                                        style="width:100%; height:auto; border-radius:20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);"
+                                    >
                                 </div>
                             </div>
                         </div>
@@ -226,10 +205,17 @@
         <div class="swiper-button-prev"></div>
     </div>
 </section>
+@endif
 
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        const heroSwiperEl = document.querySelector('.hero-swiper');
+        if (!heroSwiperEl) {
+            return;
+        }
+
+        const shouldReduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const swiper = new Swiper('.hero-swiper', {
             loop: true,
             effect: 'fade',
@@ -237,9 +223,10 @@
                 crossFade: true
             },
             speed: 1000,
-            autoplay: {
+            autoplay: shouldReduceMotion ? false : {
                 delay: 5000,
                 disableOnInteraction: false,
+                pauseOnMouseEnter: true,
             },
             autoHeight: true, // Enable auto height
             pagination: {
@@ -250,6 +237,25 @@
                 nextEl: '.swiper-button-next',
                 prevEl: '.swiper-button-prev',
             },
+            breakpoints: {
+                0: {
+                    allowTouchMove: true
+                },
+                1024: {
+                    allowTouchMove: true
+                }
+            }
+        });
+
+        document.addEventListener('visibilitychange', function() {
+            if (!swiper.autoplay) {
+                return;
+            }
+            if (document.hidden) {
+                swiper.autoplay.stop();
+            } else {
+                swiper.autoplay.start();
+            }
         });
     });
 </script>
@@ -305,6 +311,12 @@
     .swiper-button-next::after, .swiper-button-prev::after {
         font-size: 1.5rem;
     }
+    @media (max-width: 768px) {
+        .swiper-button-next,
+        .swiper-button-prev {
+            display: none;
+        }
+    }
 </style>
 @endpush
 
@@ -345,303 +357,68 @@
 </div>
 
 <!-- Services Section -->
+@if(data_get($landingContent, 'sections_visible.services', true))
 <section class="section" id="hizmetler">
     <div class="container">
         <div class="section-header">
             <div class="section-badge">
-                <i class="fa-solid fa-truck-fast"></i> Profesyonel Hizmetler
+                <i class="fa-solid fa-truck-fast"></i> {{ $landingContent['services_badge_text'] ?? 'Profesyonel Hizmetler' }}
             </div>
             <h2 class="section-title">
-                Kurye <span class="gradient-text">Çözümlerimiz</span>
+                {!! $landingContent['services_title_html'] ?? "Kurye <span class='gradient-text'>Çözümlerimiz</span>" !!}
             </h2>
             <p class="section-subtitle">
-                Her gönderi için doğru çözüm. Hızlı, güvenilir, profesyonel.
+                {{ $landingContent['services_subtitle_text'] ?? 'Her gönderi için doğru çözüm. Hızlı, güvenilir, profesyonel.' }}
             </p>
         </div>
         
         <div class="services-grid">
-            <div class="service-card">
-                <div class="service-card-number">01</div>
-                <div class="service-card-icon">🏍️</div>
-                <h3>Motorlu Kurye</h3>
-                <p>Trafiği atlatarak dakikalar içinde hedefe ulaşın. Akıllı rota optimizasyonu ile en hızlı teslimat.</p>
-                <ul class="service-card-features">
-                    <li><i class="fa-solid fa-check"></i> Anlık trafik analizi</li>
-                    <li><i class="fa-solid fa-check"></i> Akıllı rota optimizasyonu</li>
-                    <li><i class="fa-solid fa-check"></i> Gerçek zamanlı takip</li>
-                </ul>
-                <a href="tel:+905324847292" class="btn btn-outline" style="margin-top:1rem;width:100%;justify-content:center;">
-                    <i class="fa-solid fa-phone"></i> Hemen Ara
-                </a>
-            </div>
-            
-            <div class="service-card">
-                <div class="service-card-number">02</div>
-                <div class="service-card-icon" style="background: linear-gradient(135deg, #22d3ee 0%, #7c3aed 100%);">⚡</div>
-                <h3>Acil Kurye</h3>
-                <p>Saniyeler içinde en yakın kurye atanır. Öncelikli teslimat garantisi ile kritik gönderileriniz güvende.</p>
-                <ul class="service-card-features">
-                    <li><i class="fa-solid fa-check"></i> Anlık kurye eşleştirme</li>
-                    <li><i class="fa-solid fa-check"></i> Öncelikli gönderi statüsü</li>
-                    <li><i class="fa-solid fa-check"></i> SLA garantili teslimat</li>
-                </ul>
-                <a href="tel:+905324847292" class="btn btn-outline" style="margin-top:1rem;width:100%;justify-content:center;">
-                    <i class="fa-solid fa-bolt"></i> Acil Çağır
-                </a>
-            </div>
-            
-            <div class="service-card">
-                <div class="service-card-number">03</div>
-                <div class="service-card-icon" style="background: linear-gradient(135deg, #10b981 0%, #22d3ee 100%);">🚗</div>
-                <h3>Araçlı Kurye</h3>
-                <p>Büyük hacimli gönderiler için özel araç filosu. Hassas eşya taşıma ve toplu teslimat imkanı.</p>
-                <ul class="service-card-features">
-                    <li><i class="fa-solid fa-check"></i> Büyük hacim kapasitesi</li>
-                    <li><i class="fa-solid fa-check"></i> Hassas eşya koruması</li>
-                    <li><i class="fa-solid fa-check"></i> Toplu teslimat imkanı</li>
-                </ul>
-                <a href="tel:+905324847292" class="btn btn-outline" style="margin-top:1rem;width:100%;justify-content:center;">
-                    <i class="fa-solid fa-truck"></i> Araç Talep Et
-                </a>
-            </div>
-        </div>
-    </div>
-</section>
-
-
-<!-- Features Section -->
-<section class="section" style="background: linear-gradient(180deg, rgba(124, 58, 237, 0.05) 0%, transparent 100%);">
-    <div class="container">
-        <div class="section-header">
-            <div class="section-badge">
-                <i class="fa-solid fa-sparkles"></i> Neden Bizi Tercih Etmelisiniz?
-            </div>
-            <h2 class="section-title">
-                <span class="gradient-text">Avantajlarımız</span>
-            </h2>
-        </div>
-        
-        <div class="features-grid">
-            <div class="feature-card">
-                <span class="feature-icon">🚩</span>
-                <h4>Akıllı Rotalama</h4>
-                <p>En hızlı rota ile teslimat</p>
-            </div>
-            <div class="feature-card">
-                <span class="feature-icon">📍</span>
-                <h4>Canlı Takip</h4>
-                <p>Gönderinizi gerçek zamanlı izleyin</p>
-            </div>
-            <div class="feature-card">
-                <span class="feature-icon">⚡</span>
-                <h4>Hızlı Eşleştirme</h4>
-                <p>Saniyeler içinde en yakın kurye</p>
-            </div>
-            <div class="feature-card">
-                <span class="feature-icon">🔒</span>
-                <h4>Güvenli Teslimat</h4>
-                <p>%99 başarılı teslimat oranı</p>
-            </div>
-            <div class="feature-card">
-                <span class="feature-icon">💰</span>
-                <h4>Şeffaf Fiyat</h4>
-                <p>Sürpriz masraf yok, net fiyat</p>
-            </div>
-            <div class="feature-card">
-                <span class="feature-icon">📱</span>
-                <h4>Anlık Bildirim</h4>
-                <p>Her adımda SMS/bildirim alın</p>
-            </div>
-            <div class="feature-card">
-                <span class="feature-icon">🌙</span>
-                <h4>7/24 Aktif</h4>
-                <p>Gece gündüz hizmetinizdeyiz</p>
-            </div>
-            <div class="feature-card">
-                <span class="feature-icon">🏢</span>
-                <h4>Kurumsal Çözüm</h4>
-                <p>İşletmelere özel paketler</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Process Steps Section -->
-<section class="process-section">
-    <div class="container">
-        <div class="section-header">
-            <div class="section-badge">
-                <i class="fa-solid fa-diagram-project"></i> Nasıl Çalışır?
-            </div>
-            <h2 class="section-title">
-                3 Adımda <span class="gradient-text">Teslimat</span>
-            </h2>
-            <p class="section-subtitle">
-                3 basit adımda gönderinizi en hızlı şekilde teslim ediyoruz.
-            </p>
-        </div>
-        
-        <div class="process-grid">
-            <div class="process-card">
-                <div class="process-number">01</div>
-                <h3>Gönderi Bilgisi</h3>
-                <p>Bizi arayın veya WhatsApp'tan yazın. Gönderi detaylarınıza göre en uygun hizmeti belirleyelim.</p>
-            </div>
-            <div class="process-card">
-                <div class="process-number">02</div>
-                <h3>Akıllı Eşleştirme</h3>
-                <p>En yakın ve uygun kuryeyi saniyeler içinde bulur, en kısa rotayı hesaplarız.</p>
-            </div>
-            <div class="process-card">
-                <div class="process-number">03</div>
-                <h3>Hızlı Teslimat</h3>
-                <p>Kuryeniz yola çıkar, siz gerçek zamanlı takip edersiniz. Her an nerede olduğunu görün.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Fun Facts Section -->
-<section class="funfact-section">
-    <div class="container">
-        <div class="funfact-wrapper">
-            <div class="funfact-item">
-                <div class="funfact-value"><span data-count="52">0</span>K+</div>
-                <div class="funfact-label">Mutlu Müşteri</div>
-            </div>
-            <div class="funfact-item">
-                <div class="funfact-value"><span data-count="150">0</span>K+</div>
-                <div class="funfact-label">Tamamlanan Teslimat</div>
-            </div>
-            <div class="funfact-item">
-                <div class="funfact-value"><span data-count="500">0</span>+</div>
-                <div class="funfact-label">Aktif Kurye</div>
-            </div>
-            <div class="funfact-item">
-                <div class="funfact-value"><span data-count="99">0</span>%</div>
-                <div class="funfact-label">Memnuniyet Oranı</div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Testimonial Section -->
-<section class="testimonial-section">
-    <div class="container">
-        <div class="section-header">
-            <div class="section-badge">
-                <i class="fa-solid fa-comments"></i> Müşteri Yorumları
-            </div>
-            <h2 class="section-title">
-                Müşterilerimiz <span class="gradient-text">Ne Diyor?</span>
-            </h2>
-        </div>
-        
-        <div class="testimonial-slider" id="testimonial-slider">
-            <div class="testimonial-track" id="testimonial-track">
-                <div class="testimonial-slide">
-                    <div class="testimonial-card">
-                        <div class="testimonial-avatar" style="background:linear-gradient(135deg,#7c3aed,#a855f7);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;color:white;">AY</div>
-                        <div class="testimonial-content">
-                            <div class="testimonial-stars">
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                            </div>
-                            <p class="testimonial-text">
-                                E-ticaret sitemizin tüm kargo ihtiyacını SimdiGetir ile karşılıyoruz. Akıllı rota optimizasyonu sayesinde teslimat sürelerimiz %40 azaldı. Müşteri memnuniyetimiz rekor seviyede!
-                            </p>
-                            <div class="testimonial-author">
-                                <h4>Ahmet Yılmaz</h4>
-                                <span>E-Ticaret Mağaza Sahibi</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="testimonial-slide">
-                    <div class="testimonial-card">
-                        <div class="testimonial-avatar" style="background:linear-gradient(135deg,#22d3ee,#06b6d4);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;color:white;">EK</div>
-                        <div class="testimonial-content">
-                            <div class="testimonial-stars">
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                            </div>
-                            <p class="testimonial-text">
-                                Acil ilaç ve tıbbi malzeme gönderimlerinde SimdiGetir vazgeçilmezimiz oldu. 7/24 hizmet verdikleri için gece yarısı bile güvenle gönderi yapabiliyoruz.
-                            </p>
-                            <div class="testimonial-author">
-                                <h4>Dr. Elif Kaya</h4>
-                                <span>Klinik Yöneticisi</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="testimonial-slide">
-                    <div class="testimonial-card">
-                        <div class="testimonial-avatar" style="background:linear-gradient(135deg,#db2777,#ec4899);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;color:white;">MD</div>
-                        <div class="testimonial-content">
-                            <div class="testimonial-stars">
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                            </div>
-                            <p class="testimonial-text">
-                                Ofisler arası evrak ve paket gönderimlerinde artık sadece SimdiGetir kullanıyoruz. Anlık takip özelliği ve profesyonel kurye kadrosu ile iş süreçlerimiz çok hızlandı.
-                            </p>
-                            <div class="testimonial-author">
-                                <h4>Mehmet Demir</h4>
-                                <span>Şirket Müdürü</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="testimonial-controls">
-                <button class="testimonial-btn" id="testimonial-prev">
-                    <i class="fa-solid fa-arrow-left"></i>
-                </button>
-                <button class="testimonial-btn" id="testimonial-next">
-                    <i class="fa-solid fa-arrow-right"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- CTA Section -->
-<section class="section">
-    <div class="container">
-        <div class="cta-section">
-            <div class="cta-content">
-                <h2>Gönderinizi <span class="gradient-text">Bize Emanet Edin</span></h2>
-                <p>
-                    Zamanın paradan daha değerli olduğu anlarda yanınızdayız. 
-                    Hemen arayın, en uygun çözümü birlikte bulalım.
-                </p>
-                <div class="cta-buttons">
-                    <a href="tel:+905324847292" class="btn btn-accent">
-                        <i class="fa-solid fa-phone"></i> 0532 484 72 92
-                    </a>
-                    <a href="https://wa.me/905324847292" class="btn btn-outline">
-                        <i class="fa-brands fa-whatsapp"></i> WhatsApp
+            @foreach(($landingContent['service_cards'] ?? []) as $serviceCard)
+                <div class="service-card">
+                    <div class="service-card-number">{{ $serviceCard['number'] ?? '00' }}</div>
+                    @if(!empty($serviceCard['image_url']))
+                        <img
+                            src="{{ \App\Support\ResponsiveImage::resolveUrl($serviceCard['image_url']) }}"
+                            alt="{{ $serviceCard['image_alt'] ?? ($serviceCard['title'] ?? 'Kurye Hizmeti') }}"
+                            srcset="{{ $serviceCard['image_srcset'] ?? \App\Support\ResponsiveImage::buildSrcset($serviceCard['image_url']) }}"
+                            sizes="{{ \App\Support\ResponsiveImage::normalizeSizes($serviceCard['image_sizes'] ?? null) }}"
+                            loading="lazy"
+                            decoding="async"
+                            style="width:100%; aspect-ratio: 16/9; object-fit:cover; border-radius:16px; margin-bottom:1rem;"
+                        >
+                    @else
+                        <div class="service-card-icon" @if(!empty($serviceCard['icon_style'])) style="{{ $serviceCard['icon_style'] }}" @endif>{{ $serviceCard['icon_text'] ?? '🚚' }}</div>
+                    @endif
+                    <h3>{{ $serviceCard['title'] ?? 'Kurye Hizmeti' }}</h3>
+                    <p>{{ $serviceCard['description'] ?? '' }}</p>
+                    <ul class="service-card-features">
+                        @foreach(($serviceCard['features'] ?? []) as $feature)
+                            <li><i class="fa-solid fa-check"></i> {{ $feature }}</li>
+                        @endforeach
+                    </ul>
+                    <a href="{{ $serviceCard['button_href'] ?? 'tel:+905513567292' }}" class="btn btn-outline" style="margin-top:1rem;width:100%;justify-content:center;">
+                        <i class="fa-solid {{ $serviceCard['button_icon'] ?? 'fa-phone' }}"></i> {{ $serviceCard['button_label'] ?? 'Hemen Ara' }}
                     </a>
                 </div>
-            </div>
+            @endforeach
         </div>
     </div>
 </section>
+@endif
+
+
+@php($homeSectionViews = \Modules\Landing\Support\SectionViewRegistry::home())
+@include($homeSectionViews['features'], ['landingContent' => $landingContent])
+@include($homeSectionViews['process'], ['landingContent' => $landingContent])
+@include($homeSectionViews['stats'], ['landingContent' => $landingContent])
+@include($homeSectionViews['testimonials'], ['landingContent' => $landingContent])
+@include($homeSectionViews['main_cta'], ['landingContent' => $landingContent])
 
 <!-- Quote Form Section -->
+@if(data_get($landingContent, 'sections_visible.corporate_cta', true))
 <section class="section" id="teklif-al" style="background: linear-gradient(180deg, transparent 0%, rgba(124, 58, 237, 0.05) 100%);">
     <div class="container">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
+        <div class="responsive-stack" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
             <div>
                 <div class="section-badge">
                     <i class="fa-solid fa-building"></i> Kurumsal
@@ -656,24 +433,17 @@
                 </p>
                 
                 <ul style="list-style: none;">
-                    <li style="margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem; color: var(--text-secondary);">
-                        <i class="fa-solid fa-check-circle" style="color: var(--accent); font-size: 1.25rem;"></i> Öncelikli kurye ataması
-                    </li>
-                    <li style="margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem; color: var(--text-secondary);">
-                        <i class="fa-solid fa-check-circle" style="color: var(--accent); font-size: 1.25rem;"></i> Toplu gönderi indirimi
-                    </li>
-                    <li style="margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem; color: var(--text-secondary);">
-                        <i class="fa-solid fa-check-circle" style="color: var(--accent); font-size: 1.25rem;"></i> API entegrasyonu
-                    </li>
-                    <li style="display: flex; align-items: center; gap: 1rem; color: var(--text-secondary);">
-                        <i class="fa-solid fa-check-circle" style="color: var(--accent); font-size: 1.25rem;"></i> Özel müşteri temsilcisi
-                    </li>
+                    @foreach(($landingContent['corporate_cta_benefits'] ?? []) as $benefit)
+                        <li style="margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem; color: var(--text-secondary);">
+                            <i class="fa-solid {{ $benefit['icon_class'] ?? 'fa-check-circle' }}" style="color: var(--accent); font-size: 1.25rem;"></i> {{ $benefit['text'] ?? '' }}
+                        </li>
+                    @endforeach
                 </ul>
             </div>
             
             <div class="glass" style="padding: 2.5rem;">
-                <h3 style="margin-bottom: 0.5rem; font-size: 1.5rem;">Teklif İsteyin</h3>
-                <p style="color: var(--text-muted); margin-bottom: 2rem; font-size: 0.9rem;">Talebiniz hızla değerlendirilecek</p>
+                <h3 style="margin-bottom: 0.5rem; font-size: 1.5rem;">{{ $landingContent['corporate_cta_form_title_text'] ?? 'Teklif İsteyin' }}</h3>
+                <p style="color: var(--text-muted); margin-bottom: 2rem; font-size: 0.9rem;">{{ $landingContent['corporate_cta_form_subtitle_text'] ?? 'Talebiniz hızla değerlendirilecek' }}</p>
                 
                 <form id="corporate-form" onsubmit="submitLeadForm(event, 'corporate_quote')">
                     <div class="form-group">
@@ -684,7 +454,7 @@
                         <label>Yetkili Adı *</label>
                         <input type="text" name="name" required placeholder="Ad Soyad">
                     </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="responsive-stack" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="form-group">
                             <label>Telefon *</label>
                             <input type="tel" name="phone" required placeholder="05XX XXX XX XX" pattern="0[0-9]{10}" title="Lütfen 05XX XXX XX XX formatında girin">
@@ -716,8 +486,10 @@
         </div>
     </div>
 </section>
+@endif
 
 <!-- Blog/News Section -->
+@if(data_get($landingContent, 'sections_visible.faq', true))
 <section class="blog-section" style="background: linear-gradient(180deg, transparent 0%, rgba(124, 58, 237, 0.05) 100%);">
     <div class="container">
         <div class="section-header">
@@ -733,53 +505,52 @@
         </div>
         
         <div class="blog-grid">
-            <div class="blog-card">
-                <div class="blog-card-image" style="background: linear-gradient(135deg, #7c3aed 0%, #22d3ee 100%);">
-                    <i class="fa-solid fa-route" style="color: rgba(255,255,255,0.8);"></i>
-                </div>
-                <div class="blog-card-content">
-                    <div class="blog-card-meta">
-                        <i class="fa-solid fa-calendar-days"></i> 10 Şubat 2026
+            @foreach(($landingContent['faq_cards'] ?? []) as $faqCard)
+                <div class="blog-card">
+                    <div class="blog-card-image" @if(!empty($faqCard['image_style'])) style="{{ $faqCard['image_style'] }}" @endif>
+                        @if(!empty($faqCard['image_url']))
+                            <img
+                                src="{{ \App\Support\ResponsiveImage::resolveUrl($faqCard['image_url']) }}"
+                                alt="{{ $faqCard['image_alt'] ?? ($faqCard['title'] ?? 'Bilgi Kartı') }}"
+                                srcset="{{ $faqCard['image_srcset'] ?? \App\Support\ResponsiveImage::buildSrcset($faqCard['image_url']) }}"
+                                sizes="{{ \App\Support\ResponsiveImage::normalizeSizes($faqCard['image_sizes'] ?? null, '(max-width: 768px) 100vw, 50vw') }}"
+                                loading="lazy"
+                                decoding="async"
+                                style="width:100%; height:100%; object-fit:cover;"
+                            >
+                        @else
+                            <i class="fa-solid {{ $faqCard['icon_class'] ?? 'fa-newspaper' }}" style="color: rgba(255,255,255,0.8);"></i>
+                        @endif
                     </div>
-                    <h3><a href="/hizmetler">Akıllı Rota ile Daha Hızlı Teslimat</a></h3>
-                    <p style="color: var(--text-secondary); margin-bottom: 1.25rem; font-size: 0.95rem;">
-                        Akıllı rota optimizasyonu sayesinde teslimat sürelerimizi nasıl kısaltıyoruz? Hizmetlerimizi keşfedin.
-                    </p>
-                    <a href="/hizmetler" class="read-more">
-                        Hizmetleri İncele <i class="fa-solid fa-arrow-right"></i>
-                    </a>
-                </div>
-            </div>
-            <div class="blog-card">
-                <div class="blog-card-image" style="background: linear-gradient(135deg, #ec4899 0%, #7c3aed 100%);">
-                    <i class="fa-solid fa-question-circle" style="color: rgba(255,255,255,0.8);"></i>
-                </div>
-                <div class="blog-card-content">
-                    <div class="blog-card-meta">
-                        <i class="fa-solid fa-calendar-days"></i> 5 Şubat 2026
+                    <div class="blog-card-content">
+                        <div class="blog-card-meta">
+                            <i class="fa-solid fa-calendar-days"></i> {{ $faqCard['date_label'] ?? 'Güncel' }}
+                        </div>
+                        <h3><a href="{{ $faqCard['link'] ?? '/sss' }}">{{ $faqCard['title'] ?? 'Bilgi Kartı' }}</a></h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 1.25rem; font-size: 0.95rem;">
+                            {{ $faqCard['description'] ?? '' }}
+                        </p>
+                        <a href="{{ $faqCard['link'] ?? '/sss' }}" class="read-more">
+                            {{ $faqCard['link_label'] ?? 'Detayı Gör' }} <i class="fa-solid fa-arrow-right"></i>
+                        </a>
                     </div>
-                    <h3><a href="/sss">Sıkça Sorulan Sorular</a></h3>
-                    <p style="color: var(--text-secondary); margin-bottom: 1.25rem; font-size: 0.95rem;">
-                        Kurye hizmetlerimiz, fiyatlandırma, teslimat süreleri ve daha fazlası hakkında merak edilenler.
-                    </p>
-                    <a href="/sss" class="read-more">
-                        Sorulara Bak <i class="fa-solid fa-arrow-right"></i>
-                    </a>
                 </div>
-            </div>
+            @endforeach
         </div>
     </div>
 </section>
+@endif
 
 <!-- Courier CTA Section -->
+@if(data_get($landingContent, 'sections_visible.courier_cta', true))
 <section class="section">
     <div class="container">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
+        <div class="responsive-stack" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
             <div class="glass" style="padding: 3rem; text-align: center; background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(34, 211, 238, 0.05) 100%);">
                 <span style="font-size: 5rem; display: block; margin-bottom: 1.5rem;">🏍️</span>
-                <h3 style="margin-bottom: 1rem; font-size: 1.75rem;">Kurye Ailemize Katıl</h3>
+                <h3 style="margin-bottom: 1rem; font-size: 1.75rem;">{{ $landingContent['courier_cta_card_title_text'] ?? 'Kurye Ailemize Katıl' }}</h3>
                 <p style="color: var(--text-secondary); margin-bottom: 2rem;">
-                    Esnek çalışma saatleri, hızlı ödeme!
+                    {{ $landingContent['courier_cta_card_description_text'] ?? 'Esnek çalışma saatleri, hızlı ödeme!' }}
                 </p>
                 <a href="/kurye-basvuru" class="btn btn-primary">
                     <i class="fa-solid fa-user-plus"></i> Hemen Başvur
@@ -787,42 +558,24 @@
             </div>
             <div>
                 <h2 style="font-size: 2rem; margin-bottom: 1.5rem;">
-                    <span class="gradient-text">Kurye Ol</span>, Özgürce Kazan
+                    {!! $landingContent['courier_cta_side_title_html'] ?? "<span class='gradient-text'>Kurye Ol</span>, Özgürce Kazan" !!}
                 </h2>
                 <ul style="list-style: none; color: var(--text-secondary);">
-                    <li style="margin-bottom: 1.25rem; display: flex; align-items: center; gap: 1rem;">
-                        <i class="fa-solid fa-wallet" style="color: var(--accent); font-size: 1.5rem;"></i> 
-                        <div>
-                            <strong style="color: var(--text-primary);">Esnek Çalışma</strong><br>
-                            <span style="font-size: 0.9rem;">İstediğin saatlerde çalış</span>
-                        </div>
-                    </li>
-                    <li style="margin-bottom: 1.25rem; display: flex; align-items: center; gap: 1rem;">
-                        <i class="fa-solid fa-mobile-screen" style="color: var(--accent); font-size: 1.5rem;"></i>
-                        <div>
-                            <strong style="color: var(--text-primary);">Akıllı Navigasyon</strong><br>
-                            <span style="font-size: 0.9rem;">Akıllı rota önerileri</span>
-                        </div>
-                    </li>
-                    <li style="margin-bottom: 1.25rem; display: flex; align-items: center; gap: 1rem;">
-                        <i class="fa-solid fa-bolt" style="color: var(--accent); font-size: 1.5rem;"></i>
-                        <div>
-                            <strong style="color: var(--text-primary);">Hızlı Ödeme</strong><br>
-                            <span style="font-size: 0.9rem;">Haftalık ödemeler</span>
-                        </div>
-                    </li>
-                    <li style="display: flex; align-items: center; gap: 1rem;">
-                        <i class="fa-solid fa-bullseye" style="color: var(--accent); font-size: 1.5rem;"></i>
-                        <div>
-                            <strong style="color: var(--text-primary);">Akıllı Görev Dağılımı</strong><br>
-                            <span style="font-size: 0.9rem;">Yakınındaki siparişler öncelikli</span>
-                        </div>
-                    </li>
+                    @foreach(($landingContent['courier_cta_features'] ?? []) as $feature)
+                        <li style="margin-bottom: 1.25rem; display: flex; align-items: center; gap: 1rem;">
+                            <i class="fa-solid {{ $feature['icon_class'] ?? 'fa-circle-check' }}" style="color: var(--accent); font-size: 1.5rem;"></i>
+                            <div>
+                                <strong style="color: var(--text-primary);">{{ $feature['title'] ?? '' }}</strong><br>
+                                <span style="font-size: 0.9rem;">{{ $feature['subtitle'] ?? '' }}</span>
+                            </div>
+                        </li>
+                    @endforeach
                 </ul>
             </div>
         </div>
     </div>
 </section>
+@endif
 @endsection
 
 @push('scripts')
@@ -853,7 +606,7 @@
         };
         
         try {
-            const response = await fetch('/api/leads', {
+            let response = await fetch('/api/forms/corporate-quote/submit', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -861,6 +614,17 @@
                 },
                 body: JSON.stringify(data),
             });
+
+            if (response.status === 404) {
+                response = await fetch('/api/leads', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+            }
             
             const result = await response.json();
             
@@ -929,3 +693,5 @@
     }
 </style>
 @endpush
+
+

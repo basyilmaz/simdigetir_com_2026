@@ -1,0 +1,15 @@
+{
+    "name":  "AdsMeta",
+    "alias":  "adsmeta",
+    "description":  "",
+    "keywords":  [
+
+                 ],
+    "priority":  0,
+    "providers":  [
+                      "Modules\\AdsMeta\\Providers\\AdsMetaServiceProvider"
+                  ],
+    "files":  [
+
+              ]
+}

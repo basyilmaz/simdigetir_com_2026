@@ -52,7 +52,7 @@ class SeoTest extends TestCase
         $response = $this->get('/kurye/sisli/mecidiyekoy');
 
         $response->assertStatus(200);
-        $response->assertSee('Mecidiyeköy Kurye Hizmeti');
+        $response->assertSee('Mecidiyeköy Mahallesi Kurye');
         $response->assertSee('Şişli');
     }
 
@@ -80,3 +80,4 @@ class SeoTest extends TestCase
         $response->assertHeader('Content-Type', 'application/xml');
     }
 }
+

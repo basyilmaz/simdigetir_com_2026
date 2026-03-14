@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class AdminUserSeeder extends Seeder
 {
@@ -13,13 +14,23 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::updateOrCreate(
-            ['email' => 'admin@simdigetir.com'],
+        $admin = User::updateOrCreate(
+            ['email' => env('ADMIN_EMAIL', 'admin@simdigetir.com')],
             [
-                'name' => 'Admin',
-                'password' => Hash::make('Yilmaz2154!-!'),
+                'name' => env('ADMIN_NAME', 'Admin'),
+                'password' => Hash::make(env('ADMIN_PASSWORD', 'change-me-in-env')),
                 'email_verified_at' => now(),
+                'is_active' => true,
             ]
         );
+
+        $role = Role::firstOrCreate([
+            'name' => 'super-admin',
+            'guard_name' => 'web',
+        ]);
+
+        if (! $admin->hasRole($role)) {
+            $admin->assignRole($role);
+        }
     }
 }

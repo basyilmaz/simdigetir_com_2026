@@ -14,7 +14,7 @@
     "name": "SimdiGetir {{ $district['name'] }} Kurye",
     "description": "{{ $district['name'] }} bölgesinde hızlı ve güvenilir moto kurye, acil kurye ve araçlı kurye hizmeti. 7/24 hızlı teslimat.",
     "url": "{{ url()->current() }}",
-    "telephone": "+905324847292",
+    "telephone": "+905513567292",
     "address": {
         "@type": "PostalAddress",
         "addressLocality": "{{ $district['name'] }}",
@@ -83,10 +83,10 @@
                     Akıllı rota optimizasyonu ile en hızlı teslimat garantisi.
                 </p>
                 <div class="hero-buttons animate__animated animate__fadeInUp animate__delay-3s">
-                    <a href="tel:+905324847292" class="btn btn-primary">
+                    <a href="tel:+905513567292" class="btn btn-primary">
                         <i class="fa-solid fa-phone"></i> {{ $district['name'] }}{{ $district['suffix'] }} Kurye Çağır
                     </a>
-                    <a href="https://wa.me/905324847292?text={{ urlencode($district['name'] . ' bölgesinde kurye çağırmak istiyorum') }}" target="_blank" class="btn btn-outline">
+                    <a href="https://wa.me/905513567292?text={{ urlencode($district['name'] . ' bölgesinde kurye çağırmak istiyorum') }}" target="_blank" class="btn btn-outline">
                         <i class="fa-brands fa-whatsapp"></i> WhatsApp
                     </a>
                 </div>
@@ -223,7 +223,7 @@
                 <h2>{{ $district['name'] }}{{ $district['suffix'] }} <span class="gradient-text">Kurye Mi Lazım?</span></h2>
                 <p>{{ $district['name'] }} bölgesindeki en yakın kuryeyi saniyeler içinde atayız.</p>
                 <div class="cta-buttons">
-                    <a href="tel:+905324847292" class="btn btn-accent">
+                    <a href="tel:+905513567292" class="btn btn-accent">
                         <i class="fa-solid fa-phone"></i> Hemen Ara
                     </a>
                     <a href="/iletisim" class="btn btn-outline">

@@ -1,5 +1,10 @@
 {
-    "Settings": true,
-    "Leads": true,
-    "Landing": true
+    "Settings":  true,
+    "Leads":  true,
+    "Landing":  true,
+    "AdsCore":  true,
+    "AdsGoogle":  true,
+    "AdsMeta":  true,
+    "Attribution":  true,
+    "Reporting":  true
 }

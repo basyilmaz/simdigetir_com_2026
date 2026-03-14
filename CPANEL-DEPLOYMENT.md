@@ -49,7 +49,7 @@
 
 3. **Yeni User Oluştur**
    - Username: `getir_simdi_user`
-   - Password: `Yilmaz2154!-!-` (veya "Generate Password" ile güçlü şifre)
+   - Password: `your-secure-db-password` (veya "Generate Password" ile güçlü şifre)
    - "Create User" tıkla
    - ✅ **Full Username:** `kullaniciadi_getir_simdi_user`
 
@@ -78,7 +78,7 @@
 ```env
 APP_NAME=SimdiGetir
 APP_ENV=production
-APP_KEY=base64:Jnmm7Gu+BOZDzTAYiPNkyxE5KOwb7jcqYLT7PpyatY8=
+APP_KEY=base64:your-generated-app-key
 APP_DEBUG=false
 APP_TIMEZONE=Europe/Istanbul
 APP_URL=https://simdigetir.com
@@ -104,7 +104,7 @@ DB_HOST=localhost
 DB_PORT=3306
 DB_DATABASE=kullaniciadi_getir_simdi
 DB_USERNAME=kullaniciadi_getir_simdi_user
-DB_PASSWORD=Yilmaz2154!-!-
+DB_PASSWORD=your-secure-db-password
 
 SESSION_DRIVER=database
 SESSION_LIFETIME=120
@@ -305,7 +305,7 @@ php artisan tinker
 - ✅ https://simdigetir.com/ → Ana sayfa
 - ✅ https://simdigetir.com/admin → Admin paneli
   - Email: `admin@simdigetir.com`
-  - Şifre: `Yilmaz2154!-!`
+  - Şifre: `<admin-password-from-env>`
 - ✅ https://simdigetir.com/kurye → İlçeler sayfası
 - ✅ https://simdigetir.com/sitemap.xml → Sitemap
 
@@ -520,3 +520,6 @@ tail -100 ~/public_html/simdigetir/storage/logs/laravel.log
 
 **Son Güncelleme:** 2026-02-15
 **Versiyon:** 1.0.0 - cPanel Production Ready
+
+
+

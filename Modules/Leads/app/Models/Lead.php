@@ -3,9 +3,12 @@
 namespace Modules\Leads\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Lead extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'type',
         'name',
@@ -27,6 +30,7 @@ class Lead extends Model
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     /**

@@ -30,7 +30,7 @@ nano .env
 ```env
 APP_NAME=SimdiGetir
 APP_ENV=production
-APP_KEY=base64:Jnmm7Gu+BOZDzTAYiPNkyxE5KOwb7jcqYLT7PpyatY8=
+APP_KEY=base64:your-generated-app-key
 APP_DEBUG=false
 APP_TIMEZONE=Europe/Istanbul
 APP_URL=https://simdigetir.com
@@ -45,7 +45,7 @@ DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=getir_simdi
 DB_USERNAME=getir_simdi_user
-DB_PASSWORD=Yilmaz2154!-!-
+DB_PASSWORD=your-secure-db-password
 
 # Session & Cache
 SESSION_DRIVER=database
@@ -88,7 +88,7 @@ npm run build
 **cPanel / phpMyAdmin:**
 ```sql
 CREATE DATABASE getir_simdi CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'getir_simdi_user'@'localhost' IDENTIFIED BY 'Yilmaz2154!-!-';
+CREATE USER 'getir_simdi_user'@'localhost' IDENTIFIED BY 'your-secure-db-password';
 GRANT ALL PRIVILEGES ON getir_simdi.* TO 'getir_simdi_user'@'localhost';
 FLUSH PRIVILEGES;
 ```
@@ -254,7 +254,7 @@ php artisan tinker
 - **Ana Sayfa:** https://simdigetir.com/
 - **Admin Panel:** https://simdigetir.com/admin
   - Email: admin@simdigetir.com
-  - Şifre: Yilmaz2154!-!
+  - Şifre: <admin-password-from-env>
 - **Sitemap:** https://simdigetir.com/sitemap.xml
 - **Robots:** https://simdigetir.com/robots.txt
 
@@ -326,7 +326,7 @@ tail -100 storage/logs/laravel.log
 crontab -e
 
 # Her gece saat 02:00'de backup
-0 2 * * * mysqldump -u getir_simdi_user -pYilmaz2154!-!- getir_simdi > /backup/simdigetir_$(date +\%Y\%m\%d).sql
+0 2 * * * mysqldump -u getir_simdi_user -pyour-secure-db-password getir_simdi > /backup/simdigetir_$(date +\%Y\%m\%d).sql
 ```
 
 ### Disk Kullanımı
@@ -376,3 +376,6 @@ find storage/logs/ -name "*.log" -mtime +30 -delete
 
 **Son Güncelleme:** 2026-02-15
 **Versiyon:** 1.0.0 - Production Ready
+
+
+

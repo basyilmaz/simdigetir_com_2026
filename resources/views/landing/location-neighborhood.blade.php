@@ -66,7 +66,7 @@
             {{ $district['name'] }} · {{ $neighborhoodName }}
         </div>
         <h1 class="animate__animated animate__fadeInUp animate__delay-1s" style="font-size: 2.75rem;">
-            <span class="gradient-text">{{ $neighborhoodName }}</span> Kurye Hizmeti
+            {{ $neighborhoodName }} Kurye Hizmeti
         </h1>
         <p class="animate__animated animate__fadeInUp animate__delay-2s" style="max-width: 650px; margin: 0 auto;">
             {{ $neighborhoodName }} mahallesine profesyonel motorlu kurye, acil kurye ve araçlı kurye hizmeti. 

@@ -1,46 +1,90 @@
 @extends('layouts.landing')
 
-@section('title', 'İletişim - SimdiGetir')
-@section('meta_description', 'SimdiGetir kurye hizmeti ile iletişime geçin. 7/24 aktif müşteri desteği. Telefon: 0532 484 72 92')
-@section('meta_keywords', 'simdigetir iletişim, kurye telefon, moto kurye ara, kurye çağır istanbul, 7/24 kurye hattı')
+@section('title', $landingContent['meta_title'] ?? 'Ä°letiÅŸim - SimdiGetir')
+@section('meta_description', $landingContent['meta_description'] ?? 'SimdiGetir kurye hizmeti ile iletisime gecin. 7/24 aktif musteri destegi. Telefon: 0551 356 72 92')
+@section('meta_keywords', $landingContent['meta_keywords'] ?? 'simdigetir iletisim, kurye telefon, 7/24 kurye')
+
+@section('robots', $landingContent['robots'] ?? 'index, follow')
+@section('canonical_url', $landingContent['canonical_url'] ?? url()->current())
+@section('og_title', $landingContent['og_title'] ?? ($landingContent['meta_title'] ?? 'SimdiGetir'))
+@section('og_description', $landingContent['og_description'] ?? ($landingContent['meta_description'] ?? 'Hizli ve guvenilir kurye hizmeti'))
+@section('og_image', $landingContent['og_image'] ?? asset('images/og-default.jpg'))
 
 @section('structured_data')
-<script type="application/ld+json">
-{
-    "@context": "https://schema.org",
-    "@type": "ContactPage",
-    "name": "SimdiGetir İletişim",
-    "description": "SimdiGetir kurye hizmeti iletişim bilgileri. 7/24 aktif müşteri desteği.",
-    "url": "{{ url('/iletisim') }}",
-    "mainEntity": {
-        "@type": "LocalBusiness",
-        "name": "SimdiGetir Kurye",
-        "telephone": "+905324847292",
-        "email": "webgetir@simdigetir.com",
-        "address": {
-            "@type": "PostalAddress",
-            "streetAddress": "Yeşilce Mahallesi Aytekin Sokak No:5/2",
-            "addressLocality": "Kağıthane",
-            "addressRegion": "İstanbul",
-            "postalCode": "34418",
-            "addressCountry": "TR"
-        },
-        "contactPoint": [
-            {
-                "@type": "ContactPoint",
-                "telephone": "+905324847292",
-                "contactType": "customer service",
-                "availableLanguage": "Turkish",
-                "hoursAvailable": {
-                    "@type": "OpeningHoursSpecification",
-                    "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
-                    "opens": "00:00",
-                    "closes": "23:59"
-                }
+@php
+    $telephone = '+905513567292';
+    $email = 'webgetir@simdigetir.com';
+    $streetAddress = 'YeÅŸilce Mahallesi Aytekin Sokak No:5/2';
+    $addressLocality = 'KaÄŸÄ±thane';
+    $addressRegion = 'Ä°stanbul';
+    $postalCode = '34418';
+
+    foreach (($landingContent['contact_channels'] ?? []) as $channel) {
+        $link = trim((string) ($channel['link'] ?? ''));
+        $value = trim((string) ($channel['value'] ?? ''));
+        $title = mb_strtolower(trim((string) ($channel['title'] ?? '')));
+
+        if ($link !== '' && str_starts_with($link, 'tel:')) {
+            $telephone = preg_replace('/\s+/', '', substr($link, 4)) ?: $telephone;
+        }
+
+        if ($link !== '' && str_starts_with($link, 'mailto:')) {
+            $email = substr($link, 7) ?: $email;
+        }
+
+        if ($title === 'adres' || (($channel['icon_class'] ?? '') === 'fa-location-dot')) {
+            if ($value !== '') {
+                $streetAddress = $value;
             }
-        ]
+
+            $hintParts = array_map('trim', explode('/', (string) ($channel['hint'] ?? '')));
+            if (! empty($hintParts[0])) {
+                $addressLocality = $hintParts[0];
+            }
+            if (! empty($hintParts[1])) {
+                $addressRegion = $hintParts[1];
+            }
+        }
     }
-}
+
+    $contactSchema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'ContactPage',
+        'name' => 'SimdiGetir Ä°letiÅŸim',
+        'description' => 'SimdiGetir kurye hizmeti iletiÅŸim bilgileri. 7/24 aktif mÃ¼ÅŸteri desteÄŸi.',
+        'url' => url('/iletisim'),
+        'mainEntity' => [
+            '@type' => 'LocalBusiness',
+            'name' => 'SimdiGetir Kurye',
+            'telephone' => $telephone,
+            'email' => $email,
+            'address' => [
+                '@type' => 'PostalAddress',
+                'streetAddress' => $streetAddress,
+                'addressLocality' => $addressLocality,
+                'addressRegion' => $addressRegion,
+                'postalCode' => $postalCode,
+                'addressCountry' => 'TR',
+            ],
+            'contactPoint' => [
+                [
+                    '@type' => 'ContactPoint',
+                    'telephone' => $telephone,
+                    'contactType' => 'customer service',
+                    'availableLanguage' => 'Turkish',
+                    'hoursAvailable' => [
+                        '@type' => 'OpeningHoursSpecification',
+                        'dayOfWeek' => ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+                        'opens' => '00:00',
+                        'closes' => '23:59',
+                    ],
+                ],
+            ],
+        ],
+    ];
+@endphp
+<script type="application/ld+json">
+{!! json_encode($contactSchema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE) !!}
 </script>
 @endsection
 
@@ -50,16 +94,16 @@
     <div class="container" style="text-align: center;">
         <div class="hero-badge animate__animated animate__fadeInUp">
             <span class="pulse"></span>
-            Müşteri Servisi Aktif
+            {{ $landingContent['hero_badge_text'] ?? 'MÃ¼ÅŸteri Servisi Aktif' }}
         </div>
         <h1 class="animate__animated animate__fadeInUp animate__delay-1s" style="font-size: 3rem;">
-            <span class="gradient-text">7/24</span> Yanınızdayız
+            {!! $landingContent['hero_title_html'] ?? "<span class='gradient-text'>7/24</span> YanÄ±nÄ±zdayÄ±z" !!}
         </h1>
         <p class="animate__animated animate__fadeInUp animate__delay-2s" style="max-width: 600px; margin: 0 auto;">
-            Uzman ekibimiz sorularınızı yanıtlamak için her zaman hazır.
+            {{ $landingContent['hero_description_text'] ?? 'Uzman ekibimiz sorularÄ±nÄ±zÄ± yanÄ±tlamak iÃ§in her zaman hazÄ±r.' }}
         </p>
         <div class="animate__animated animate__fadeInUp animate__delay-3s" style="margin-top: 3rem;">
-            <img src="{{ asset('images/hero-contact.svg') }}" alt="SimdiGetir İletişim" style="max-width: 550px; width: 100%; border-radius: 20px;">
+            <img src="{{ asset('images/hero-contact.svg') }}" alt="SimdiGetir İletişim" width="550" height="400" loading="lazy" decoding="async" style="max-width: 550px; width: 100%; border-radius: 20px;">
         </div>
     </div>
 </section>
@@ -67,99 +111,88 @@
 <!-- Contact Section -->
 <section class="section">
     <div class="container">
-        <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 4rem;">
+        <div class="responsive-stack" style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 4rem;">
             <!-- Contact Info -->
             <div>
                 <div class="section-badge">
-                    <i class="fa-solid fa-headset"></i> İletişim Kanalları
+                    <i class="fa-solid fa-headset"></i> Ä°letiÅŸim KanallarÄ±
                 </div>
                 <h2 style="font-size: 2rem; margin-bottom: 2rem;">
-                    Bize <span class="gradient-text">Ulaşın</span>
+                    Bize <span class="gradient-text">UlaÅŸÄ±n</span>
                 </h2>
                 
                 <div class="contact-cards">
-                    <a href="tel:+905324847292" class="contact-card">
-                        <div class="contact-icon">
-                            <i class="fa-solid fa-phone"></i>
-                        </div>
-                        <div class="contact-content">
-                            <h4>Telefon</h4>
-                            <p>+90 532 484 72 92</p>
-                            <span class="contact-hint">7/24 Aktif Hat</span>
-                        </div>
-                        <i class="fa-solid fa-arrow-right contact-arrow"></i>
-                    </a>
-                    
-                    <a href="https://wa.me/905324847292" target="_blank" class="contact-card contact-card-whatsapp">
-                        <div class="contact-icon contact-icon-whatsapp">
-                            <i class="fa-brands fa-whatsapp"></i>
-                        </div>
-                        <div class="contact-content">
-                            <h4>WhatsApp</h4>
-                            <p>Hızlı Mesaj</p>
-                            <span class="contact-hint">Anlık Yanıt</span>
-                        </div>
-                        <i class="fa-solid fa-arrow-right contact-arrow"></i>
-                    </a>
-                    
-                    <a href="mailto:webgetir@simdigetir.com" class="contact-card">
-                        <div class="contact-icon contact-icon-email">
-                            <i class="fa-solid fa-envelope"></i>
-                        </div>
-                        <div class="contact-content">
-                            <h4>E-posta</h4>
-                            <p>webgetir@simdigetir.com</p>
-                            <span class="contact-hint">Kurumsal İletişim</span>
-                        </div>
-                        <i class="fa-solid fa-arrow-right contact-arrow"></i>
-                    </a>
-                    
-                    <div class="contact-card" style="cursor: default;">
-                        <div class="contact-icon contact-icon-location">
-                            <i class="fa-solid fa-location-dot"></i>
-                        </div>
-                        <div class="contact-content">
-                            <h4>Adres</h4>
-                            <p>Yeşilce Mahallesi Aytekin Sokak No:5/2</p>
-                            <span class="contact-hint">Kağıthane / İstanbul</span>
-                        </div>
-                    </div>
+                    @foreach (($landingContent['contact_channels'] ?? []) as $channel)
+                        @php
+                            $cardClass = trim('contact-card '.($channel['card_class'] ?? ''));
+                            $iconClass = trim('contact-icon '.($channel['icon_wrapper_class'] ?? ''));
+                            $link = $channel['link'] ?? null;
+                            $isExternal = (bool) ($channel['target_blank'] ?? false);
+                            $icon = $channel['icon_class'] ?? 'fa-circle-info';
+                            $iconPrefix = str_contains($icon, 'fa-whatsapp') ? 'fa-brands' : 'fa-solid';
+                        @endphp
+
+                        @if (! empty($link))
+                            <a href="{{ $link }}" @if($isExternal) target="_blank" rel="noopener noreferrer" @endif class="{{ $cardClass }}">
+                                <div class="{{ $iconClass }}">
+                                    <i class="{{ $iconPrefix }} {{ $icon }}"></i>
+                                </div>
+                                <div class="contact-content">
+                                    <h4>{{ $channel['title'] ?? '' }}</h4>
+                                    <p>{{ $channel['value'] ?? '' }}</p>
+                                    <span class="contact-hint">{{ $channel['hint'] ?? '' }}</span>
+                                </div>
+                                <i class="fa-solid fa-arrow-right contact-arrow"></i>
+                            </a>
+                        @else
+                            <div class="{{ $cardClass }}" style="cursor: default;">
+                                <div class="{{ $iconClass }}">
+                                    <i class="{{ $iconPrefix }} {{ $icon }}"></i>
+                                </div>
+                                <div class="contact-content">
+                                    <h4>{{ $channel['title'] ?? '' }}</h4>
+                                    <p>{{ $channel['value'] ?? '' }}</p>
+                                    <span class="contact-hint">{{ $channel['hint'] ?? '' }}</span>
+                                </div>
+                            </div>
+                        @endif
+                    @endforeach
                 </div>
                 
                 <!-- WhatsApp Destek Card -->
                 <div class="glass ai-assistant-card">
                     <div class="ai-assistant-header">
-                        <div class="ai-avatar">💬</div>
+                        <div class="ai-avatar">ğŸ’¬</div>
                         <div>
                             <strong>SimdiGetir Destek</strong>
-                            <span class="ai-online">● Çevrimiçi</span>
+                            <span class="ai-online">â— Ã‡evrimiÃ§i</span>
                         </div>
                     </div>
                     <p>
-                        WhatsApp üzerinden "<strong>Merhaba</strong>" yazarak anında sohbet başlatabilirsiniz!
+                        WhatsApp Ã¼zerinden "<strong>Merhaba</strong>" yazarak anÄ±nda sohbet baÅŸlatabilirsiniz!
                     </p>
-                    <a href="https://wa.me/905324847292?text=Merhaba" target="_blank" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
-                        <i class="fa-brands fa-whatsapp"></i> Hemen Yazın
+                    <a href="https://wa.me/905513567292?text=Merhaba" target="_blank" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                        <i class="fa-brands fa-whatsapp"></i> Hemen YazÄ±n
                     </a>
                 </div>
             </div>
             
             <!-- Contact Form -->
             <div class="glass contact-form-wrapper">
-                <h3 style="margin-bottom: 0.5rem; font-size: 1.5rem;">Mesaj Gönderin</h3>
+                <h3 style="margin-bottom: 0.5rem; font-size: 1.5rem;">Mesaj GÃ¶nderin</h3>
                 <p style="color: var(--text-muted); margin-bottom: 2rem; font-size: 0.9rem;">
-                    Mesajınızı değerlendirip size uygun çözüm sunacağız.
+                    MesajÄ±nÄ±zÄ± deÄŸerlendirip size uygun Ã§Ã¶zÃ¼m sunacaÄŸÄ±z.
                 </p>
                 
                 <form id="contact-form" onsubmit="submitContactForm(event)">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="responsive-stack" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="form-group">
                             <label>Ad Soyad *</label>
-                            <input type="text" name="name" required placeholder="Tam adınız">
+                            <input type="text" name="name" required placeholder="Tam adÄ±nÄ±z">
                         </div>
                         <div class="form-group">
                             <label>Telefon *</label>
-                            <input type="tel" name="phone" required placeholder="05XX XXX XX XX" pattern="0[0-9]{10}" title="Lütfen 05XX XXX XX XX formatında girin">
+                            <input type="tel" name="phone" required placeholder="05XX XXX XX XX" pattern="0[0-9]{10}" title="LÃ¼tfen 05XX XXX XX XX formatÄ±nda girin">
                         </div>
                     </div>
                     
@@ -171,27 +204,27 @@
                     <div class="form-group">
                         <label>Konu</label>
                         <select name="subject">
-                            <option value="">Konu Seçin</option>
+                            <option value="">Konu SeÃ§in</option>
                             <option value="Genel Bilgi">Genel Bilgi</option>
                             <option value="Fiyat Teklifi">Fiyat Teklifi</option>
                             <option value="Kurumsal Hizmet">Kurumsal Hizmet</option>
-                            <option value="Kurye Başvurusu">Kurye Başvurusu</option>
-                            <option value="Şikayet/Öneri">Şikayet/Öneri</option>
+                            <option value="Kurye BaÅŸvurusu">Kurye BaÅŸvurusu</option>
+                            <option value="Åikayet/Ã–neri">Åikayet/Ã–neri</option>
                         </select>
                     </div>
                     
                     <div class="form-group">
-                        <label>Mesajınız *</label>
-                        <textarea name="message" rows="5" required placeholder="Size nasıl yardımcı olabiliriz?"></textarea>
+                        <label>MesajÄ±nÄ±z *</label>
+                        <textarea name="message" rows="5" required placeholder="Size nasÄ±l yardÄ±mcÄ± olabiliriz?"></textarea>
                     </div>
                     
                     <button type="submit" class="btn btn-primary" style="width: 100%;" id="contact-submit">
-                        <i class="fa-solid fa-paper-plane"></i> Mesaj Gönder
+                        <i class="fa-solid fa-paper-plane"></i> Mesaj GÃ¶nder
                     </button>
                 </form>
                 
                 <div id="contact-success" style="display: none;" class="alert alert-success">
-                    <i class="fa-solid fa-check-circle"></i> Mesajınız alındı! En kısa sürede size dönüş yapacağız.
+                    <i class="fa-solid fa-check-circle"></i> MesajÄ±nÄ±z alÄ±ndÄ±! En kÄ±sa sÃ¼rede size dÃ¶nÃ¼ÅŸ yapacaÄŸÄ±z.
                 </div>
             </div>
         </div>
@@ -220,13 +253,13 @@
     <div class="container">
         <div class="cta-section">
             <div class="cta-content">
-                <h2>Hemen <span class="gradient-text">Arayın</span></h2>
+                <h2>Hemen <span class="gradient-text">ArayÄ±n</span></h2>
                 <p>
                     Uzman ekibimiz sizi bekliyor!
                 </p>
                 <div class="cta-buttons">
-                    <a href="tel:+905324847292" class="btn btn-accent">
-                        <i class="fa-solid fa-phone"></i> 0532 484 72 92
+                    <a href="tel:+905513567292" class="btn btn-accent">
+                        <i class="fa-solid fa-phone"></i> 0551 356 72 92
                     </a>
                 </div>
             </div>
@@ -375,7 +408,7 @@
         const successDiv = document.getElementById('contact-success');
         
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="typing-dots"><span></span><span></span><span></span></span> Gönderiliyor...';
+        submitBtn.innerHTML = '<span class="typing-dots"><span></span><span></span><span></span></span> GÃ¶nderiliyor...';
         
         const formData = new FormData(form);
         const data = {
@@ -393,7 +426,7 @@
         };
         
         try {
-            const response = await fetch('/api/leads', {
+            let response = await fetch('/api/forms/contact/submit', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -401,6 +434,17 @@
                 },
                 body: JSON.stringify(data),
             });
+
+            if (response.status === 404) {
+                response = await fetch('/api/leads', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+            }
             
             const result = await response.json();
             
@@ -409,15 +453,21 @@
                 successDiv.style.display = 'block';
                 trackEvent('lead_submit', { lead_type: 'contact' });
             } else {
-                alert(result.message || 'Bir hata oluştu. Lütfen tekrar deneyin.');
+                alert(result.message || 'Bir hata oluÅŸtu. LÃ¼tfen tekrar deneyin.');
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Mesaj Gönder';
+                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Mesaj GÃ¶nder';
             }
         } catch (error) {
-            alert('Bağlantı hatası. Lütfen tekrar deneyin.');
+            alert('BaÄŸlantÄ± hatasÄ±. LÃ¼tfen tekrar deneyin.');
             submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Mesaj Gönder';
+            submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Mesaj GÃ¶nder';
         }
     }
 </script>
 @endpush
+
+
+
+
+
+

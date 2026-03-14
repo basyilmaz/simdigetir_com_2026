@@ -1,0 +1,31 @@
+{
+    "name": "nwidart/AdsMeta",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\AdsMeta\\": "app/",
+            "Modules\\AdsMeta\\Database\\Factories\\": "database/factories/",
+            "Modules\\AdsMeta\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\AdsMeta\\Tests\\": "tests/"
+        }
+    }
+}
+

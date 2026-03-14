@@ -1,0 +1,31 @@
+{
+    "name": "nwidart/AdsGoogle",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\AdsGoogle\\": "app/",
+            "Modules\\AdsGoogle\\Database\\Factories\\": "database/factories/",
+            "Modules\\AdsGoogle\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\AdsGoogle\\Tests\\": "tests/"
+        }
+    }
+}
+

@@ -1,0 +1,11 @@
+{
+    "name": "AdsCore",
+    "alias": "adscore",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\AdsCore\\Providers\\AdsCoreServiceProvider"
+    ],
+    "files": []
+}

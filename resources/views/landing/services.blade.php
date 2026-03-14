@@ -1,56 +1,67 @@
 @extends('layouts.landing')
 
-@section('title', 'Hizmetlerimiz - SimdiGetir Profesyonel Kurye Hizmetleri')
-@section('meta_description', 'SimdiGetir profesyonel kurye hizmetleri. Motorlu kurye, acil kurye ve araçlı kurye hizmetleri ile 7/24 yanınızdayız.')
-@section('meta_keywords', 'motorlu kurye, moto kurye istanbul, acil kurye, araçlı kurye, hızlı teslimat, aynı gün teslim, kurye hizmeti fiyat, istanbul kurye')
+@section('title', $landingContent['meta_title'] ?? 'Hizmetlerimiz - SimdiGetir Profesyonel Kurye Hizmetleri')
+@section('meta_description', $landingContent['meta_description'] ?? 'SimdiGetir profesyonel kurye hizmetleri. Motorlu kurye, acil kurye ve araçlı kurye hizmetleri ile 7/24 yanınızdayız.')
+@section('meta_keywords', $landingContent['meta_keywords'] ?? 'motorlu kurye, acil kurye, aracli kurye, istanbul kurye')
+
+@section('robots', $landingContent['robots'] ?? 'index, follow')
+@section('canonical_url', $landingContent['canonical_url'] ?? url()->current())
+@section('og_title', $landingContent['og_title'] ?? ($landingContent['meta_title'] ?? 'SimdiGetir'))
+@section('og_description', $landingContent['og_description'] ?? ($landingContent['meta_description'] ?? 'Hizli ve guvenilir kurye hizmeti'))
+@section('og_image', $landingContent['og_image'] ?? asset('images/og-default.jpg'))
 
 @section('structured_data')
-<script type="application/ld+json">
-{
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    "itemListElement": [
-        {
-            "@type": "ListItem",
-            "position": 1,
-            "item": {
-                "@type": "Service",
-                "name": "Motorlu Kurye",
-                "description": "Trafiği atlatarak dakikalar içinde teslimat. Akıllı rota optimizasyonu ile İstanbul'un en hızlı moto kurye hizmeti.",
-                "provider": {"@id": "{{ url('/') }}/#organization"},
-                "areaServed": {"@type": "City", "name": "İstanbul"},
-                "serviceType": "Motorlu Kurye Hizmeti",
-                "url": "{{ url('/hizmetler') }}#motorlu-kurye"
-            }
-        },
-        {
-            "@type": "ListItem",
-            "position": 2,
-            "item": {
-                "@type": "Service",
-                "name": "Acil Kurye",
-                "description": "3 saat içinde garantili teslimat. Öncelikli kurye ataması ile acil gönderileriniz güvende.",
-                "provider": {"@id": "{{ url('/') }}/#organization"},
-                "areaServed": {"@type": "City", "name": "İstanbul"},
-                "serviceType": "Acil Kurye Hizmeti",
-                "url": "{{ url('/hizmetler') }}#acil-kurye"
-            }
-        },
-        {
-            "@type": "ListItem",
-            "position": 3,
-            "item": {
-                "@type": "Service",
-                "name": "Araçlı Kurye",
-                "description": "Büyük ve ağır gönderiler için araçlı kurye hizmeti. Sigortalı taşıma garantisi.",
-                "provider": {"@id": "{{ url('/') }}/#organization"},
-                "areaServed": {"@type": "City", "name": "İstanbul"},
-                "serviceType": "Araçlı Kurye Hizmeti",
-                "url": "{{ url('/hizmetler') }}#aracli-kurye"
-            }
+@php
+    $serviceSchemaItems = $landingContent['service_schema_items'] ?? [
+        [
+            'name' => 'Motorlu Kurye',
+            'description' => 'Trafiği atlatarak dakikalar içinde teslimat. Akıllı rota optimizasyonu ile İstanbul\'un en hızlı moto kurye hizmeti.',
+            'serviceType' => 'Motorlu Kurye Hizmeti',
+            'url' => url('/hizmetler').'#motorlu-kurye',
+        ],
+        [
+            'name' => 'Acil Kurye',
+            'description' => '3 saat içinde garantili teslimat. Öncelikli kurye ataması ile acil gönderileriniz güvende.',
+            'serviceType' => 'Acil Kurye Hizmeti',
+            'url' => url('/hizmetler').'#acil-kurye',
+        ],
+        [
+            'name' => 'Araçlı Kurye',
+            'description' => 'Büyük ve ağır gönderiler için araçlı kurye hizmeti. Sigortalı taşıma garantisi.',
+            'serviceType' => 'Araçlı Kurye Hizmeti',
+            'url' => url('/hizmetler').'#aracli-kurye',
+        ],
+    ];
+
+    $itemListElement = [];
+    foreach ($serviceSchemaItems as $index => $serviceItem) {
+        if (empty($serviceItem['name'])) {
+            continue;
         }
-    ]
-}
+
+        $itemListElement[] = [
+            '@type' => 'ListItem',
+            'position' => $index + 1,
+            'item' => [
+                '@type' => 'Service',
+                'name' => (string) $serviceItem['name'],
+                'description' => (string) ($serviceItem['description'] ?? ''),
+                'provider' => ['@id' => url('/').'#organization'],
+                'areaServed' => ['@type' => 'City', 'name' => 'İstanbul'],
+                'serviceType' => (string) ($serviceItem['serviceType'] ?? $serviceItem['name']),
+                'url' => (string) ($serviceItem['url'] ?? url('/hizmetler')),
+            ],
+        ];
+    }
+
+    $servicesSchema = $landingContent['structured_data'] ?? [
+        '@context' => 'https://schema.org',
+        '@type' => 'ItemList',
+        'itemListElement' => $itemListElement,
+    ];
+@endphp
+<script type="application/ld+json">
+{!! json_encode($servicesSchema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE) !!}
 </script>
 @endsection
 
@@ -60,16 +71,16 @@
     <div class="container" style="text-align: center;">
         <div class="hero-badge animate__animated animate__fadeInUp">
             <span class="pulse"></span>
-            Profesyonel Hizmetler
+            {{ $landingContent['hero_badge_text'] ?? 'Profesyonel Hizmetler' }}
         </div>
         <h1 class="animate__animated animate__fadeInUp animate__delay-1s" style="font-size: 3rem;">
-            Akıllı Kurye <span class="gradient-text">Çözümleri</span>
+            {!! $landingContent['hero_title_html'] ?? "Akıllı Kurye <span class='gradient-text'>Çözümleri</span>" !!}
         </h1>
         <p class="animate__animated animate__fadeInUp animate__delay-2s" style="max-width: 650px; margin: 0 auto;">
-            Gönderinize en uygun hizmeti sunuyoruz. Hızlı, güvenilir, profesyonel.
+            {{ $landingContent['hero_description_text'] ?? 'Gönderinize en uygun hizmeti sunuyoruz. Hızlı, güvenilir, profesyonel.' }}
         </p>
         <div class="animate__animated animate__fadeInUp animate__delay-3s" style="margin-top: 3rem;">
-            <img src="{{ asset('images/hero-services.svg') }}" alt="SimdiGetir Hizmetleri" style="max-width: 600px; width: 100%; border-radius: 20px;">
+            <img src="{{ asset('images/hero-services.svg') }}" alt="SimdiGetir Hizmetleri" width="600" height="400" loading="lazy" decoding="async" style="max-width: 600px; width: 100%; border-radius: 20px;">
         </div>
     </div>
 </section>
@@ -77,7 +88,7 @@
 <!-- Motorlu Kurye Section -->
 <section class="section" id="motorlu-kurye">
     <div class="container">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
+        <div class="responsive-stack" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
             <div class="service-showcase">
                 <div class="glass" style="padding: 3rem; position: relative; overflow: hidden;">
                     <div class="floating-orb orb-1"></div>
@@ -126,7 +137,7 @@
                     </div>
                 </div>
                 
-                <a href="tel:+905324847292" class="btn btn-primary" style="margin-top: 2rem;">
+                <a href="tel:+905513567292" class="btn btn-primary" style="margin-top: 2rem;">
                     <i class="fa-solid fa-phone"></i> Hemen Ara
                 </a>
             </div>
@@ -137,7 +148,7 @@
 <!-- Acil Kurye Section -->
 <section class="section" id="acil-kurye" style="background: linear-gradient(180deg, rgba(124, 58, 237, 0.05) 0%, transparent 100%);">
     <div class="container">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
+        <div class="responsive-stack" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
             <div>
                 <div class="section-badge" style="background: linear-gradient(135deg, rgba(34, 211, 238, 0.15) 0%, rgba(124, 58, 237, 0.15) 100%); border-color: var(--accent);">
                     <i class="fa-solid fa-rocket" style="color: var(--accent);"></i> <span style="color: var(--accent);">Öncelikli</span>
@@ -159,14 +170,14 @@
                         </div>
                     </div>
                     <div class="sf-item">
-                        <div class="sf-icon" style="background: linear-gradient(135deg, #22d3ee 0%, #7c3aed 100%);">⏱️</div>
+                        <div class="sf-icon" style="background: linear-gradient(135deg, #22d3ee 0%, #7c3aed 100%);">🛡️</div>
                         <div>
                             <strong>SLA Garantisi</strong>
                             <p>Belirlenen sürede teslimat garantisi, gecikmelere karşı koruma</p>
                         </div>
                     </div>
                     <div class="sf-item">
-                        <div class="sf-icon" style="background: linear-gradient(135deg, #22d3ee 0%, #7c3aed 100%);">🔔</div>
+                        <div class="sf-icon" style="background: linear-gradient(135deg, #22d3ee 0%, #7c3aed 100%);">⚡</div>
                         <div>
                             <strong>Öncelikli Statü</strong>
                             <p>Gönderiniz diğer tüm siparişlerden önce işleme alınır</p>
@@ -174,7 +185,7 @@
                     </div>
                 </div>
                 
-                <a href="tel:+905324847292" class="btn btn-accent" style="margin-top: 2rem;">
+                <a href="tel:+905513567292" class="btn btn-accent" style="margin-top: 2rem;">
                     <i class="fa-solid fa-bolt"></i> Acil Kurye Çağır
                 </a>
             </div>
@@ -197,7 +208,7 @@
 <!-- Araçlı Kurye Section -->
 <section class="section" id="aracli-kurye">
     <div class="container">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
+        <div class="responsive-stack" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
             <div class="service-showcase">
                 <div class="glass" style="padding: 3rem; position: relative; overflow: hidden;">
                     <div class="floating-orb orb-1"></div>
@@ -238,7 +249,7 @@
                         </div>
                     </div>
                     <div class="sf-item">
-                        <div class="sf-icon" style="background: linear-gradient(135deg, #10b981 0%, #22d3ee 100%);">🔄</div>
+                        <div class="sf-icon" style="background: linear-gradient(135deg, #10b981 0%, #22d3ee 100%);">🗺️</div>
                         <div>
                             <strong>Toplu Teslimat</strong>
                             <p>Birden fazla noktaya teslimat için optimize edilmiş rotalar</p>
@@ -246,7 +257,7 @@
                     </div>
                 </div>
                 
-                <a href="tel:+905324847292" class="btn btn-primary" style="margin-top: 2rem;">
+                <a href="tel:+905513567292" class="btn btn-primary" style="margin-top: 2rem;">
                     <i class="fa-solid fa-phone"></i> Araç Talep Et
                 </a>
             </div>
@@ -288,10 +299,10 @@
                     Endişelenmeyin! Bizi arayın, gönderinize en uygun hizmeti birlikte belirleyelim.
                 </p>
                 <div class="cta-buttons">
-                    <a href="tel:+905324847292" class="btn btn-accent">
-                        <i class="fa-solid fa-phone"></i> 0532 484 72 92
+                    <a href="tel:+905513567292" class="btn btn-accent">
+                        <i class="fa-solid fa-phone"></i> 0551 356 72 92
                     </a>
-                    <a href="https://wa.me/905324847292" class="btn btn-outline">
+                    <a href="https://wa.me/905513567292" class="btn btn-outline">
                         <i class="fa-brands fa-whatsapp"></i> WhatsApp
                     </a>
                 </div>
@@ -388,3 +399,5 @@
     }
 </style>
 @endpush
+
+

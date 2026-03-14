@@ -1,0 +1,15 @@
+{
+    "name":  "Attribution",
+    "alias":  "attribution",
+    "description":  "",
+    "keywords":  [
+
+                 ],
+    "priority":  0,
+    "providers":  [
+                      "Modules\\Attribution\\Providers\\AttributionServiceProvider"
+                  ],
+    "files":  [
+
+              ]
+}

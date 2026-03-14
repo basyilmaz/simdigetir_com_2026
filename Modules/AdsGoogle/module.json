@@ -1,0 +1,15 @@
+{
+    "name":  "AdsGoogle",
+    "alias":  "adsgoogle",
+    "description":  "",
+    "keywords":  [
+
+                 ],
+    "priority":  0,
+    "providers":  [
+                      "Modules\\AdsGoogle\\Providers\\AdsGoogleServiceProvider"
+                  ],
+    "files":  [
+
+              ]
+}

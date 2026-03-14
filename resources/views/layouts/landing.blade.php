@@ -6,25 +6,25 @@
     <meta name="description" content="@yield('meta_description', 'SimdiGetir - Hızlı ve Güvenilir Kurye Hizmeti. 7/24 teslimat. Zamanın paradan daha değerli olduğu anlarda yanınızdayız.')">
     <meta name="keywords" content="@yield('meta_keywords', 'kurye, moto kurye, acil kurye, araçlı kurye, istanbul kurye, hızlı teslimat, aynı gün teslimat, kurye hizmeti, 7/24 kurye, moto kurye istanbul')">
     <meta name="author" content="SimdiGetir">
-    <meta name="robots" content="index, follow">
+    <meta name="robots" content="@yield('robots', 'index, follow')">
     <link rel="canonical" href="@yield('canonical_url', url()->current())">
     
     <!-- Open Graph -->
-    <meta property="og:title" content="@yield('title', 'SimdiGetir - Hızlı ve Güvenilir Kurye')">
-    <meta property="og:description" content="@yield('meta_description', 'Hızlı ve güvenilir kurye hizmeti. 7/24 teslimat.')">
+    <meta property="og:title" content="@hasSection('og_title')@yield('og_title')@else@yield('title', 'SimdiGetir - Hızlı ve Güvenilir Kurye')@endif">
+    <meta property="og:description" content="@hasSection('og_description')@yield('og_description')@else@yield('meta_description', 'Hızlı ve güvenilir kurye hizmeti. 7/24 teslimat.')@endif">
     <meta property="og:type" content="@yield('og_type', 'website')">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:site_name" content="SimdiGetir">
     <meta property="og:locale" content="tr_TR">
-    <meta property="og:image" content="@yield('og_image', asset('images/og-default.svg'))">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
+    <meta property="og:image" content="@yield('og_image', asset('images/og-default.jpg'))">
+    <meta property="og:image:width" content="1024">
+    <meta property="og:image:height" content="434">
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="@yield('title', 'SimdiGetir - Hızlı ve Güvenilir Kurye')">
-    <meta name="twitter:description" content="@yield('meta_description', 'Hızlı ve güvenilir kurye hizmeti. 7/24 teslimat.')">
-    <meta name="twitter:image" content="@yield('og_image', asset('images/og-default.svg'))">
+    <meta name="twitter:title" content="@hasSection('og_title')@yield('og_title')@else@yield('title', 'SimdiGetir - Hızlı ve Güvenilir Kurye')@endif">
+    <meta name="twitter:description" content="@hasSection('og_description')@yield('og_description')@else@yield('meta_description', 'Hızlı ve güvenilir kurye hizmeti. 7/24 teslimat.')@endif">
+    <meta name="twitter:image" content="@yield('og_image', asset('images/og-default.jpg'))">
     
     <!-- Geo Tags (Istanbul) -->
     <meta name="geo.region" content="TR-34">
@@ -46,7 +46,7 @@
     
     <!-- Google Ads & Analytics -->
     @php
-        $gtagId = \Modules\Settings\Models\Setting::getValue('seo.gtag_id', '');
+        $gtagId = \Modules\Settings\Models\Setting::getValue('seo.gtag_id', 'G-XYCY1D28EF');
     @endphp
     @if($gtagId)
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gtagId }}"></script>
@@ -105,6 +105,60 @@
         });
     </script>
     @endif
+
+    <!-- Meta Pixel -->
+    @php
+        $metaPixelIdRaw = (string) \Modules\Settings\Models\Setting::getValue('marketing.meta_pixel_id', env('META_PIXEL_ID', '1657531168735846'));
+        $metaPixelId = preg_replace('/\D+/', '', $metaPixelIdRaw);
+    @endphp
+    @if($metaPixelId)
+    <script>
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '{{ $metaPixelId }}');
+        fbq('track', 'PageView');
+    </script>
+    <noscript>
+        <img height="1" width="1" style="display:none"
+             src="https://www.facebook.com/tr?id={{ $metaPixelId }}&ev=PageView&noscript=1"
+             alt="" />
+    </noscript>
+    @endif
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            function trackMeta(eventName, payload) {
+                if (typeof fbq === 'function') {
+                    fbq('track', eventName, payload || {});
+                }
+            }
+
+            document.querySelectorAll('a[href^="tel:"]').forEach(function(el) {
+                el.addEventListener('click', function() {
+                    trackMeta('Contact', {
+                        content_name: 'phone_call_click',
+                        content_category: 'phone',
+                        status: 'initiated'
+                    });
+                });
+            });
+
+            document.querySelectorAll('a[href*="wa.me"], a[href*="whatsapp.com"]').forEach(function(el) {
+                el.addEventListener('click', function() {
+                    trackMeta('Contact', {
+                        content_name: 'whatsapp_click',
+                        content_category: 'whatsapp',
+                        status: 'initiated'
+                    });
+                });
+            });
+        });
+    </script>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1014,20 +1068,21 @@
         .offcanvas-sidebar {
             position: fixed;
             top: 0;
-            right: -420px;
+            right: 0;
             width: 400px;
             max-width: 90vw;
             height: 100vh;
             background: linear-gradient(180deg, #110125 0%, #0c0118 100%);
             border-left: 1px solid var(--border-glass);
             z-index: 201;
-            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(105%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             overflow-y: auto;
             padding: 2.5rem;
         }
         
         .offcanvas-sidebar.active {
-            right: 0;
+            transform: translateX(0);
         }
         
         .offcanvas-header {
@@ -1979,6 +2034,12 @@
             .nav {
                 display: none;
             }
+            .nav-right .btn {
+                display: none;
+            }
+            .nav-right {
+                gap: 0.5rem;
+            }
             
             .header-top-bar {
                 display: none;
@@ -2018,7 +2079,9 @@
             }
             
             .hero-visual {
-                display: none;
+                display: block;
+                max-width: 560px;
+                margin: 2rem auto 0;
             }
             
             .section-title {
@@ -2540,7 +2603,9 @@
                 text-align: center;
             }
             .hero-visual {
-                display: none;
+                display: block;
+                max-width: 640px;
+                margin: 2rem auto 0;
             }
             .hero h1 { font-size: 2.5rem; }
             .hero-stats { justify-content: center; }
@@ -2573,13 +2638,13 @@
                 grid-template-columns: 1fr 1fr;
                 gap: 1.5rem;
             }
-            .container { padding: 0 1rem; }
-            /* 2-column grids to single */
-            [style*="grid-template-columns: 1fr 1fr"],
-            [style*="grid-template-columns: 1fr 1.2fr"] {
+            .container { padding: 0 0.75rem; }
+            .responsive-stack {
                 grid-template-columns: 1fr !important;
             }
-            .marquee-section { display: none; }
+            .marquee-section {
+                padding: 0.5rem 0;
+            }
             .whatsapp-float { bottom: 16px; right: 16px; width: 52px; height: 52px; font-size: 1.5rem; }
             .back-to-top { bottom: 80px; right: 20px; width: 38px; height: 38px; }
             .cookie-inner { flex-direction: column; text-align: center; }
@@ -2657,9 +2722,20 @@
     
     <!-- Custom Cursor -->
     <div class="cursor-outer" id="cursor-outer"></div>
-    <div class="cursor-inner" id="cursor-inner"></div>
-    
-
+    <div class="cursor-inner" id="cursor-inner"></div>    @php
+        $sitePhone = \Modules\Settings\Models\Setting::getValue('contact.phone', '+90 551 356 72 92');
+        $siteWhatsapp = \Modules\Settings\Models\Setting::getValue('contact.whatsapp', '905513567292');
+        $siteEmail = \Modules\Settings\Models\Setting::getValue('contact.email', 'webgetir@simdigetir.com');
+        $siteAddress = \Modules\Settings\Models\Setting::getValue('contact.address', 'Kagithane / Istanbul');
+        $hoursLabel = \Modules\Settings\Models\Setting::getValue('business.hours_label', '7/24 Aktif Hizmet');
+        $hoursWeekdays = \Modules\Settings\Models\Setting::getValue('business.hours_weekdays', 'Pzt-Cum 00:00 - 23:59');
+        $facebookUrl = \Modules\Settings\Models\Setting::getValue('social.facebook', '');
+        $instagramUrl = \Modules\Settings\Models\Setting::getValue('social.instagram', '');
+        $twitterUrl = \Modules\Settings\Models\Setting::getValue('social.twitter', '');
+        $linkedinUrl = \Modules\Settings\Models\Setting::getValue('social.linkedin', '');
+        $youtubeUrl = \Modules\Settings\Models\Setting::getValue('social.youtube', '');
+        $whatsappUrl = 'https://wa.me/'.preg_replace('/[^0-9]/', '', (string) $siteWhatsapp);
+    @endphp
 
     <!-- Header - AIForge Style -->
     <header class="header" id="header">
@@ -2667,19 +2743,20 @@
         <div class="header-top-bar">
             <div class="header-top-inner">
                 <div class="header-top-left">
-                    <a href="tel:+905324847292">
-                        <i class="fa-solid fa-phone"></i> +90 532 484 72 92
+                    <a href="tel:{{ preg_replace('/[^0-9+]/', '', (string) $sitePhone) }}">
+                        <i class="fa-solid fa-phone"></i> {{ $sitePhone }}
                     </a>
-                    <a href="mailto:webgetir@simdigetir.com">
-                        <i class="fa-solid fa-envelope"></i> webgetir@simdigetir.com
+                    <a href="mailto:{{ $siteEmail }}">
+                        <i class="fa-solid fa-envelope"></i> {{ $siteEmail }}
                     </a>
-                    <span><i class="fa-solid fa-clock"></i> 7/24 Aktif Hizmet</span>
+                    <span><i class="fa-solid fa-clock"></i> {{ $hoursLabel }}</span>
                 </div>
                 <div class="header-top-right">
-                    <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-                    <a href="#" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
-                    <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                    @if($facebookUrl)<a href="{{ $facebookUrl }}" target="_blank" rel="noopener" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>@endif
+                    @if($instagramUrl)<a href="{{ $instagramUrl }}" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>@endif
+                    @if($twitterUrl)<a href="{{ $twitterUrl }}" target="_blank" rel="noopener" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>@endif
+                    @if($linkedinUrl)<a href="{{ $linkedinUrl }}" target="_blank" rel="noopener" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>@endif
+                    @if($youtubeUrl)<a href="{{ $youtubeUrl }}" target="_blank" rel="noopener" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>@endif
                 </div>
             </div>
         </div>
@@ -2699,7 +2776,7 @@
                 </nav>
                 
                 <div class="nav-right">
-                    <a href="tel:+905324847292" class="btn btn-accent">
+                    <a href="tel:{{ preg_replace('/[^0-9+]/', '', (string) $sitePhone) }}" class="btn btn-accent">
                         <i class="fa-solid fa-phone"></i> Kurye Çağır
                     </a>
                     <button class="theme-toggle-btn" id="theme-toggle" aria-label="Tema Değiştir" title="Tema Değiştir">
@@ -2742,19 +2819,19 @@
             <h4>İletişim</h4>
             <div class="offcanvas-contact-item">
                 <div class="offcanvas-contact-icon"><i class="fa-solid fa-location-dot"></i></div>
-                <span style="color:var(--text-secondary); font-size:0.9rem;">Yeşilce Mah. Aytekin Sok. No:5/2 Kağıthane / İstanbul</span>
+                <span style="color:var(--text-secondary); font-size:0.9rem;">{{ $siteAddress }}</span>
             </div>
             <div class="offcanvas-contact-item">
                 <div class="offcanvas-contact-icon"><i class="fa-solid fa-envelope"></i></div>
-                <a href="mailto:webgetir@simdigetir.com">webgetir@simdigetir.com</a>
+                <a href="mailto:{{ $siteEmail }}">{{ $siteEmail }}</a>
             </div>
             <div class="offcanvas-contact-item">
                 <div class="offcanvas-contact-icon"><i class="fa-solid fa-clock"></i></div>
-                <span style="color:var(--text-secondary); font-size:0.9rem;">7/24 Aktif Hizmet</span>
+                <span style="color:var(--text-secondary); font-size:0.9rem;">{{ $hoursWeekdays }}</span>
             </div>
             <div class="offcanvas-contact-item">
                 <div class="offcanvas-contact-icon"><i class="fa-solid fa-phone"></i></div>
-                <a href="tel:+905324847292">+90 532 484 72 92</a>
+                <a href="tel:{{ preg_replace('/[^0-9+]/', '', (string) $sitePhone) }}">{{ $sitePhone }}</a>
             </div>
         </div>
         
@@ -2763,9 +2840,9 @@
         </a>
         
         <div class="offcanvas-social">
-            <a href="https://www.instagram.com/simdigetir" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-            <a href="https://www.facebook.com/simdigetir" target="_blank" rel="noopener" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-            <a href="https://wa.me/905324847292" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+            <a href="{{ $instagramUrl }}" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+            <a href="{{ $facebookUrl }}" target="_blank" rel="noopener" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="{{ $whatsappUrl }}" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
         </div>
     </div>
 
@@ -2782,9 +2859,9 @@
                     @include('components.logo', ['size' => 'md'])
                     <p>Zamanın paradan daha değerli olduğu anlarda yanınızdayız. 7/24 hızlı ve güvenilir teslimat.</p>
                     <div class="footer-social">
-                        <a href="https://www.instagram.com/simdigetir" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-                        <a href="https://www.facebook.com/simdigetir" target="_blank" rel="noopener" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-                        <a href="https://wa.me/905324847292" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+                        <a href="{{ $instagramUrl }}" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="{{ $facebookUrl }}" target="_blank" rel="noopener" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="{{ $whatsappUrl }}" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
                     </div>
                 </div>
                 <div>
@@ -2819,16 +2896,16 @@
                 <div>
                     <h4>İletişim</h4>
                     <ul>
-                        <li><i class="fa-solid fa-phone"></i> {{ \Modules\Settings\Models\Setting::getValue('contact.phone', '+90 532 484 72 92') }}</li>
-                        <li><i class="fa-solid fa-envelope"></i> {{ \Modules\Settings\Models\Setting::getValue('contact.email', 'webgetir@simdigetir.com') }}</li>
-                        <li><i class="fa-solid fa-location-dot"></i> Kağıthane / İstanbul</li>
+                        <li><i class="fa-solid fa-phone"></i> {{ $sitePhone }}</li>
+                        <li><i class="fa-solid fa-envelope"></i> {{ $siteEmail }}</li>
+                        <li><i class="fa-solid fa-location-dot"></i> {{ $siteAddress }}</li>
                     </ul>
                 </div>
             </div>
             <div class="footer-bottom">
                 <p>&copy; {{ date('Y') }} SimdiGetir. Tüm hakları saklıdır.</p>
                 <p>
-                    Powered by <a href="https://castintech.com" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;">Castintech.com</a>
+                    Powered by <a href="https://castintech.com" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;">castintech</a>
                     | <span style="color: var(--text-secondary);">v{{ config('app.version') }}</span>
                 </p>
             </div>
@@ -2911,6 +2988,16 @@
             if (typeof gtag !== 'undefined') {
                 gtag('event', eventName, params);
             }
+
+            if (typeof fbq === 'function' && eventName === 'lead_submit') {
+                var leadType = (params && params.lead_type) ? params.lead_type : 'general';
+
+                fbq('track', 'Lead', {
+                    content_name: 'lead_form_submit',
+                    content_category: leadType,
+                    status: 'submitted'
+                });
+            }
         }
         
         // Track phone clicks
@@ -2992,7 +3079,7 @@
     @stack('scripts')
     
     <!-- WhatsApp Floating Button -->
-    <a href="https://wa.me/905324847292?text=Merhaba" class="whatsapp-float" target="_blank" rel="noopener" aria-label="WhatsApp ile iletişime geçin">
+    <a href="{{ $whatsappUrl }}?text=Merhaba" class="whatsapp-float" target="_blank" rel="noopener" aria-label="WhatsApp ile iletişime geçin">
         <i class="fa-brands fa-whatsapp"></i>
     </a>
     
@@ -3046,3 +3133,5 @@
     @stack('scripts')
 </body>
 </html>
+
+

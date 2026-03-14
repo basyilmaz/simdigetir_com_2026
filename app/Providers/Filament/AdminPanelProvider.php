@@ -22,27 +22,58 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        return $panel
+        $panel = $panel
             ->default()
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName('SimdiGetir')
+            ->profile()
+            ->brandName('SimdiGetir Yönetim')
             ->colors([
-                'primary' => Color::Blue,
+                'primary' => Color::Orange,
                 'danger' => Color::Rose,
-                'success' => Color::Green,
-                'warning' => Color::Orange,
+                'success' => Color::Emerald,
+                'warning' => Color::Amber,
+                'info' => Color::Sky,
+            ])
+            ->darkMode(true)
+            ->sidebarCollapsibleOnDesktop()
+            ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
+            ->navigationGroups([
+                'Müşteri Talepleri',
+                'Operasyon',
+                'Finans',
+                'Büyüme',
+                'Sayfa Yönetimi',
+                'Reklam Platformu',
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
+            ->discoverResources(
+                in: base_path('Modules/Landing/app/Filament/Resources'),
+                for: 'Modules\\Landing\\Filament\\Resources'
+            )
+            ->discoverResources(
+                in: base_path('Modules/AdsCore/app/Filament/Resources'),
+                for: 'Modules\\AdsCore\\Filament\\Resources'
+            )
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
+            ->discoverPages(
+                in: base_path('Modules/Landing/app/Filament/Pages'),
+                for: 'Modules\\Landing\\Filament\\Pages'
+            )
             ->pages([
                 Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
-            ])
+            ]);
+
+        if (config('admin_panel.enable_optional_2fa', false) && method_exists($panel, 'requiresTwoFactorAuthentication')) {
+            $panel = $panel->requiresTwoFactorAuthentication();
+        }
+
+        return $panel
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

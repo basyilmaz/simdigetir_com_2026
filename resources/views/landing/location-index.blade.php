@@ -99,10 +99,10 @@
                 <h2>Bölgeniz <span class="gradient-text">Hangisi?</span></h2>
                 <p>İstanbul'un neresinde olursanız olun, size en yakın kuryeyi anında atayız.</p>
                 <div class="cta-buttons">
-                    <a href="tel:+905324847292" class="btn btn-accent">
+                    <a href="tel:+905513567292" class="btn btn-accent">
                         <i class="fa-solid fa-phone"></i> Hemen Ara
                     </a>
-                    <a href="https://wa.me/905324847292" target="_blank" class="btn btn-outline">
+                    <a href="https://wa.me/905513567292" target="_blank" class="btn btn-outline">
                         <i class="fa-brands fa-whatsapp"></i> WhatsApp
                     </a>
                 </div>
