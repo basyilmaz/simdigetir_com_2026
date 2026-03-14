@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FormSubmissionController;
-use App\Http\Controllers\LegalDocumentController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PanelController;
 use App\Http\Controllers\SitemapController;
@@ -24,9 +23,9 @@ Route::get('/kurumsal', fn () => view('landing.corporate'))->name('corporate');
 Route::get('/kurye-basvuru', fn () => view('landing.courier-apply'))->name('courier-apply');
 Route::get('/iletisim', fn () => view('landing.contact'))->name('contact');
 Route::get('/sss', fn () => view('landing.faq'))->name('faq');
-Route::get('/kvkk', [LegalDocumentController::class, 'show'])->defaults('slug', 'kvkk')->name('kvkk');
-Route::get('/cerez-politikasi', [LegalDocumentController::class, 'show'])->defaults('slug', 'cerez-politikasi')->name('cookies');
-Route::get('/kullanim-kosullari', [LegalDocumentController::class, 'show'])->defaults('slug', 'kullanim-kosullari')->name('terms');
+Route::get('/kvkk', fn () => view('landing.kvkk'))->name('kvkk');
+Route::get('/cerez-politikasi', fn () => view('landing.kvkk'))->name('cookies');
+Route::get('/kullanim-kosullari', fn () => view('landing.kvkk'))->name('terms');
 
 // İlçe / Mahalle Lokasyon Sayfaları (SEO)
 Route::get('/kurye', [LocationController::class, 'allDistricts'])->name('locations.index');

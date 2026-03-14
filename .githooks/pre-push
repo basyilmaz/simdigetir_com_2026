@@ -1,0 +1,46 @@
+#!/usr/bin/env sh
+set -eu
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+run_quality_gate() {
+  if command -v pwsh >/dev/null 2>&1; then
+    pwsh -NoLogo -NoProfile -File ./scripts/run-quality-gate.ps1
+    return $?
+  fi
+
+  if command -v powershell >/dev/null 2>&1; then
+    powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File ./scripts/run-quality-gate.ps1
+    return $?
+  fi
+
+  if [ -x "/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe" ]; then
+    "/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe" -NoLogo -NoProfile -ExecutionPolicy Bypass -File ./scripts/run-quality-gate.ps1
+    return $?
+  fi
+
+  if [ -x "/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe" ]; then
+    "/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe" -NoLogo -NoProfile -ExecutionPolicy Bypass -File ./scripts/run-quality-gate.ps1
+    return $?
+  fi
+
+  return 127
+}
+
+if UPSTREAM="$(git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null)"; then
+  if git diff --name-only "${UPSTREAM}..HEAD" | grep -qx 'VERSION'; then
+    echo "[pre-push] VERSION change detected."
+  else
+    echo "[pre-push] VERSION must be updated before push."
+    echo "Run: php scripts/version/bump-version.php --part=patch"
+    exit 1
+  fi
+else
+  echo "[pre-push] No upstream branch found, VERSION check skipped."
+fi
+
+if ! run_quality_gate; then
+  echo "[pre-push] PowerShell not found; cannot run quality gate."
+  exit 1
+fi

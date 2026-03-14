@@ -3,11 +3,16 @@
 namespace Modules\Settings\Models;
 
 use App\Models\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Cache;
+use PDOException;
 
 class Setting extends Model
 {
+    private const CACHE_PREFIX = 'settings:';
+
     protected $fillable = [
         'key',
         'value',
@@ -24,8 +29,22 @@ class Setting extends Model
      */
     public static function getValue(string $key, mixed $default = null): mixed
     {
-        $setting = static::where('key', $key)->first();
-        return $setting ? $setting->value : $default;
+        return static::getCachedValue($key, $default);
+    }
+
+    /**
+     * Get a setting value by key with cache.
+     */
+    public static function getCachedValue(string $key, mixed $default = null): mixed
+    {
+        try {
+            return Cache::rememberForever(static::cacheKey($key), function () use ($key, $default) {
+                $setting = static::query()->where('key', $key)->first();
+                return $setting ? $setting->value : $default;
+            });
+        } catch (QueryException|PDOException) {
+            return $default;
+        }
     }
 
     /**
@@ -33,7 +52,7 @@ class Setting extends Model
      */
     public static function setValue(string $key, mixed $value, string $group = 'general', ?int $userId = null): static
     {
-        return static::updateOrCreate(
+        $setting = static::updateOrCreate(
             ['key' => $key],
             [
                 'value' => $value,
@@ -41,6 +60,20 @@ class Setting extends Model
                 'updated_by' => $userId,
             ]
         );
+
+        static::forgetCache($key);
+
+        return $setting;
+    }
+
+    public static function forgetCache(string $key): void
+    {
+        Cache::forget(static::cacheKey($key));
+    }
+
+    private static function cacheKey(string $key): string
+    {
+        return static::CACHE_PREFIX.$key;
     }
 
     /**
