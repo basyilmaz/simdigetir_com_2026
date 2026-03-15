@@ -3014,7 +3014,7 @@
                     </ul>
                 </div>
                 <div>
-                    <h4>Hizmet Bolgeleri</h4>
+                    <h4>Hizmet Bölgeleri</h4>
                     <ul>
                         <li><a href="/kurye">Tum Istanbul</a></li>
                         <li><a href="/kurye/sisli">Sisli Kurye</a></li>
@@ -3330,5 +3330,4 @@
     @stack('scripts')
 </body>
 </html>
-
 
