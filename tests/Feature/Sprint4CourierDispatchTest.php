@@ -4,9 +4,10 @@ namespace Tests\Feature;
 
 use App\Models\Courier;
 use App\Models\CourierAvailability;
-use App\Models\DeliveryProof;
+use App\Models\NotificationDispatch;
 use App\Models\Order;
 use App\Models\OrderAssignment;
+use App\Models\OrderProof;
 use App\Models\OrderTrackingEvent;
 use Tests\TestCase;
 
@@ -30,6 +31,8 @@ class Sprint4CourierDispatchTest extends TestCase
             'order_no' => 'ORD-S4-001',
             'state' => 'paid',
             'payment_state' => 'succeeded',
+            'pickup_phone' => '05550000041',
+            'dropoff_phone' => '05550000042',
             'pickup_address' => 'P',
             'dropoff_address' => 'D',
             'total_amount' => 1200,
@@ -47,7 +50,10 @@ class Sprint4CourierDispatchTest extends TestCase
             ->assertOk()
             ->assertJsonPath('success', true);
 
-        $this->postJson('/api/v1/couriers/'.$courier->id.'/orders/'.$order->id.'/pickup')
+        $this->postJson('/api/v1/couriers/'.$courier->id.'/orders/'.$order->id.'/pickup', [
+            'proof_type' => 'photo',
+            'file_url' => 'https://cdn.simdigetir.test/pickup-proof.jpg',
+        ])
             ->assertOk()
             ->assertJsonPath('success', true);
 
@@ -74,11 +80,62 @@ class Sprint4CourierDispatchTest extends TestCase
             'courier_id' => $courier->id,
             'status' => 'completed',
         ]);
-        $this->assertDatabaseHas('delivery_proofs', [
+        $this->assertDatabaseHas('order_proofs', [
             'order_id' => $order->id,
             'courier_id' => $courier->id,
+            'stage' => 'pickup',
+            'proof_type' => 'photo',
+            'file_url' => 'https://cdn.simdigetir.test/pickup-proof.jpg',
+        ]);
+        $this->assertDatabaseHas('order_proofs', [
+            'order_id' => $order->id,
+            'courier_id' => $courier->id,
+            'stage' => 'delivery',
             'proof_type' => 'otp',
         ]);
+        $this->assertDatabaseHas('notification_dispatches', [
+            'event_key' => 'orders.pickup_completed',
+            'channel' => 'sms',
+            'target' => '05550000041',
+            'status' => 'sent',
+        ]);
+        $this->assertDatabaseHas('notification_dispatches', [
+            'event_key' => 'orders.pickup_completed',
+            'channel' => 'sms',
+            'target' => '05550000042',
+            'status' => 'sent',
+        ]);
+        $this->assertDatabaseHas('notification_dispatches', [
+            'event_key' => 'orders.delivery_completed',
+            'channel' => 'sms',
+            'target' => '05550000041',
+            'status' => 'sent',
+        ]);
+        $this->assertDatabaseHas('notification_dispatches', [
+            'event_key' => 'orders.delivery_completed',
+            'channel' => 'sms',
+            'target' => '05550000042',
+            'status' => 'sent',
+        ]);
+
+        $pickupDispatch = NotificationDispatch::query()
+            ->where('event_key', 'orders.pickup_completed')
+            ->where('target', '05550000041')
+            ->latest('id')
+            ->first();
+        $this->assertNotNull($pickupDispatch);
+        $this->assertStringContainsString('/siparis-takip?order_no=ORD-S4-001', (string) data_get($pickupDispatch?->payload, 'body'));
+        $this->assertStringContainsString('phone=05550000041', (string) data_get($pickupDispatch?->payload, 'body'));
+
+        $deliveryDispatch = NotificationDispatch::query()
+            ->where('event_key', 'orders.delivery_completed')
+            ->where('target', '05550000042')
+            ->latest('id')
+            ->first();
+        $this->assertNotNull($deliveryDispatch);
+        $this->assertStringContainsString('/siparis-takip?order_no=ORD-S4-001', (string) data_get($deliveryDispatch?->payload, 'body'));
+        $this->assertStringContainsString('phone=05550000042', (string) data_get($deliveryDispatch?->payload, 'body'));
+
         $this->assertTrue(OrderTrackingEvent::query()->where('order_id', $order->id)->exists());
     }
 
@@ -183,7 +240,6 @@ class Sprint4CourierDispatchTest extends TestCase
         ]);
 
         $deliver->assertStatus(422)->assertJsonPath('success', false);
-        $this->assertFalse(DeliveryProof::query()->where('order_id', $order->id)->exists());
+        $this->assertFalse(OrderProof::query()->where('order_id', $order->id)->exists());
     }
 }
-

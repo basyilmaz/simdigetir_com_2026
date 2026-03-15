@@ -128,7 +128,7 @@ node scripts/qa/mobile-regression-check.mjs
 #### 2) Server deploy (Hostinger SSH)
 
 ```bash
-cd /home/<cpanel_user>/domains/simdigetir.com/laravel_app
+cd /home/<cpanel_user>/domains/simdigetir.com/current
 git fetch --all
 git checkout <release_commit_sha>
 git pull --ff-only origin <release_branch>
@@ -144,12 +144,15 @@ php artisan view:cache
 php artisan optimize
 ```
 
-If web root uses copied `public/` files:
+If web root uses copied `public/` files, use atomic cutover script:
 
 ```bash
-rsync -a --delete /home/<cpanel_user>/domains/simdigetir.com/laravel_app/public/ /home/<cpanel_user>/domains/simdigetir.com/public_html/
-ln -sfn ../laravel_app/storage/app/public /home/<cpanel_user>/domains/simdigetir.com/public_html/storage
+cd /home/<cpanel_user>/domains/simdigetir.com/current
+chmod +x scripts/release/hostinger-opcache-reset.sh scripts/release/hostinger-atomic-cutover.sh
+TARGET_RELEASE=<release_folder_name> HOSTS="simdigetir.com,www.simdigetir.com" bash scripts/release/hostinger-atomic-cutover.sh
 ```
+
+`hostinger-atomic-cutover.sh` now includes mandatory post-cutover opcache reset for all configured hosts.
 
 #### 3) Live parity probes
 

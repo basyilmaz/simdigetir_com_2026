@@ -62,6 +62,15 @@ $explicitTextFiles = [
     'VERSION',
 ];
 
+// Common mojibake markers seen when UTF-8 content is decoded with legacy encodings.
+$suspiciousMojibakeMarkers = [
+    "\u{00C3}", // broken UTF-8 lead sequence
+    "\u{00C4}", // broken UTF-8 lead sequence
+    "\u{00C5}", // broken UTF-8 lead sequence
+    "\u{00E2}\u{20AC}", // broken punctuation sequence
+    "\u{011F}\u{0178}", // broken emoji-like sequence
+];
+
 $violations = [];
 
 foreach ($files as $file) {
@@ -113,6 +122,14 @@ foreach ($files as $file) {
     if (str_contains($contents, "\r\n")) {
         $violations[] = "CRLF detected (must be LF): {$normalized}";
     }
+
+    foreach ($suspiciousMojibakeMarkers as $marker) {
+        if (str_contains($contents, $marker)) {
+            $escapedMarker = addcslashes($marker, "\0..\37\177..\377");
+            $violations[] = "Suspicious mojibake marker '{$escapedMarker}' detected: {$normalized}";
+            break;
+        }
+    }
 }
 
 if ($violations !== []) {
@@ -124,6 +141,7 @@ if ($violations !== []) {
     fwrite(STDERR, " - Remove forbidden artifacts (desktop.ini, Thumbs.db, .DS_Store).".PHP_EOL);
     fwrite(STDERR, " - Save files as UTF-8 without BOM.".PHP_EOL);
     fwrite(STDERR, " - Convert line endings to LF.".PHP_EOL);
+    fwrite(STDERR, " - Fix mojibake/corrupted characters before commit.".PHP_EOL);
     exit(1);
 }
 
@@ -188,4 +206,3 @@ Usage:
 
 TXT;
 }
-

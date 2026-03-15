@@ -4,7 +4,9 @@ param(
     [switch]$SkipQualityGate,
     [switch]$SkipStrictEnv,
     [switch]$RunApiSmoke,
-    [switch]$SendExternalNotifications
+    [switch]$SendExternalNotifications,
+    [ValidateSet("auto", "payments_off", "payments_on_paytr")]
+    [string]$ReleaseMode = "auto"
 )
 
 $ErrorActionPreference = "Stop"
@@ -71,6 +73,7 @@ function Add-SkipResult {
 Write-Host "== Hostinger Preflight =="
 Write-Host "Path: $((Get-Location).Path)"
 Write-Host "EnvFile: $EnvFile"
+Write-Host "ReleaseMode: $ReleaseMode"
 
 $backendFilter = "AuthSanctumTest|Sprint3OrderLifecycleApiTest|Sprint3PaymentFlowApiTest|Sprint4CourierDispatchTest|Sprint5FinanceSupportCorporateTest|Sprint6HardeningAnalyticsTest"
 $frontendFilter = "LandingDynamicContentTest|LandingStandardPagesDynamicContentTest|SeoTest|SmokeTest|LandingSeederTest|ReleaseP0ReadinessTest"
@@ -98,13 +101,13 @@ if ($SkipStrictEnv) {
 } else {
     if ($RunApiSmoke) {
         if (-not (Invoke-Step -Name "Strict Env + API Smoke" -Action {
-            & ./scripts/run-phase2-live-smoke.ps1 -EnvFile $EnvFile -StrictEnv -RunApiSmoke -SendExternalNotifications:$SendExternalNotifications
+            & ./scripts/run-phase2-live-smoke.ps1 -EnvFile $EnvFile -StrictEnv -RunApiSmoke -SendExternalNotifications:$SendExternalNotifications -ReleaseMode $ReleaseMode
         })) {
             $go = $false
         }
     } else {
         if (-not (Invoke-Step -Name "Strict Env Checklist" -Action {
-            & ./scripts/run-phase2-live-smoke.ps1 -EnvFile $EnvFile -StrictEnv
+            & ./scripts/run-phase2-live-smoke.ps1 -EnvFile $EnvFile -StrictEnv -ReleaseMode $ReleaseMode
         })) {
             $go = $false
         }
@@ -117,6 +120,7 @@ $reportPath = Join-Path $reportRoot "report.json"
 $report = [pscustomobject]@{
     generated_at = (Get-Date).ToString("o")
     env_file = $EnvFile
+    release_mode = $ReleaseMode
     run_api_smoke = [bool]$RunApiSmoke
     send_external_notifications = [bool]$SendExternalNotifications
     results = $results
@@ -137,4 +141,3 @@ if (-not $go) {
 }
 
 exit 0
-

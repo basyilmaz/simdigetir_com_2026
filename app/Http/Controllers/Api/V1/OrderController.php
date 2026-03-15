@@ -82,6 +82,10 @@ class OrderController extends Controller
             'scheduled_at' => ['nullable', 'date'],
             'vehicle_type' => ['nullable', 'string', 'max:40'],
             'notes' => ['nullable', 'array'],
+            'payment_method' => ['nullable', 'string', 'max:40'],
+            'payment_timing' => ['nullable', 'string', 'max:40'],
+            'payer_role' => ['nullable', 'string', 'max:40'],
+            'checkout_snapshot' => ['nullable', 'array'],
             'distance_meters' => ['nullable', 'integer', 'min:0'],
             'duration_seconds' => ['nullable', 'integer', 'min:0'],
             'pickup' => ['required', 'array'],
@@ -143,6 +147,9 @@ class OrderController extends Controller
                 'order_no' => $this->nextOrderNo(),
                 'state' => OrderState::Draft->value,
                 'payment_state' => 'pending',
+                'payment_method' => $validated['payment_method'] ?? null,
+                'payment_timing' => $validated['payment_timing'] ?? null,
+                'payer_role' => $validated['payer_role'] ?? null,
                 'pickup_name' => $validated['pickup']['name'] ?? null,
                 'pickup_phone' => $validated['pickup']['phone'] ?? null,
                 'pickup_address' => $validated['pickup']['address'],
@@ -164,6 +171,7 @@ class OrderController extends Controller
                 'total_amount' => $amounts['total_amount'],
                 'currency' => $amounts['currency'],
                 'price_breakdown' => $amounts['price_breakdown'],
+                'checkout_snapshot' => $validated['checkout_snapshot'] ?? null,
             ]);
 
             foreach ((array) ($validated['packages'] ?? []) as $item) {

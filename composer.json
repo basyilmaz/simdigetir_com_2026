@@ -53,6 +53,9 @@
             "Modules\\Reporting\\": "Modules/Reporting/app/",
             "Modules\\Reporting\\Database\\Factories\\": "Modules/Reporting/database/factories/",
             "Modules\\Reporting\\Database\\Seeders\\": "Modules/Reporting/database/seeders/",
+            "Modules\\Checkout\\": "Modules/Checkout/app/",
+            "Modules\\Checkout\\Database\\Factories\\": "Modules/Checkout/database/factories/",
+            "Modules\\Checkout\\Database\\Seeders\\": "Modules/Checkout/database/seeders/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }

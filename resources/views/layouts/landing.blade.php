@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="@yield('meta_description', 'SimdiGetir - Hızlı ve Güvenilir Kurye Hizmeti. 7/24 teslimat. Zamanın paradan daha değerli olduğu anlarda yanınızdayız.')">
-    <meta name="keywords" content="@yield('meta_keywords', 'kurye, moto kurye, acil kurye, araçlı kurye, istanbul kurye, hızlı teslimat, aynı gün teslimat, kurye hizmeti, 7/24 kurye, moto kurye istanbul')">
+    <meta name="description" content="@yield('meta_description', 'SimdiGetir - Hizli ve Guvenilir Kurye Hizmeti. 7/24 teslimat. Zamanin paradan daha degerli oldugu anlarda yaninizdayiz.')">
+    <meta name="keywords" content="@yield('meta_keywords', 'kurye, moto kurye, acil kurye, aracli kurye, istanbul kurye, hizli teslimat, ayni gun teslimat, kurye hizmeti, 7/24 kurye, moto kurye istanbul')">
     <meta name="author" content="SimdiGetir">
     <meta name="robots" content="@yield('robots', 'index, follow')">
     <link rel="canonical" href="@yield('canonical_url', url()->current())">
     
     <!-- Open Graph -->
-    <meta property="og:title" content="@hasSection('og_title')@yield('og_title')@else@yield('title', 'SimdiGetir - Hızlı ve Güvenilir Kurye')@endif">
-    <meta property="og:description" content="@hasSection('og_description')@yield('og_description')@else@yield('meta_description', 'Hızlı ve güvenilir kurye hizmeti. 7/24 teslimat.')@endif">
+    <meta property="og:title" content="@hasSection('og_title')@yield('og_title')@else@yield('title', 'SimdiGetir - Hizli ve Guvenilir Kurye')@endif">
+    <meta property="og:description" content="@hasSection('og_description')@yield('og_description')@else@yield('meta_description', 'Hizli ve guvenilir kurye hizmeti. 7/24 teslimat.')@endif">
     <meta property="og:type" content="@yield('og_type', 'website')">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:site_name" content="SimdiGetir">
@@ -22,17 +22,17 @@
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="@hasSection('og_title')@yield('og_title')@else@yield('title', 'SimdiGetir - Hızlı ve Güvenilir Kurye')@endif">
-    <meta name="twitter:description" content="@hasSection('og_description')@yield('og_description')@else@yield('meta_description', 'Hızlı ve güvenilir kurye hizmeti. 7/24 teslimat.')@endif">
+    <meta name="twitter:title" content="@hasSection('og_title')@yield('og_title')@else@yield('title', 'SimdiGetir - Hizli ve Guvenilir Kurye')@endif">
+    <meta name="twitter:description" content="@hasSection('og_description')@yield('og_description')@else@yield('meta_description', 'Hizli ve guvenilir kurye hizmeti. 7/24 teslimat.')@endif">
     <meta name="twitter:image" content="@yield('og_image', asset('images/og-default.jpg'))">
     
     <!-- Geo Tags (Istanbul) -->
     <meta name="geo.region" content="TR-34">
-    <meta name="geo.placename" content="@yield('geo_placename', 'İstanbul')">
+    <meta name="geo.placename" content="@yield('geo_placename', 'Istanbul')">
     <meta name="geo.position" content="@yield('geo_position', '41.0882;29.0014')">
     <meta name="ICBM" content="@yield('geo_position', '41.0882, 29.0014')">
     
-    <title>@yield('title', 'SimdiGetir - Hızlı ve Güvenilir Kurye')</title>
+    <title>@yield('title', 'SimdiGetir - Hizli ve Guvenilir Kurye')</title>
     
     <!-- Favicon & PWA -->
     <link rel="icon" type="image/svg+xml" href="{{ asset('images/favicon-32x32.svg') }}">
@@ -338,7 +338,7 @@
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        /* Dark mode aktif: güneş görünür */
+        /* Dark mode aktif: gunes gorunur */
         .theme-toggle-btn .icon-sun {
             opacity: 1;
             transform: rotate(0deg) scale(1);
@@ -348,7 +348,7 @@
             transform: rotate(180deg) scale(0);
         }
         
-        /* Light mode aktif: ay görünür */
+        /* Light mode aktif: ay gorunur */
         [data-theme="light"] .theme-toggle-btn .icon-sun {
             opacity: 0;
             transform: rotate(-180deg) scale(0);
@@ -2595,6 +2595,99 @@
             border: 1px solid var(--border-glass);
         }
         .cookie-btn-info:hover { border-color: var(--primary); color: var(--primary); }
+
+        /* ===== P1 GLASSMORPHISM PASS ===== */
+        :root {
+            --glass-surface-strong: rgba(255, 255, 255, 0.07);
+            --glass-surface-soft: rgba(255, 255, 255, 0.02);
+            --glass-stroke: rgba(255, 255, 255, 0.14);
+            --glass-stroke-hover: rgba(124, 58, 237, 0.45);
+            --glass-highlight: rgba(34, 211, 238, 0.24);
+            --glass-blur-size: 18px;
+            --glass-shadow-soft: 0 16px 40px rgba(6, 0, 13, 0.32);
+            --glass-shadow-hover: 0 24px 52px rgba(124, 58, 237, 0.22);
+            --glass-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            --glass-form-focus: 0 0 0 3px rgba(124, 58, 237, 0.2);
+        }
+
+        [data-theme="light"] {
+            --glass-surface-strong: rgba(255, 255, 255, 0.86);
+            --glass-surface-soft: rgba(255, 255, 255, 0.62);
+            --glass-stroke: rgba(99, 102, 241, 0.16);
+            --glass-stroke-hover: rgba(124, 58, 237, 0.34);
+            --glass-highlight: rgba(34, 211, 238, 0.18);
+            --glass-shadow-soft: 0 12px 30px rgba(15, 23, 42, 0.08);
+            --glass-shadow-hover: 0 20px 44px rgba(99, 102, 241, 0.16);
+            --glass-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+            --glass-form-focus: 0 0 0 3px rgba(99, 102, 241, 0.14);
+        }
+
+        .header-main-bar,
+        .header.scrolled {
+            background: linear-gradient(135deg, var(--glass-surface-strong), var(--glass-surface-soft));
+            border-bottom: 1px solid var(--glass-stroke);
+            -webkit-backdrop-filter: blur(calc(var(--glass-blur-size) + 6px));
+            backdrop-filter: blur(calc(var(--glass-blur-size) + 6px));
+            box-shadow: var(--glass-shadow-soft);
+        }
+
+        .hero-card,
+        .service-card,
+        .feature-card,
+        .blog-card,
+        .glass {
+            background: linear-gradient(145deg, var(--glass-surface-strong), var(--glass-surface-soft));
+            border-color: var(--glass-stroke);
+            box-shadow: var(--glass-shadow-soft), var(--glass-shadow-inset);
+            -webkit-backdrop-filter: blur(var(--glass-blur-size));
+            backdrop-filter: blur(var(--glass-blur-size));
+        }
+
+        .service-card:hover,
+        .feature-card:hover,
+        .blog-card:hover {
+            border-color: var(--glass-stroke-hover);
+            box-shadow: var(--glass-shadow-hover), var(--glass-shadow-inset);
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            background: linear-gradient(145deg, var(--glass-surface-strong), var(--glass-surface-soft));
+            border-color: var(--glass-stroke);
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
+            box-shadow: var(--glass-shadow-inset);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: var(--glass-stroke-hover);
+            box-shadow: var(--glass-form-focus), var(--glass-shadow-inset);
+        }
+
+        .section-badge,
+        .hero-badge {
+            border-color: var(--glass-stroke);
+            box-shadow: var(--glass-shadow-inset);
+        }
+
+        @media (max-width: 768px) {
+            .hero-card,
+            .service-card,
+            .feature-card,
+            .blog-card,
+            .glass,
+            .form-group input,
+            .form-group textarea,
+            .form-group select,
+            .header-main-bar,
+            .header.scrolled {
+                -webkit-backdrop-filter: blur(12px);
+                backdrop-filter: blur(12px);
+            }
+        }
         
         /* ===== RESPONSIVE ===== */
         @media (max-width: 1024px) {
@@ -2701,28 +2794,29 @@
     {!! \Modules\Settings\Models\Setting::getValue('marketing.gtm_body', '') !!}
     
     <!-- Skip Navigation -->
-    <a href="#main-content" class="skip-nav">Ana içeriğe geç</a>
+    <a href="#main-content" class="skip-nav">Ana icerige gec</a>
     
     <!-- Preloader -->
     <div class="preloader" id="preloader">
         <div class="preloader-text">
             <span>S</span>
-            <span>İ</span>
+            <span>I</span>
             <span>M</span>
             <span>D</span>
-            <span>İ</span>
+            <span>I</span>
             <span>G</span>
             <span>E</span>
             <span>T</span>
-            <span>İ</span>
+            <span>I</span>
             <span>R</span>
         </div>
-        <div class="preloader-subtitle">Kurye Sistemi Yükleniyor...</div>
+        <div class="preloader-subtitle">Kurye Sistemi Yukleniyor...</div>
     </div>
     
     <!-- Custom Cursor -->
     <div class="cursor-outer" id="cursor-outer"></div>
     <div class="cursor-inner" id="cursor-inner"></div>    @php
+        $landingContent = is_array($landingContent ?? null) ? $landingContent : [];
         $sitePhone = \Modules\Settings\Models\Setting::getValue('contact.phone', '+90 551 356 72 92');
         $siteWhatsapp = \Modules\Settings\Models\Setting::getValue('contact.whatsapp', '905513567292');
         $siteEmail = \Modules\Settings\Models\Setting::getValue('contact.email', 'webgetir@simdigetir.com');
@@ -2735,6 +2829,14 @@
         $linkedinUrl = \Modules\Settings\Models\Setting::getValue('social.linkedin', '');
         $youtubeUrl = \Modules\Settings\Models\Setting::getValue('social.youtube', '');
         $whatsappUrl = 'https://wa.me/'.preg_replace('/[^0-9]/', '', (string) $siteWhatsapp);
+        $headerB2BCtaEnabled = (bool) ($landingContent['header_b2b_cta_enabled'] ?? false);
+        $headerB2BCtaLabel = trim((string) ($landingContent['header_b2b_cta_label_text'] ?? 'Kurumsal Giris'));
+        $headerB2BCtaHref = trim((string) ($landingContent['header_b2b_cta_href'] ?? '/kurumsal'));
+        $headerB2BCtaTarget = (string) ($landingContent['header_b2b_cta_target'] ?? '_self');
+        if (! in_array($headerB2BCtaTarget, ['_self', '_blank'], true)) {
+            $headerB2BCtaTarget = '_self';
+        }
+        $headerB2BCtaRel = $headerB2BCtaTarget === '_blank' ? 'noopener' : null;
     @endphp
 
     <!-- Header - AIForge Style -->
@@ -2768,22 +2870,34 @@
                 
                 <nav class="nav">
                     <a href="/">Ana Sayfa</a>
-                    <a href="/hakkimizda">Hakkımızda</a>
+                    <a href="/hakkimizda">Hakkimizda</a>
                     <a href="/hizmetler">Hizmetler</a>
+                    <a href="/siparis-takip">Siparis Takip</a>
+                    <a href="/hesabim/giris">Hesabim</a>
                     <a href="/sss">SSS</a>
-                    <a href="/iletisim">İletişim</a>
+                    <a href="/iletisim">Iletisim</a>
                     <a href="/kurye-basvuru">Kurye Ol</a>
                 </nav>
                 
                 <div class="nav-right">
+                    @if ($headerB2BCtaEnabled && $headerB2BCtaLabel !== '' && $headerB2BCtaHref !== '')
+                        <a
+                            href="{{ $headerB2BCtaHref }}"
+                            class="btn btn-outline"
+                            target="{{ $headerB2BCtaTarget }}"
+                            @if ($headerB2BCtaRel) rel="{{ $headerB2BCtaRel }}" @endif
+                        >
+                            <i class="fa-solid fa-building-lock"></i> {{ $headerB2BCtaLabel }}
+                        </a>
+                    @endif
                     <a href="tel:{{ preg_replace('/[^0-9+]/', '', (string) $sitePhone) }}" class="btn btn-accent">
-                        <i class="fa-solid fa-phone"></i> Kurye Çağır
+                        <i class="fa-solid fa-phone"></i> Kurye Cagir
                     </a>
-                    <button class="theme-toggle-btn" id="theme-toggle" aria-label="Tema Değiştir" title="Tema Değiştir">
+                    <button class="theme-toggle-btn" id="theme-toggle" aria-label="Tema Degistir" title="Tema Degistir">
                         <i class="fa-solid fa-sun icon-sun"></i>
                         <i class="fa-solid fa-moon icon-moon"></i>
                     </button>
-                    <button class="header-sidebar-btn" id="sidebar-toggle" aria-label="Menü">
+                    <button class="header-sidebar-btn" id="sidebar-toggle" aria-label="Menu">
                         <i class="fa-solid fa-bars-staggered"></i>
                     </button>
                 </div>
@@ -2802,21 +2916,35 @@
         </div>
         
         <p class="offcanvas-desc">
-            Zamanın paradan daha değerli olduğu anlarda yanınızdayız. İstanbul'un her noktasına 7/24 hızlı ve güvenilir teslimat.
+            Zamanin paradan daha degerli oldugu anlarda yaninizdayiz. Istanbul'un her noktasina 7/24 hizli ve guvenilir teslimat.
         </p>
         
         <ul class="offcanvas-nav">
             <li><a href="/">Ana Sayfa <i class="fa-solid fa-arrow-right"></i></a></li>
-            <li><a href="/hakkimizda">Hakkımızda <i class="fa-solid fa-arrow-right"></i></a></li>
+            <li><a href="/hakkimizda">Hakkimizda <i class="fa-solid fa-arrow-right"></i></a></li>
             <li><a href="/hizmetler">Hizmetler <i class="fa-solid fa-arrow-right"></i></a></li>
+            <li><a href="/siparis-takip">Siparis Takip <i class="fa-solid fa-arrow-right"></i></a></li>
+            <li><a href="/hesabim/giris">Hesabim <i class="fa-solid fa-arrow-right"></i></a></li>
             <li><a href="/sss">SSS <i class="fa-solid fa-arrow-right"></i></a></li>
-            <li><a href="/iletisim">İletişim <i class="fa-solid fa-arrow-right"></i></a></li>
+            <li><a href="/iletisim">Iletisim <i class="fa-solid fa-arrow-right"></i></a></li>
             <li><a href="/kurye-basvuru">Kurye Ol <i class="fa-solid fa-arrow-right"></i></a></li>
-            <li><a href="/kurumsal">Kurumsal <i class="fa-solid fa-arrow-right"></i></a></li>
+            @if ($headerB2BCtaEnabled && $headerB2BCtaLabel !== '' && $headerB2BCtaHref !== '')
+                <li>
+                    <a
+                        href="{{ $headerB2BCtaHref }}"
+                        target="{{ $headerB2BCtaTarget }}"
+                        @if ($headerB2BCtaRel) rel="{{ $headerB2BCtaRel }}" @endif
+                    >
+                        {{ $headerB2BCtaLabel }} <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </li>
+            @else
+                <li><a href="/kurumsal">Kurumsal <i class="fa-solid fa-arrow-right"></i></a></li>
+            @endif
         </ul>
         
         <div class="offcanvas-contact">
-            <h4>İletişim</h4>
+            <h4>Iletisim</h4>
             <div class="offcanvas-contact-item">
                 <div class="offcanvas-contact-icon"><i class="fa-solid fa-location-dot"></i></div>
                 <span style="color:var(--text-secondary); font-size:0.9rem;">{{ $siteAddress }}</span>
@@ -2835,9 +2963,21 @@
             </div>
         </div>
         
-        <a href="/kurumsal" class="btn btn-primary" style="width:100%; margin-bottom: 1.5rem;">
-            Teklif Alın <i class="fa-solid fa-arrow-up-right-from-square"></i>
-        </a>
+        @if ($headerB2BCtaEnabled && $headerB2BCtaLabel !== '' && $headerB2BCtaHref !== '')
+            <a
+                href="{{ $headerB2BCtaHref }}"
+                class="btn btn-primary"
+                style="width:100%; margin-bottom: 1.5rem;"
+                target="{{ $headerB2BCtaTarget }}"
+                @if ($headerB2BCtaRel) rel="{{ $headerB2BCtaRel }}" @endif
+            >
+                <i class="fa-solid fa-building-lock"></i> {{ $headerB2BCtaLabel }} <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </a>
+        @else
+            <a href="/kurumsal" class="btn btn-primary" style="width:100%; margin-bottom: 1.5rem;">
+                Teklif Alin <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </a>
+        @endif
         
         <div class="offcanvas-social">
             <a href="{{ $instagramUrl }}" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
@@ -2857,7 +2997,7 @@
             <div class="footer-grid">
                 <div class="footer-brand">
                     @include('components.logo', ['size' => 'md'])
-                    <p>Zamanın paradan daha değerli olduğu anlarda yanınızdayız. 7/24 hızlı ve güvenilir teslimat.</p>
+                    <p>Zamanin paradan daha degerli oldugu anlarda yaninizdayiz. 7/24 hizli ve guvenilir teslimat.</p>
                     <div class="footer-social">
                         <a href="{{ $instagramUrl }}" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
                         <a href="{{ $facebookUrl }}" target="_blank" rel="noopener" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
@@ -2869,32 +3009,34 @@
                     <ul>
                         <li><a href="/hizmetler">Motorlu Kurye</a></li>
                         <li><a href="/hizmetler">Acil Kurye</a></li>
-                        <li><a href="/hizmetler">Araçlı Kurye</a></li>
+                        <li><a href="/hizmetler">Aracli Kurye</a></li>
                         <li><a href="/kurumsal">Kurumsal</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4>Hizmet Bölgeleri</h4>
+                    <h4>Hizmet Bolgeleri</h4>
                     <ul>
-                        <li><a href="/kurye">Tüm İstanbul</a></li>
-                        <li><a href="/kurye/sisli">Şişli Kurye</a></li>
-                        <li><a href="/kurye/besiktas">Beşiktaş Kurye</a></li>
-                        <li><a href="/kurye/kadikoy">Kadıköy Kurye</a></li>
-                        <li><a href="/kurye/uskudar">Üsküdar Kurye</a></li>
-                        <li><a href="/kurye/sariyer">Sarıyer Kurye</a></li>
+                        <li><a href="/kurye">Tum Istanbul</a></li>
+                        <li><a href="/kurye/sisli">Sisli Kurye</a></li>
+                        <li><a href="/kurye/besiktas">Besiktas Kurye</a></li>
+                        <li><a href="/kurye/kadikoy">Kadikoy Kurye</a></li>
+                        <li><a href="/kurye/uskudar">Uskudar Kurye</a></li>
+                        <li><a href="/kurye/sariyer">Sariyer Kurye</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4>Şirket</h4>
+                    <h4>Sirket</h4>
                     <ul>
-                        <li><a href="/hakkimizda">Hakkımızda</a></li>
+                        <li><a href="/hakkimizda">Hakkimizda</a></li>
+                        <li><a href="/siparis-takip">Siparis Takip</a></li>
+                        <li><a href="/hesabim/giris">Hesabim</a></li>
                         <li><a href="/sss">SSS</a></li>
                         <li><a href="/kurye-basvuru">Kurye Ol</a></li>
                         <li><a href="/kvkk">KVKK</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4>İletişim</h4>
+                    <h4>Iletisim</h4>
                     <ul>
                         <li><i class="fa-solid fa-phone"></i> {{ $sitePhone }}</li>
                         <li><i class="fa-solid fa-envelope"></i> {{ $siteEmail }}</li>
@@ -2903,7 +3045,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; {{ date('Y') }} SimdiGetir. Tüm hakları saklıdır.</p>
+                <p>&copy; {{ date('Y') }} SimdiGetir. Tum haklari saklidir.</p>
                 <p>
                     Powered by <a href="https://castintech.com" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;">castintech</a>
                     | <span style="color: var(--text-secondary);">v{{ config('app.version') }}</span>
@@ -3000,9 +3142,64 @@
             }
         }
         
-        // Track phone clicks
-        document.querySelectorAll('a[href^="tel:"]').forEach(link => {
-            link.addEventListener('click', () => trackEvent('click_call'));
+        function resolveCtaContext(link) {
+            if (!link) {
+                return 'unknown';
+            }
+
+            if (link.classList.contains('whatsapp-float')) {
+                return 'whatsapp_float';
+            }
+
+            if (link.closest('.hero-quote-widget')) {
+                return 'hero_quote_widget';
+            }
+
+            if (link.closest('.service-card')) {
+                return 'service_card';
+            }
+
+            if (link.closest('.hero')) {
+                return 'hero';
+            }
+
+            const section = link.closest('section[id], footer[id], header[id], nav[id], [id]');
+            if (section && section.id) {
+                return section.id;
+            }
+
+            if (link.closest('footer')) {
+                return 'footer';
+            }
+
+            if (link.closest('header')) {
+                return 'header';
+            }
+
+            return 'general';
+        }
+
+        function normalizedLabel(value) {
+            return String(value || '')
+                .replace(/\s+/g, ' ')
+                .trim()
+                .slice(0, 80);
+        }
+
+        document.querySelectorAll('a[href^="tel:"], a[href*="wa.me"], a[href*="whatsapp.com"]').forEach(link => {
+            const href = (link.getAttribute('href') || '').toLowerCase();
+            const channel = href.startsWith('tel:') ? 'call' : 'whatsapp';
+
+            link.addEventListener('click', () => {
+                const payload = {
+                    cta_channel: channel,
+                    cta_context: resolveCtaContext(link),
+                    cta_label: normalizedLabel(link.textContent),
+                };
+
+                trackEvent('cta_click', payload);
+                trackEvent(channel === 'call' ? 'click_call' : 'click_whatsapp', payload);
+            });
         });
         
         // Intersection Observer for animations
@@ -3079,12 +3276,12 @@
     @stack('scripts')
     
     <!-- WhatsApp Floating Button -->
-    <a href="{{ $whatsappUrl }}?text=Merhaba" class="whatsapp-float" target="_blank" rel="noopener" aria-label="WhatsApp ile iletişime geçin">
+    <a href="{{ $whatsappUrl }}?text=Merhaba" class="whatsapp-float" target="_blank" rel="noopener" aria-label="WhatsApp ile iletisime gecin">
         <i class="fa-brands fa-whatsapp"></i>
     </a>
     
     <!-- Back to Top -->
-    <button class="back-to-top" id="back-to-top" aria-label="Sayfa başına dön">
+    <button class="back-to-top" id="back-to-top" aria-label="Sayfa basina don">
         <i class="fa-solid fa-arrow-up"></i>
     </button>
     
@@ -3092,12 +3289,12 @@
     <div class="cookie-banner" id="cookie-banner">
         <div class="cookie-inner">
             <p class="cookie-text">
-                Bu web sitesi deneyiminizi iyileştirmek için çerezler kullanmaktadır. 
-                Siteyi kullanmaya devam ederek <a href="/kvkk">KVKK Aydınlatma Metni</a>'ni kabul etmiş olursunuz.
+                Bu web sitesi deneyiminizi iyilestirmek icin cerezler kullanmaktadir. 
+                Siteyi kullanmaya devam ederek <a href="/kvkk">KVKK Aydinlatma Metni</a>'ni kabul etmis olursunuz.
             </p>
             <div class="cookie-buttons">
                 <button class="cookie-btn cookie-btn-accept" id="cookie-accept">Kabul Et</button>
-                <a href="/kvkk" class="cookie-btn cookie-btn-info">Detaylı Bilgi</a>
+                <a href="/kvkk" class="cookie-btn cookie-btn-info">Detayli Bilgi</a>
             </div>
         </div>
     </div>

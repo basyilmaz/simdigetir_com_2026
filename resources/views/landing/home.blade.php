@@ -96,6 +96,8 @@
                                     </a>
                                 </div>
                                 
+                                @include('landing.sections.hero-instant-quote', ['landingContent' => $landingContent])
+
                                 <div class="hero-stats animate__animated animate__fadeInUp animate__delay-4s">
                                     <div class="hero-stat">
                                         <div class="hero-stat-value"><span data-count="724">0</span></div>
@@ -216,6 +218,7 @@
         }
 
         const shouldReduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let quoteWidgetInteractionLocks = 0;
         const swiper = new Swiper('.hero-swiper', {
             loop: true,
             effect: 'fade',
@@ -253,8 +256,34 @@
             }
             if (document.hidden) {
                 swiper.autoplay.stop();
-            } else {
+            } else if (quoteWidgetInteractionLocks === 0) {
                 swiper.autoplay.start();
+            }
+        });
+
+        const stopHeroAutoplay = () => {
+            if (swiper.autoplay) {
+                swiper.autoplay.stop();
+            }
+        };
+
+        const startHeroAutoplay = () => {
+            if (!swiper.autoplay || shouldReduceMotion || document.hidden || quoteWidgetInteractionLocks > 0) {
+                return;
+            }
+
+            swiper.autoplay.start();
+        };
+
+        document.addEventListener('landing:hero-quote-engage', function () {
+            quoteWidgetInteractionLocks += 1;
+            stopHeroAutoplay();
+        });
+
+        document.addEventListener('landing:hero-quote-release', function () {
+            quoteWidgetInteractionLocks = Math.max(quoteWidgetInteractionLocks - 1, 0);
+            if (quoteWidgetInteractionLocks === 0) {
+                startHeroAutoplay();
             }
         });
     });
@@ -693,5 +722,3 @@
     }
 </style>
 @endpush
-
-

@@ -13,6 +13,9 @@ class Order extends Model
         'order_no',
         'state',
         'payment_state',
+        'payment_method',
+        'payment_timing',
+        'payer_role',
         'pickup_name',
         'pickup_phone',
         'pickup_address',
@@ -34,6 +37,7 @@ class Order extends Model
         'total_amount',
         'currency',
         'price_breakdown',
+        'checkout_snapshot',
     ];
 
     protected $casts = [
@@ -44,6 +48,7 @@ class Order extends Model
         'dropoff_lng' => 'float',
         'notes' => 'array',
         'price_breakdown' => 'array',
+        'checkout_snapshot' => 'array',
     ];
 
     public function customer(): BelongsTo
@@ -81,9 +86,19 @@ class Order extends Model
         return $this->hasMany(OrderTrackingEvent::class);
     }
 
+    public function orderProofs(): HasMany
+    {
+        return $this->hasMany(OrderProof::class);
+    }
+
     public function deliveryProofs(): HasMany
     {
-        return $this->hasMany(DeliveryProof::class);
+        return $this->hasMany(OrderProof::class)->where('stage', 'delivery');
+    }
+
+    public function pickupProofs(): HasMany
+    {
+        return $this->hasMany(OrderProof::class)->where('stage', 'pickup');
     }
 
     public function supportTickets(): HasMany

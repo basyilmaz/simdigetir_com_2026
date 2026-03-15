@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Domain\Orders\Enums\OrderState;
 use App\Domain\Orders\Exceptions\InvalidOrderTransitionException;
 use App\Domain\Orders\Services\OrderStateTransitionService;
-use App\Domain\Payments\Services\PaymentGatewayManager;
+use App\Domain\Payments\Services\PaymentInitiationService;
 use App\Domain\Payments\Services\PaymentSignatureService;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
@@ -22,8 +22,7 @@ class PaymentController extends Controller
 {
     public function initiate(
         Request $request,
-        OrderStateTransitionService $transitionService,
-        PaymentGatewayManager $gatewayManager
+        PaymentInitiationService $paymentInitiationService
     ): JsonResponse
     {
         $validated = $request->validate([
@@ -52,12 +51,14 @@ class PaymentController extends Controller
         $currency = strtoupper((string) ($order?->currency ?? $quote?->currency ?? ($validated['currency'] ?? 'TRY')));
 
         try {
-            $gatewayResult = $gatewayManager->resolve($provider)->initiate($amount, $currency, [
-                'order_id' => $order?->id,
-                'order_no' => $order?->order_no,
-                'pricing_quote_id' => $quote?->id,
-                'callback_url' => url('/api/v1/payments/callback/'.$provider),
-            ]);
+            $result = $paymentInitiationService->initiate(
+                provider: $provider,
+                order: $order,
+                quote: $quote,
+                amount: $amount,
+                currency: $currency,
+                requestPayload: (array) ($validated['request_payload'] ?? [])
+            );
         } catch (Throwable $e) {
             return response()->json([
                 'success' => false,
@@ -66,38 +67,7 @@ class PaymentController extends Controller
             ], 422);
         }
 
-        $transaction = DB::transaction(function () use ($provider, $order, $quote, $amount, $currency, $validated, $transitionService, $gatewayResult) {
-            $tx = PaymentTransaction::query()->create([
-                'order_id' => $order?->id,
-                'pricing_quote_id' => $quote?->id,
-                'provider' => $provider,
-                'provider_reference' => (string) $gatewayResult['provider_reference'],
-                'amount' => $amount,
-                'currency' => $currency,
-                'status' => 'pending',
-                'request_payload' => array_merge(
-                    (array) ($validated['request_payload'] ?? []),
-                    (array) ($gatewayResult['request_payload'] ?? [])
-                ),
-            ]);
-
-            if ($order && $order->state === OrderState::Draft->value) {
-                try {
-                    $transitionService->transition(
-                        order: $order,
-                        toState: OrderState::PendingPayment,
-                        actorType: 'api',
-                        actorId: null,
-                        reason: 'payment_initiated',
-                        metadata: ['transaction_id' => $tx->id]
-                    );
-                } catch (InvalidOrderTransitionException) {
-                    // no-op: do not fail payment initiation due to state race
-                }
-            }
-
-            return $tx;
-        });
+        $transaction = $result['transaction'];
 
         return response()->json([
             'success' => true,
@@ -108,7 +78,7 @@ class PaymentController extends Controller
                 'status' => $transaction->status,
                 'amount' => (int) $transaction->amount,
                 'currency' => $transaction->currency,
-                'payment_url' => (string) $gatewayResult['payment_url'],
+                'payment_url' => (string) $result['payment_url'],
             ],
         ], 201);
     }

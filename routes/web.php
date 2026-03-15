@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FormSubmissionController;
 use App\Http\Controllers\LegalDocumentController;
 use App\Http\Controllers\LocationController;
-use App\Http\Controllers\PanelController;
 use App\Http\Controllers\SitemapController;
 
 /*
@@ -33,11 +32,11 @@ Route::get('/kurye', [LocationController::class, 'allDistricts'])->name('locatio
 Route::get('/kurye/{district}', [LocationController::class, 'district'])->name('locations.district');
 Route::get('/kurye/{district}/{neighborhood}', [LocationController::class, 'neighborhood'])->name('locations.neighborhood');
 
-// Basic panel UIs
-Route::get('/kurye-panel', [PanelController::class, 'courierPanel'])->name('panel.courier.simple');
-Route::get('/musteri-panel', [PanelController::class, 'customerPanel'])->name('panel.customer.simple');
-Route::get('/panel/courier/{courier}', [PanelController::class, 'courierDashboard'])->name('panel.courier');
-Route::get('/panel/customer/{user}', [PanelController::class, 'customerDashboard'])->name('panel.customer');
+// Legacy panel URLs are retired from public access.
+Route::redirect('/kurye-panel', '/admin/login')->name('panel.courier.simple');
+Route::redirect('/musteri-panel', '/hesabim')->name('panel.customer.simple');
+Route::get('/panel/courier/{courier}', fn () => redirect('/admin/login'))->name('panel.courier');
+Route::get('/panel/customer/{user}', fn () => redirect('/hesabim'))->name('panel.customer');
 
 // Sitemap
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');

@@ -54,6 +54,20 @@ class ManageSettings extends Page
             'marketing_gtm_body' => Setting::getValue('marketing.gtm_body', ''),
             'marketing_ga4_id' => Setting::getValue('marketing.ga4_id', ''),
 
+            // Checkout
+            'checkout_bank_transfer_title' => Setting::getValue('checkout.bank_transfer_title', 'Havale / EFT Odeme Talimati'),
+            'checkout_bank_transfer_body' => Setting::getValue(
+                'checkout.bank_transfer_body',
+                'Havale odemenizi tamamladiktan sonra siparisiniz finans ekibinin kontrolune duser.'
+            ),
+            'checkout_bank_transfer_bank_name' => Setting::getValue('checkout.bank_transfer_bank_name', ''),
+            'checkout_bank_transfer_account_holder' => Setting::getValue('checkout.bank_transfer_account_holder', ''),
+            'checkout_bank_transfer_iban' => Setting::getValue('checkout.bank_transfer_iban', ''),
+            'checkout_bank_transfer_reference_note' => Setting::getValue(
+                'checkout.bank_transfer_reference_note',
+                'Aciklama alanina siparis numaranizi yazin.'
+            ),
+
             // Social
             'social_facebook' => Setting::getValue('social.facebook', ''),
             'social_instagram' => Setting::getValue('social.instagram', ''),
@@ -139,6 +153,31 @@ class ManageSettings extends Page
                                     ->rows(5)
                                     ->helperText('<body> açılışına eklenecek GTM kodu'),
                             ]),
+
+                        Forms\Components\Tabs\Tab::make('Checkout')
+                            ->icon('heroicon-o-credit-card')
+                            ->schema([
+                                Forms\Components\TextInput::make('checkout_bank_transfer_title')
+                                    ->label('Havale Basligi')
+                                    ->placeholder('Havale / EFT Odeme Talimati'),
+                                Forms\Components\Textarea::make('checkout_bank_transfer_body')
+                                    ->label('Havale Aciklamasi')
+                                    ->rows(4)
+                                    ->helperText('Checkout odeme adiminda ve siparis detayinda gorunur.'),
+                                Forms\Components\TextInput::make('checkout_bank_transfer_bank_name')
+                                    ->label('Banka Adi')
+                                    ->placeholder('Orn: Garanti BBVA'),
+                                Forms\Components\TextInput::make('checkout_bank_transfer_account_holder')
+                                    ->label('Hesap Sahibi')
+                                    ->placeholder('Orn: SimdiGetir Ltd. Sti.'),
+                                Forms\Components\TextInput::make('checkout_bank_transfer_iban')
+                                    ->label('IBAN')
+                                    ->placeholder('TR00 0000 0000 0000 0000 0000 00'),
+                                Forms\Components\Textarea::make('checkout_bank_transfer_reference_note')
+                                    ->label('Referans Notu')
+                                    ->rows(3)
+                                    ->helperText('Musteriye hangi aciklama/ref kodunu yazmasi gerektigini anlatin.'),
+                            ])->columns(2),
 
                         Forms\Components\Tabs\Tab::make('Sosyal Medya')
                             ->icon('heroicon-o-share')
@@ -229,6 +268,14 @@ class ManageSettings extends Page
         Setting::setValue('marketing.gtm_head', $data['marketing_gtm_head'], 'marketing', $userId);
         Setting::setValue('marketing.gtm_body', $data['marketing_gtm_body'], 'marketing', $userId);
         Setting::setValue('marketing.ga4_id', $data['marketing_ga4_id'], 'marketing', $userId);
+
+        // Checkout
+        Setting::setValue('checkout.bank_transfer_title', $data['checkout_bank_transfer_title'], 'checkout', $userId);
+        Setting::setValue('checkout.bank_transfer_body', $data['checkout_bank_transfer_body'], 'checkout', $userId);
+        Setting::setValue('checkout.bank_transfer_bank_name', $data['checkout_bank_transfer_bank_name'], 'checkout', $userId);
+        Setting::setValue('checkout.bank_transfer_account_holder', $data['checkout_bank_transfer_account_holder'], 'checkout', $userId);
+        Setting::setValue('checkout.bank_transfer_iban', $data['checkout_bank_transfer_iban'], 'checkout', $userId);
+        Setting::setValue('checkout.bank_transfer_reference_note', $data['checkout_bank_transfer_reference_note'], 'checkout', $userId);
 
         // Social
         Setting::setValue('social.facebook', $data['social_facebook'], 'social', $userId);

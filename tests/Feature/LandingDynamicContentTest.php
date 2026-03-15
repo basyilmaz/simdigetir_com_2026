@@ -9,6 +9,147 @@ use Tests\TestCase;
 
 class LandingDynamicContentTest extends TestCase
 {
+    public function test_home_renders_hero_quote_widget_when_enabled(): void
+    {
+        config()->set('landing.quote_widget_enabled', true);
+
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('data-quote-widget', false);
+        $response->assertSee('Fiyat Hesapla');
+        $response->assertSee('data-quote-start-checkout', false);
+    }
+
+    public function test_home_hides_hero_quote_widget_when_disabled(): void
+    {
+        config()->set('landing.quote_widget_enabled', false);
+
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertDontSee('data-quote-widget', false);
+    }
+
+    public function test_home_uses_db_backed_quote_widget_content_when_available(): void
+    {
+        $page = LandingPage::create([
+            'slug' => 'home',
+            'title' => 'Home',
+            'is_active' => true,
+        ]);
+
+        LandingPageSection::create([
+            'page_id' => $page->id,
+            'key' => 'hero',
+            'type' => 'hero',
+            'is_active' => true,
+            'sort_order' => 1,
+            'payload' => [
+                'quote_widget_title_text' => 'Hizli Teklif Al',
+                'quote_widget_subtitle_text' => 'Panelden yonetilen teklif aciklamasi.',
+                'quote_widget_pickup_placeholder_text' => 'Orn: Besiktas',
+                'quote_widget_dropoff_placeholder_text' => 'Orn: Atasehir',
+                'quote_widget_submit_label_text' => 'Teklif Hesapla',
+                'quote_widget_whatsapp_label_text' => 'WhatsApp Destegi',
+                'quote_widget_call_label_text' => 'Telefon ile Ara',
+                'quote_widget_service_options' => [
+                    [
+                        'value' => 'vip',
+                        'label' => 'VIP Kurye',
+                        'base_amount' => 99000,
+                        'fallback_minutes' => 25,
+                    ],
+                ],
+            ],
+        ]);
+
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('Hizli Teklif Al');
+        $response->assertSee('Panelden yonetilen teklif aciklamasi.');
+        $response->assertSee('Orn: Besiktas');
+        $response->assertSee('Orn: Atasehir');
+        $response->assertSee('Teklif Hesapla');
+        $response->assertSee('WhatsApp Destegi');
+        $response->assertSee('Telefon ile Ara');
+        $response->assertSee('VIP Kurye');
+    }
+
+    public function test_home_hides_quote_widget_when_db_payload_disables_it(): void
+    {
+        config()->set('landing.quote_widget_enabled', true);
+
+        $page = LandingPage::create([
+            'slug' => 'home',
+            'title' => 'Home',
+            'is_active' => true,
+        ]);
+
+        LandingPageSection::create([
+            'page_id' => $page->id,
+            'key' => 'hero',
+            'type' => 'hero',
+            'is_active' => true,
+            'sort_order' => 1,
+            'payload' => [
+                'quote_widget_enabled' => false,
+            ],
+        ]);
+
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertDontSee('data-quote-widget', false);
+    }
+
+    public function test_home_contains_quote_widget_slider_pause_hooks(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('landing:hero-quote-engage');
+        $response->assertSee('landing:hero-quote-release');
+        $response->assertSee('quoteWidgetInteractionLocks');
+    }
+
+    public function test_home_and_standard_pages_use_db_backed_header_b2b_cta_when_enabled(): void
+    {
+        $page = LandingPage::create([
+            'slug' => 'home',
+            'title' => 'Home',
+            'is_active' => true,
+        ]);
+
+        LandingPageSection::create([
+            'page_id' => $page->id,
+            'key' => 'hero',
+            'type' => 'hero',
+            'is_active' => true,
+            'sort_order' => 1,
+            'payload' => [
+                'header_b2b_cta_enabled' => true,
+                'header_b2b_cta_label_text' => 'Kurumsal Portal',
+                'header_b2b_cta_href' => '/kurumsal/giris',
+                'header_b2b_cta_target' => '_blank',
+            ],
+        ]);
+
+        $homeResponse = $this->get('/');
+        $homeResponse->assertStatus(200);
+        $homeResponse->assertSee('Kurumsal Portal');
+        $homeResponse->assertSee('/kurumsal/giris');
+        $homeResponse->assertSee('fa-building-lock');
+        $homeResponse->assertSee('target="_blank"', false);
+
+        $servicesResponse = $this->get('/hizmetler');
+        $servicesResponse->assertStatus(200);
+        $servicesResponse->assertSee('Kurumsal Portal');
+        $servicesResponse->assertSee('/kurumsal/giris');
+        $servicesResponse->assertSee('target="_blank"', false);
+    }
+
     public function test_home_uses_db_backed_hero_content_when_available()
     {
         $page = LandingPage::create([
@@ -134,10 +275,10 @@ class LandingDynamicContentTest extends TestCase
             'is_active' => true,
             'payload' => [
                 'number' => '09',
-                'icon_text' => 'ÄŸÅ¸â€ºÂµ',
+                'icon_text' => '*',
                 'title' => 'Dinamik Servis',
-                'description' => 'Panelden gelen servis aÃƒÂ§Ã„Â±klamasÃ„Â±.',
-                'features' => ['Ãƒâ€“zellik A', 'Ãƒâ€“zellik B'],
+                'description' => 'Panelden gelen servis aciklamasi.',
+                'features' => ['Ozellik A', 'Ozellik B'],
                 'button_icon' => 'fa-phone',
                 'button_label' => 'Dinamik Ara',
                 'button_href' => 'tel:+900000000000',
@@ -148,8 +289,8 @@ class LandingDynamicContentTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Dinamik Servis');
-        $response->assertSee('Panelden gelen servis aÃƒÂ§Ã„Â±klamasÃ„Â±.');
-        $response->assertSee('Ãƒâ€“zellik A');
+        $response->assertSee('Panelden gelen servis aciklamasi.');
+        $response->assertSee('Ozellik A');
         $response->assertSee('Dinamik Ara');
         $response->assertSee('tel:+900000000000');
     }
@@ -177,8 +318,8 @@ class LandingDynamicContentTest extends TestCase
             'sort_order' => 1,
             'is_active' => true,
             'payload' => [
-                'title' => 'Dinamik SSS KartÃ„Â±',
-                'description' => 'Dinamik SSS aÃƒÂ§Ã„Â±klamasÃ„Â±.',
+                'title' => 'Dinamik SSS Karti',
+                'description' => 'Dinamik SSS aciklamasi.',
                 'link' => '/sss',
                 'link_label' => 'Dinamik Sorulara Bak',
                 'date_label' => '1 Mart 2026',
@@ -189,8 +330,8 @@ class LandingDynamicContentTest extends TestCase
         $response = $this->get('/');
 
         $response->assertStatus(200);
-        $response->assertSee('Dinamik SSS KartÃ„Â±');
-        $response->assertSee('Dinamik SSS aÃƒÂ§Ã„Â±klamasÃ„Â±.');
+        $response->assertSee('Dinamik SSS Karti');
+        $response->assertSee('Dinamik SSS aciklamasi.');
         $response->assertSee('Dinamik Sorulara Bak');
         $response->assertSee('1 Mart 2026');
     }
@@ -239,8 +380,8 @@ class LandingDynamicContentTest extends TestCase
             'is_active' => true,
             'payload' => [
                 'icon_class' => 'fa-map-location-dot',
-                'title' => 'Dinamik Kurye Ãƒâ€“zelliÃ„Å¸i',
-                'subtitle' => 'Dinamik kurye alt aÃƒÂ§Ã„Â±klamasÃ„Â±.',
+                'title' => 'Dinamik Kurye Ozelligi',
+                'subtitle' => 'Dinamik kurye alt aciklamasi.',
             ],
         ]);
 
@@ -248,8 +389,8 @@ class LandingDynamicContentTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Dinamik Kurumsal Avantaj');
-        $response->assertSee('Dinamik Kurye Ãƒâ€“zelliÃ„Å¸i');
-        $response->assertSee('Dinamik kurye alt aÃƒÂ§Ã„Â±klamasÃ„Â±.');
+        $response->assertSee('Dinamik Kurye Ozelligi');
+        $response->assertSee('Dinamik kurye alt aciklamasi.');
     }
     public function test_home_hides_inactive_managed_sections()
     {

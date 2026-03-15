@@ -2,36 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
 
-class DeliveryProof extends Model
+class DeliveryProof extends OrderProof
 {
-    public $timestamps = false;
-
-    protected $fillable = [
-        'order_id',
-        'courier_id',
-        'proof_type',
-        'proof_value',
-        'file_url',
-        'metadata',
-        'created_at',
-    ];
-
-    protected $casts = [
-        'metadata' => 'array',
-        'created_at' => 'datetime',
-    ];
-
-    public function order(): BelongsTo
+    protected static function booted(): void
     {
-        return $this->belongsTo(Order::class);
-    }
+        static::addGlobalScope('delivery_stage', function (Builder $builder): void {
+            $builder->where('stage', 'delivery');
+        });
 
-    public function courier(): BelongsTo
-    {
-        return $this->belongsTo(Courier::class);
+        static::creating(function (DeliveryProof $proof): void {
+            $proof->stage = 'delivery';
+        });
     }
 }
-

@@ -106,6 +106,96 @@ class Sprint5FinanceSupportCorporateTest extends TestCase
         ]);
     }
 
+    public function test_bank_transfer_reconcile_promotes_pending_order_to_paid(): void
+    {
+        $order = Order::query()->create([
+            'order_no' => 'ORD-S5-002-BNK',
+            'state' => 'pending_payment',
+            'payment_state' => 'awaiting_reconcile',
+            'payment_method' => 'bank_transfer',
+            'payment_timing' => 'prepaid',
+            'pickup_address' => 'P',
+            'dropoff_address' => 'D',
+            'total_amount' => 2400,
+            'currency' => 'TRY',
+        ]);
+
+        $tx = PaymentTransaction::query()->create([
+            'order_id' => $order->id,
+            'provider' => 'bank_transfer',
+            'provider_reference' => 'BANK-S5-SUCCEEDED',
+            'amount' => 2400,
+            'currency' => 'TRY',
+            'status' => 'pending',
+        ]);
+
+        $response = $this->postJson('/api/v1/finance/payments/reconcile', [
+            'payment_transaction_id' => $tx->id,
+            'provider_status' => 'succeeded',
+            'notes' => 'Manual bank confirmation',
+        ]);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.provider_status', 'succeeded')
+            ->assertJsonPath('data.internal_status', 'pending')
+            ->assertJsonPath('data.is_match', false);
+
+        $this->assertDatabaseHas('payment_transactions', [
+            'id' => $tx->id,
+            'status' => 'succeeded',
+        ]);
+        $this->assertDatabaseHas('orders', [
+            'id' => $order->id,
+            'state' => 'paid',
+            'payment_state' => 'succeeded',
+        ]);
+    }
+
+    public function test_bank_transfer_reconcile_can_mark_pending_order_failed(): void
+    {
+        $order = Order::query()->create([
+            'order_no' => 'ORD-S5-002-BNK-FAIL',
+            'state' => 'pending_payment',
+            'payment_state' => 'awaiting_reconcile',
+            'payment_method' => 'bank_transfer',
+            'payment_timing' => 'prepaid',
+            'pickup_address' => 'P',
+            'dropoff_address' => 'D',
+            'total_amount' => 2100,
+            'currency' => 'TRY',
+        ]);
+
+        $tx = PaymentTransaction::query()->create([
+            'order_id' => $order->id,
+            'provider' => 'bank_transfer',
+            'provider_reference' => 'BANK-S5-FAILED',
+            'amount' => 2100,
+            'currency' => 'TRY',
+            'status' => 'pending',
+        ]);
+
+        $response = $this->postJson('/api/v1/finance/payments/reconcile', [
+            'payment_transaction_id' => $tx->id,
+            'provider_status' => 'failed',
+        ]);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.provider_status', 'failed')
+            ->assertJsonPath('data.internal_status', 'pending');
+
+        $this->assertDatabaseHas('payment_transactions', [
+            'id' => $tx->id,
+            'status' => 'failed',
+        ]);
+        $this->assertDatabaseHas('orders', [
+            'id' => $order->id,
+            'state' => 'failed',
+            'payment_state' => 'failed',
+        ]);
+    }
+
     public function test_notification_templates_and_dispatch(): void
     {
         $this->postJson('/api/v1/notifications/templates/upsert', [

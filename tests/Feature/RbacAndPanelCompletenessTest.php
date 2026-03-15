@@ -21,7 +21,7 @@ class RbacAndPanelCompletenessTest extends TestCase
         }
     }
 
-    public function test_courier_and_customer_panel_routes_render(): void
+    public function test_legacy_panel_routes_are_not_publicly_accessible(): void
     {
         $courier = Courier::query()->create([
             'full_name' => 'Courier Panel',
@@ -41,9 +41,13 @@ class RbacAndPanelCompletenessTest extends TestCase
             'currency' => 'TRY',
         ]);
 
-        $this->get('/panel/courier/'.$courier->id)->assertOk()->assertSee('Kurye Paneli');
-        $this->get('/panel/customer/'.$customer->id)->assertOk()->assertSee('Musteri Paneli');
-        $this->get('/kurye-panel?courier_id='.$courier->id)->assertOk()->assertSee('Kurye Paneli');
-        $this->get('/musteri-panel?user_id='.$customer->id)->assertOk()->assertSee('Musteri Paneli');
+        $this->get('/panel/courier/'.$courier->id)
+            ->assertRedirect('/admin/login');
+        $this->get('/panel/customer/'.$customer->id)
+            ->assertRedirect('/hesabim');
+        $this->get('/kurye-panel?courier_id='.$courier->id)
+            ->assertRedirect('/admin/login');
+        $this->get('/musteri-panel?user_id='.$customer->id)
+            ->assertRedirect('/hesabim');
     }
 }

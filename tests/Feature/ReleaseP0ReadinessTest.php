@@ -48,6 +48,8 @@ class ReleaseP0ReadinessTest extends TestCase
         $this->assertStringContainsString('https://castintech.com', $html);
         $this->assertStringContainsString('castintech', strtolower($html));
         $this->assertStringContainsString('v'.config('app.version'), $html);
+        $this->assertStringContainsString('/siparis-takip', $html);
+        $this->assertStringContainsString('/hesabim/giris', $html);
     }
 
     private function countMatches(string $pattern, string $subject): int
@@ -57,4 +59,3 @@ class ReleaseP0ReadinessTest extends TestCase
         return count($matches[0] ?? []);
     }
 }
-

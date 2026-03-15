@@ -1,0 +1,1007 @@
+
+<x-checkout::layouts.master title="Siparis Akisi" description="SimdiGetir checkout wizard">
+@php
+    $payload = (array) ($pageState['session']['payload'] ?? []);
+    $pickup = (array) ($payload['pickup'] ?? []);
+    $dropoff = (array) ($payload['dropoff'] ?? []);
+    $payment = (array) ($payload['payment'] ?? []);
+    $quote = (array) ($pageState['quote'] ?? []);
+    $customer = (array) ($pageState['customer'] ?? []);
+    $finalizedOrder = (array) ($pageState['finalized_order'] ?? []);
+    $package = (array) (($payload['packages'] ?? [])[0] ?? []);
+    $bankTransfer = (array) ($pageState['payment']['bank_transfer'] ?? []);
+    $cardProviderLabel = (string) ($pageState['payment']['provider_label'] ?? strtoupper((string) ($pageState['payment']['default_provider'] ?? 'CARD')));
+    $stepLabels = [
+        'quote' => 'Teklif',
+        'auth' => 'Hesap',
+        'recipient' => 'Kisi Bilgileri',
+        'payment' => 'Odeme',
+        'confirm' => 'Onay',
+    ];
+    $stepDescriptions = [
+        'quote' => 'Adres ve fiyat kontrolu',
+        'auth' => 'Telefon ile kayit veya giris',
+        'recipient' => 'Gonderen, alici ve paket bilgileri',
+        'payment' => 'Uygun yontemi secin',
+        'confirm' => 'Siparisi olustur',
+    ];
+    $quoteAmount = ! empty($quote)
+        ? number_format(((int) ($quote['total_amount'] ?? 0)) / 100, 2, ',', '.') . ' ' . ($quote['currency'] ?? 'TRY')
+        : '-';
+    $distanceText = isset($quote['distance_meters'])
+        ? number_format(((int) $quote['distance_meters']) / 1000, 1, ',', '.') . ' km'
+        : '-';
+    $durationText = isset($quote['duration_seconds'])
+        ? ceil(((int) $quote['duration_seconds']) / 60) . ' dk'
+        : '-';
+@endphp
+
+@push('styles')
+<style>
+body {
+    margin: 0;
+    background:
+        radial-gradient(circle at top left, rgba(249, 115, 22, 0.22), transparent 32%),
+        linear-gradient(180deg, #fff4e2 0%, #f3ede5 100%);
+    color: #201b17;
+    font-family: "Manrope", sans-serif;
+}
+.shell { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 44px; }
+.top { display: flex; justify-content: space-between; gap: 16px; align-items: center; margin-bottom: 20px; }
+.brand { display: inline-flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; font-weight: 800; }
+.brand b { width: 42px; height: 42px; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #f97316, #ef4444); color: #fff; font-family: "Space Grotesk", sans-serif; }
+.grid { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 20px; }
+.card { border: 1px solid rgba(63, 42, 20, 0.12); border-radius: 24px; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(14px); box-shadow: 0 18px 60px rgba(63, 42, 20, 0.12); }
+.side, .main { padding: 22px; }
+.steps, .summary, .form, .formgrid, .g2, .g3 { display: grid; gap: 14px; }
+.steps { gap: 10px; margin: 16px 0 20px; }
+.summary { gap: 10px; }
+.formgrid, .g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.step, .box, .account-strip, .choicebox, .toggle, .helper { border-radius: 18px; border: 1px solid rgba(63, 42, 20, 0.08); background: rgba(255, 255, 255, 0.68); }
+.step { padding: 12px 14px; }
+.step.active { border-color: rgba(201, 90, 27, 0.3); background: rgba(255, 240, 226, 0.96); }
+.step.done { border-color: rgba(22, 163, 74, 0.2); background: rgba(240, 253, 244, 0.92); }
+.step strong { display: block; margin-bottom: 4px; }
+.row { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; font-size: 14px; }
+.row small, .muted, .note, .head p, .panel > p, .box p, .choicebox span, .helper, .account-strip p, .summary small, .step span { color: #6b6258; }
+.token, .status, .badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; font-size: 13px; font-weight: 700; }
+.token, .status { background: rgba(201, 90, 27, 0.1); color: #8d2f00; }
+.badge { background: rgba(15, 118, 110, 0.12); color: #115e59; }
+.head h1 { margin: 0; font-family: "Space Grotesk", sans-serif; font-size: clamp(1.8rem, 4vw, 2.7rem); line-height: 1.05; }
+.head { display: grid; gap: 10px; }
+.panel { display: none; padding: 20px; border-radius: 22px; border: 1px solid rgba(63, 42, 20, 0.08); background: rgba(255, 255, 255, 0.62); }
+.panel.show { display: block; }
+.panel h2, .box h3, .choicebox strong { margin: 0; font-family: "Space Grotesk", sans-serif; }
+.panel h2 { margin-bottom: 8px; }
+.box { padding: 16px; }
+.box h3 { margin-bottom: 8px; font-size: 14px; }
+.box p, .account-strip p { margin: 0; white-space: pre-line; line-height: 1.6; }
+.field { display: grid; gap: 8px; }
+.field.full { grid-column: 1 / -1; }
+.field label { font-size: 13px; font-weight: 700; }
+.field input, .field textarea, .field select { width: 100%; min-height: 52px; padding: 14px 16px; border-radius: 16px; border: 1px solid rgba(63, 42, 20, 0.12); background: rgba(255, 255, 255, 0.92); font: inherit; color: inherit; }
+.field textarea { min-height: 104px; resize: vertical; }
+.err { min-height: 1em; margin: 0; color: #b42318; font-size: 12px; }
+.toggle, .account-strip, .helper { padding: 14px 16px; }
+.toggle { display: inline-flex; align-items: center; gap: 10px; font-weight: 600; }
+.toggle input { margin: 0; }
+.choice { position: relative; }
+.choice input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.choicebox { display: block; padding: 16px; min-height: 168px; }
+.choice input:checked + .choicebox { border-color: rgba(201, 90, 27, 0.3); background: rgba(255, 240, 226, 0.96); }
+.choicebox span { display: block; margin-top: 8px; font-size: 13px; line-height: 1.55; }
+.choicebox em { display: inline-block; margin-top: 10px; font-style: normal; font-size: 12px; font-weight: 700; color: #8d2f00; }
+.choice.disabled { opacity: 0.58; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 50px; padding: 0 18px; border-radius: 16px; border: 0; font: inherit; font-weight: 800; text-decoration: none; cursor: pointer; }
+.btn.primary { background: linear-gradient(135deg, #f97316, #ea580c); color: #fff; }
+.btn.secondary { background: rgba(255, 255, 255, 0.9); color: #201b17; border: 1px solid rgba(63, 42, 20, 0.12); }
+.alert { margin-top: 16px; padding: 14px 16px; border-radius: 18px; font-size: 14px; line-height: 1.6; }
+.info { background: rgba(33, 150, 243, 0.12); color: #164a8b; }
+.success { background: rgba(22, 163, 74, 0.12); color: #166534; }
+.warn { background: rgba(202, 138, 4, 0.12); color: #854d0e; }
+.error { background: rgba(180, 35, 24, 0.12); color: #9d1c12; }
+.account-strip { display: grid; gap: 10px; }
+.account-strip strong { font-size: 14px; }
+.quick-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.link-btn { padding: 0; border: 0; background: transparent; color: #8d2f00; font: inherit; font-weight: 800; cursor: pointer; }
+[data-finalize-success][hidden] { display: none; }
+@media (max-width: 980px) { .grid, .g2, .g3, .formgrid { grid-template-columns: 1fr; } }
+</style>
+@endpush
+
+<div class="shell" data-checkout-app data-page-state='@json($pageState)'>
+    <div class="top">
+        <a href="{{ route('home') }}" class="brand"><b>SG</b><span>SimdiGetir Checkout</span></a>
+        <div class="note">Telefon, kisi bilgileri ve odeme tercihi ile siparisi tamamlayin.</div>
+    </div>
+
+    <div class="grid">
+        <aside class="card side">
+            <h2>Akis Ozeti</h2>
+            <div class="token">Token: {{ $checkoutSession->token }}</div>
+            <div class="steps">
+                @foreach ($stepLabels as $stepKey => $stepLabel)
+                    <div class="step" data-step="{{ $stepKey }}"><strong>{{ $stepLabel }}</strong><span>{{ $stepDescriptions[$stepKey] ?? '' }}</span></div>
+                @endforeach
+            </div>
+            <div class="summary">
+                <div class="row"><small>Alinis</small><strong data-summary-pickup>{{ $pickup['address'] ?? '-' }}</strong></div>
+                <div class="row"><small>Teslimat</small><strong data-summary-dropoff>{{ $dropoff['address'] ?? '-' }}</strong></div>
+                <div class="row"><small>Hizmet</small><strong data-summary-service>{{ strtoupper((string) ($payload['service_type'] ?? 'moto')) }}</strong></div>
+                <div class="row"><small>Mesafe</small><strong>{{ $distanceText }}</strong></div>
+                <div class="row"><small>Tahmini sure</small><strong>{{ $durationText }}</strong></div>
+                <div class="row"><small>Tutar</small><strong>{{ $quoteAmount }}</strong></div>
+                <div class="row"><small>Odeme</small><strong data-summary-payment-method>{{ $payment['method'] ?? '-' }}</strong></div>
+                <div class="row"><small>Zaman</small><strong data-summary-payment-timing>{{ $payment['timing'] ?? '-' }}</strong></div>
+                <div class="row"><small>Payer</small><strong data-summary-payer-role>{{ $payment['payer_role'] ?? '-' }}</strong></div>
+                <div class="row"><small>Paket</small><strong data-summary-package>{{ $package['package_type'] ?? '-' }}</strong></div>
+                <div class="row"><small>Hesap</small><strong data-summary-customer>{{ $customer['phone'] ?? '-' }}</strong></div>
+            </div>
+        </aside>
+
+        <main class="card main">
+            <div class="head">
+                <h1>Teklifi siparise cevir, odemeyi sec, operasyonu kilitle.</h1>
+                <p>Bu sayfa hero teklifinden sonra gercek order kontratina iner. Checkout session bilgi toplar, order sadece onay adiminda olusur.</p>
+                <div class="status" data-checkout-status>Durum: {{ $checkoutSession->status }}</div>
+            </div>
+            <div style="margin-top:24px;display:grid;gap:16px">
+                <section class="panel" data-step-panel="quote">
+                    <h2>Teklif dogrulama</h2>
+                    <p>Alinis ve teslimat adreslerini, hizmet tipini ve toplam ucreti burada netlestirin. Bu adim order yaratmaz.</p>
+                    <div class="g2">
+                        <div class="box"><h3>Alinis</h3><p>{{ $pickup['address'] ?? '-' }}</p></div>
+                        <div class="box"><h3>Teslimat</h3><p>{{ $dropoff['address'] ?? '-' }}</p></div>
+                        <div class="box"><h3>Hizmet ve sure</h3><p>{{ strtoupper((string) ($payload['service_type'] ?? 'moto')) }}
+Mesafe: {{ $distanceText }}
+Tahmini sure: {{ $durationText }}</p></div>
+                        <div class="box"><h3>Toplam fiyat</h3><p>{{ $quoteAmount }}</p></div>
+                    </div>
+                    <div class="actions"><button type="button" class="btn primary" data-action="continue-from-quote">Devam Et</button><a href="{{ route('home') }}" class="btn secondary">Ana sayfaya don</a></div>
+                </section>
+                <section class="panel" data-step-panel="auth">
+                    <h2>Kayit veya giris</h2>
+                    <p>Phase 1 kararina gore OTP yok. Musteri akisi phone + password ile ilerler.</p>
+                    <div class="g2">
+                        <label class="choice">
+                            <input type="radio" name="auth_mode" value="register" checked>
+                            <span class="choicebox"><strong>Yeni musteri</strong><span>Ad, telefon ve sifre ile hesap olustur. Siparisler daha sonra "Hesabim" alanindan izlenir.</span><em>Onerilen</em></span>
+                        </label>
+                        <label class="choice">
+                            <input type="radio" name="auth_mode" value="login">
+                            <span class="choicebox"><strong>Var olan hesap</strong><span>Telefon ve sifre ile giris yap. Kayitli musteriysen alinis bilgilerini hizli doldurabilirsin.</span><em>Hizli gecis</em></span>
+                        </label>
+                    </div>
+                    <div class="alert info" data-auth-note>Basarili auth sonrasinda customer_id checkout session'a yazilir ve siparis bu hesapla iliskilenir.</div>
+                    <div class="account-strip" data-account-strip {{ !empty($customer) ? '' : 'hidden' }}>
+                        <span class="badge">Bagli hesap</span>
+                        <strong data-account-name>{{ $customer['name'] ?? '-' }}</strong>
+                        <p data-account-contact>{{ trim(($customer['phone'] ?? '') . "\n" . ($customer['email'] ?? '')) }}</p>
+                    </div>
+                    <form class="form" data-auth-form>
+                        <div class="formgrid">
+                            <div class="field" data-register-only>
+                                <label for="auth-name">Ad Soyad</label>
+                                <input id="auth-name" name="name" type="text" placeholder="Orn: Ayse Yilmaz" value="{{ $customer['name'] ?? '' }}">
+                                <p class="err" data-field-error="auth.name"></p>
+                            </div>
+                            <div class="field">
+                                <label for="auth-phone">Telefon</label>
+                                <input id="auth-phone" name="phone" type="text" placeholder="0551 356 72 92" value="{{ $customer['phone'] ?? '' }}">
+                                <p class="err" data-field-error="auth.phone"></p>
+                            </div>
+                            <div class="field" data-register-only>
+                                <label for="auth-email">E-posta (opsiyonel)</label>
+                                <input id="auth-email" name="email" type="email" placeholder="ornek@alanadi.com" value="{{ $customer['email'] ?? '' }}">
+                                <p class="err" data-field-error="auth.email"></p>
+                            </div>
+                            <div class="field">
+                                <label for="auth-password">Sifre</label>
+                                <input id="auth-password" name="password" type="password" placeholder="En az 8 karakter">
+                                <p class="err" data-field-error="auth.password"></p>
+                            </div>
+                        </div>
+                        <div class="actions"><button type="submit" class="btn primary" data-auth-submit>Hesabi bagla</button><button type="button" class="btn secondary" data-step-back="quote">Geri</button></div>
+                    </form>
+                </section>
+
+                <section class="panel" data-step-panel="recipient">
+                    <h2>Gonderen, alici ve paket detaylari</h2>
+                    <p>Adresler tekliften gelir. Bu adimda kisi bilgileri, gonderi tipi ve operasyon notlari kesinlesir.</p>
+                    <div class="account-strip" data-recipient-account {{ !empty($customer) ? '' : 'hidden' }}>
+                        <span class="badge">Hesap sahibi</span>
+                        <strong data-recipient-account-name>{{ $customer['name'] ?? '-' }}</strong>
+                        <p data-recipient-account-contact>{{ trim(($customer['phone'] ?? '') . "\n" . ($customer['email'] ?? '')) }}</p>
+                        <div class="quick-actions"><button type="button" class="link-btn" data-fill-pickup-from-account>Gondereni hesap sahibi ile doldur</button></div>
+                    </div>
+                    <form class="form" data-recipient-form>
+                        <div class="formgrid">
+                            <div class="field">
+                                <label for="pickup-name">Gonderen Ad Soyad</label>
+                                <input id="pickup-name" name="pickup_name" type="text" value="{{ $pickup['name'] ?? ($customer['name'] ?? '') }}">
+                                <p class="err" data-field-error="recipient.pickup_name"></p>
+                            </div>
+                            <div class="field">
+                                <label for="pickup-phone">Gonderen Telefon</label>
+                                <input id="pickup-phone" name="pickup_phone" type="text" value="{{ $pickup['phone'] ?? ($customer['phone'] ?? '') }}">
+                                <p class="err" data-field-error="recipient.pickup_phone"></p>
+                            </div>
+                            <div class="field full">
+                                <label for="pickup-address">Alinis Adresi</label>
+                                <textarea id="pickup-address" name="pickup_address">{{ $pickup['address'] ?? '' }}</textarea>
+                                <p class="err" data-field-error="recipient.pickup_address"></p>
+                            </div>
+                            <div class="field full">
+                                <label class="toggle"><input type="checkbox" name="same_person" value="1" {{ !empty($payload['same_person']) ? 'checked' : '' }}><span>Gonderen ve alici ayni kisi ise isim ve telefon aynalansin.</span></label>
+                            </div>
+                            <div class="field">
+                                <label for="dropoff-name">Alici Ad Soyad</label>
+                                <input id="dropoff-name" name="dropoff_name" type="text" value="{{ $dropoff['name'] ?? '' }}">
+                                <p class="err" data-field-error="recipient.dropoff_name"></p>
+                            </div>
+                            <div class="field">
+                                <label for="dropoff-phone">Alici Telefon</label>
+                                <input id="dropoff-phone" name="dropoff_phone" type="text" value="{{ $dropoff['phone'] ?? '' }}">
+                                <p class="err" data-field-error="recipient.dropoff_phone"></p>
+                            </div>
+                            <div class="field full">
+                                <label for="dropoff-address">Teslimat Adresi</label>
+                                <textarea id="dropoff-address" name="dropoff_address">{{ $dropoff['address'] ?? '' }}</textarea>
+                                <p class="err" data-field-error="recipient.dropoff_address"></p>
+                            </div>
+                        </div>
+                        <div class="g2">
+                            <div class="field">
+                                <label for="package-type">Gonderi Sekli</label>
+                                <select id="package-type" name="package_type">
+                                    <option value="document" {{ ($package['package_type'] ?? '') === 'document' ? 'selected' : '' }}>Evrak</option>
+                                    <option value="parcel" {{ ($package['package_type'] ?? '') === 'parcel' ? 'selected' : '' }}>Paket</option>
+                                    <option value="food" {{ ($package['package_type'] ?? '') === 'food' ? 'selected' : '' }}>Yemek</option>
+                                    <option value="flower" {{ ($package['package_type'] ?? '') === 'flower' ? 'selected' : '' }}>Cicek</option>
+                                    <option value="electronics" {{ ($package['package_type'] ?? '') === 'electronics' ? 'selected' : '' }}>Elektronik</option>
+                                    <option value="other" {{ ($package['package_type'] ?? '') === 'other' ? 'selected' : '' }}>Diger</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label for="package-quantity">Adet</label>
+                                <input id="package-quantity" name="package_quantity" type="number" min="1" step="1" value="{{ (int) ($package['quantity'] ?? 1) }}">
+                            </div>
+                            <div class="field">
+                                <label for="package-weight">Tahmini Agirlik (gr)</label>
+                                <input id="package-weight" name="package_weight_grams" type="number" min="0" step="50" value="{{ $package['weight_grams'] ?? '' }}">
+                            </div>
+                            <div class="field">
+                                <label for="package-value">Beyan Edilen Deger (TRY)</label>
+                                <input id="package-value" name="package_declared_value_amount" type="number" min="0" step="1" value="{{ $package['declared_value_amount'] ?? '' }}">
+                            </div>
+                            <div class="field full">
+                                <label for="package-description">Gonderi Aciklamasi</label>
+                                <textarea id="package-description" name="package_description" placeholder="Orn: 1 adet telefon kutusu, kirilabilir degil">{{ $package['description'] ?? '' }}</textarea>
+                            </div>
+                            <div class="field full">
+                                <label for="delivery-notes">Teslimat Notu</label>
+                                <textarea id="delivery-notes" name="delivery_notes" placeholder="Kurye bina girisinden arasin, resepsiyona birakilmasin">{{ $payload['notes']['delivery_notes'] ?? '' }}</textarea>
+                            </div>
+                        </div>
+                        <div class="helper">Pickup ve delivery proof operasyon tarafinda ayrica tutulur. Bu ekrandaki paket bilgisi kurye ve admin gorunumlerini besler.</div>
+                        <div class="actions"><button type="submit" class="btn primary">Bilgileri kaydet</button><button type="button" class="btn secondary" data-step-back="auth">Geri</button></div>
+                    </form>
+                </section>
+                <section class="panel" data-step-panel="payment">
+                    <h2>Odeme yontemi</h2>
+                    <p>Phase 1 kombinasyonlari: kart + prepaid, havale + prepaid, nakit + teslimatta odeme.</p>
+                    <div class="g3">
+                        <label class="choice {{ empty($pageState['payment']['card_ready']) ? 'disabled' : '' }}">
+                            <input type="radio" name="payment_method" value="card" {{ ($payment['method'] ?? '') === 'card' ? 'checked' : '' }} {{ empty($pageState['payment']['card_ready']) ? 'disabled' : '' }}>
+                            <span class="choicebox"><strong>Kredi Karti</strong><span>Siparis draft olarak acilir. {{ $cardProviderLabel }} aktifse prepaid tahsilat baslatilir.</span><em>{{ !empty($pageState['payment']['card_ready']) ? 'Aktif' : 'Hazir degil' }}</em></span>
+                        </label>
+                        <label class="choice">
+                            <input type="radio" name="payment_method" value="bank_transfer" {{ ($payment['method'] ?? '') === 'bank_transfer' ? 'checked' : '' }}>
+                            <span class="choicebox"><strong>Havale / EFT</strong><span>Siparis pending_payment olarak acilir. Dekont yukleme bu fazda yok; muhasebe admin reconcile ile onaylar.</span><em>Phase 1 aktif</em></span>
+                        </label>
+                        <label class="choice">
+                            <input type="radio" name="payment_method" value="cash" {{ ($payment['method'] ?? '') === 'cash' ? 'checked' : '' }}>
+                            <span class="choicebox"><strong>Nakit</strong><span>Yalnizca teslimatta odeme. Payer varsayilan olarak alici olur ve siparis dispatch'a hazir acilir.</span><em>Phase 1 aktif</em></span>
+                        </label>
+                    </div>
+                    <div class="helper" data-payment-detail>Havale secildiginde siparis pending_payment olarak acilir. Nakit secildiginde teslimatta tahsil edilir. Kart secimi provider durumuna baglidir.</div>
+                    <div class="box" data-bank-transfer-box {{ ($payment['method'] ?? '') === 'bank_transfer' ? '' : 'hidden' }}>
+                        <h3 data-bank-transfer-title>{{ $bankTransfer['title'] ?? 'Havale / EFT Odeme Talimati' }}</h3>
+                        <p data-bank-transfer-body>{{ trim(collect([
+                            $bankTransfer['body'] ?? null,
+                            !empty($bankTransfer['bank_name']) ? 'Banka: '.$bankTransfer['bank_name'] : null,
+                            !empty($bankTransfer['account_holder']) ? 'Hesap Sahibi: '.$bankTransfer['account_holder'] : null,
+                            !empty($bankTransfer['iban']) ? 'IBAN: '.$bankTransfer['iban'] : null,
+                            $bankTransfer['reference_note'] ?? null,
+                        ])->filter()->implode("\n")) }}</p>
+                    </div>
+                    <div class="actions"><button type="button" class="btn primary" data-payment-save>Odeme secimini kaydet</button><button type="button" class="btn secondary" data-step-back="recipient">Geri</button></div>
+                    <div class="alert warn" data-payment-help>Odeme seciminiz henoz kaydedilmedi.</div>
+                </section>
+
+                <section class="panel" data-step-panel="confirm">
+                    <h2>Son kontrol ve siparis olusturma</h2>
+                    <p>Bu adim checkout session'i tamamlar ve gercek order kaydini yaratir.</p>
+                    <div class="g2">
+                        <div class="box"><h3>Bagli hesap</h3><p data-confirm-customer>{{ trim(($customer['name'] ?? '') . "\n" . ($customer['phone'] ?? '') . "\n" . ($customer['email'] ?? '')) }}</p></div>
+                        <div class="box"><h3>Gonderen</h3><p data-confirm-pickup>{{ trim(($pickup['name'] ?? '') . "\n" . ($pickup['phone'] ?? '') . "\n" . ($pickup['address'] ?? '')) }}</p></div>
+                        <div class="box"><h3>Alici</h3><p data-confirm-dropoff>{{ trim(($dropoff['name'] ?? '') . "\n" . ($dropoff['phone'] ?? '') . "\n" . ($dropoff['address'] ?? '')) }}</p></div>
+                        <div class="box"><h3>Paket</h3><p data-confirm-package>{{ trim(($package['package_type'] ?? '-') . "\nAdet: " . ((int) ($package['quantity'] ?? 1)) . "\n" . ($package['description'] ?? '')) }}</p></div>
+                        <div class="box"><h3>Odeme</h3><p data-confirm-payment>{{ trim(($payment['method'] ?? '-') . ' / ' . ($payment['timing'] ?? '-')) }}</p></div>
+                        <div class="box"><h3>Toplam</h3><p>{{ $quoteAmount }}</p></div>
+                    </div>
+                    <div class="actions"><button type="button" class="btn primary" data-finalize-submit>Siparisi olustur</button><button type="button" class="btn secondary" data-step-back="payment">Geri</button></div>
+                    <div class="box" data-confirm-bank-transfer-box {{ ($payment['method'] ?? '') === 'bank_transfer' ? '' : 'hidden' }}>
+                        <h3>{{ $bankTransfer['title'] ?? 'Havale / EFT Odeme Talimati' }}</h3>
+                        <p data-confirm-bank-transfer-body>{{ trim(collect([
+                            $bankTransfer['body'] ?? null,
+                            !empty($bankTransfer['bank_name']) ? 'Banka: '.$bankTransfer['bank_name'] : null,
+                            !empty($bankTransfer['account_holder']) ? 'Hesap Sahibi: '.$bankTransfer['account_holder'] : null,
+                            !empty($bankTransfer['iban']) ? 'IBAN: '.$bankTransfer['iban'] : null,
+                            $bankTransfer['reference_note'] ?? null,
+                        ])->filter()->implode("\n")) }}</p>
+                    </div>
+                    <div data-finalize-feedback></div>
+                    <div class="alert success" data-finalize-success {{ !empty($finalizedOrder) ? '' : 'hidden' }}>
+                        <strong data-finalize-order-no>{{ !empty($finalizedOrder) ? 'Siparis No: ' . ($finalizedOrder['order_no'] ?? '') : '' }}</strong>
+                        <div data-finalize-order-message>@if (!empty($finalizedOrder))Durum: {{ $finalizedOrder['state'] ?? '-' }} / Odeme: {{ $finalizedOrder['payment_state'] ?? '-' }}@endif</div>
+                        <div data-finalize-bank-transfer-note {{ (($finalizedOrder['payment_method'] ?? '') === 'bank_transfer') ? '' : 'hidden' }}>{{ trim(collect([
+                            $bankTransfer['body'] ?? null,
+                            !empty($bankTransfer['bank_name']) ? 'Banka: '.$bankTransfer['bank_name'] : null,
+                            !empty($bankTransfer['account_holder']) ? 'Hesap Sahibi: '.$bankTransfer['account_holder'] : null,
+                            !empty($bankTransfer['iban']) ? 'IBAN: '.$bankTransfer['iban'] : null,
+                            $bankTransfer['reference_note'] ?? null,
+                        ])->filter()->implode("\n")) }}</div>
+                        <div class="actions">
+                            <button
+                                type="button"
+                                class="btn primary"
+                                data-finalize-payment-button
+                                {{ (!empty($finalizedOrder) && ($finalizedOrder['payment_method'] ?? '') === 'card' && ($finalizedOrder['payment_state'] ?? '') === 'pending' && (($pageState['payment']['card_ready'] ?? false) === true)) ? '' : 'hidden' }}
+                            >Kart odemesine gec</button>
+                            <a href="{{ route('checkout.tracking') }}" class="btn secondary" data-finalize-tracking-link {{ !empty($finalizedOrder) ? '' : 'hidden' }}>Siparisi takip et</a>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const app = document.querySelector('[data-checkout-app]');
+    if (!app || app.dataset.checkoutInitialized === '1') {
+        return;
+    }
+
+    app.dataset.checkoutInitialized = '1';
+    const pageState = JSON.parse(app.dataset.pageState || '{}');
+    const session = pageState.session || {};
+    const endpoints = pageState.endpoints || {};
+    const paymentState = pageState.payment || {};
+    const trackingBaseUrl = @json(route('checkout.tracking'));
+    const steps = ['quote', 'auth', 'recipient', 'payment', 'confirm'];
+    const stepNodes = [...document.querySelectorAll('[data-step]')];
+    const panels = [...document.querySelectorAll('[data-step-panel]')];
+    const statusNode = document.querySelector('[data-checkout-status]');
+    const finalizeFeedback = document.querySelector('[data-finalize-feedback]');
+    const finalizeSuccess = document.querySelector('[data-finalize-success]');
+    const finalizeOrderNo = document.querySelector('[data-finalize-order-no]');
+    const finalizeOrderMessage = document.querySelector('[data-finalize-order-message]');
+    const finalizeBankTransferNote = document.querySelector('[data-finalize-bank-transfer-note]');
+    const finalizePaymentButton = document.querySelector('[data-finalize-payment-button]');
+    const finalizeTrackingLink = document.querySelector('[data-finalize-tracking-link]');
+    const paymentDetailNode = document.querySelector('[data-payment-detail]');
+    const paymentHelpNode = document.querySelector('[data-payment-help]');
+    const bankTransferBox = document.querySelector('[data-bank-transfer-box]');
+    const bankTransferTitleNode = document.querySelector('[data-bank-transfer-title]');
+    const bankTransferBodyNode = document.querySelector('[data-bank-transfer-body]');
+    const confirmBankTransferBox = document.querySelector('[data-confirm-bank-transfer-box]');
+    const confirmBankTransferBodyNode = document.querySelector('[data-confirm-bank-transfer-body]');
+    const authNote = document.querySelector('[data-auth-note]');
+    const accountStrip = document.querySelector('[data-account-strip]');
+    const accountNameNode = document.querySelector('[data-account-name]');
+    const accountContactNode = document.querySelector('[data-account-contact]');
+    const recipientAccount = document.querySelector('[data-recipient-account]');
+    const recipientAccountName = document.querySelector('[data-recipient-account-name]');
+    const recipientAccountContact = document.querySelector('[data-recipient-account-contact]');
+    const fillPickupFromAccountButton = document.querySelector('[data-fill-pickup-from-account]');
+    const bankTransferConfig = paymentState.bank_transfer || {};
+
+    let state = {
+        currentStep: session.current_step || 'quote',
+        status: session.status || 'draft',
+        customerId: session.customer_id || null,
+        payload: session.payload || {},
+        finalizedOrder: pageState.finalized_order || null,
+        customer: pageState.customer || (session.payload || {}).customer || null,
+        paymentUrl: '',
+    };
+
+    if (state.finalizedOrder && state.status === 'completed') {
+        state.currentStep = 'confirm';
+    } else if (state.customerId && state.currentStep === 'auth') {
+        state.currentStep = 'recipient';
+    }
+
+    const authModeInputs = [...document.querySelectorAll('input[name="auth_mode"]')];
+    const authForm = document.querySelector('[data-auth-form]');
+    const authSubmit = document.querySelector('[data-auth-submit]');
+    const registerOnlyNodes = [...document.querySelectorAll('[data-register-only]')];
+    const recipientForm = document.querySelector('[data-recipient-form]');
+    const samePersonInput = recipientForm?.querySelector('input[name="same_person"]');
+    const pickupNameInput = recipientForm?.querySelector('input[name="pickup_name"]');
+    const pickupPhoneInput = recipientForm?.querySelector('input[name="pickup_phone"]');
+    const pickupAddressInput = recipientForm?.querySelector('textarea[name="pickup_address"]');
+    const dropoffNameInput = recipientForm?.querySelector('input[name="dropoff_name"]');
+    const dropoffPhoneInput = recipientForm?.querySelector('input[name="dropoff_phone"]');
+    const dropoffAddressInput = recipientForm?.querySelector('textarea[name="dropoff_address"]');
+    const packageTypeInput = recipientForm?.querySelector('select[name="package_type"]');
+    const packageQuantityInput = recipientForm?.querySelector('input[name="package_quantity"]');
+    const packageWeightInput = recipientForm?.querySelector('input[name="package_weight_grams"]');
+    const packageValueInput = recipientForm?.querySelector('input[name="package_declared_value_amount"]');
+    const packageDescriptionInput = recipientForm?.querySelector('textarea[name="package_description"]');
+    const deliveryNotesInput = recipientForm?.querySelector('textarea[name="delivery_notes"]');
+
+    const showAlert = (node, level, message) => {
+        if (!node) {
+            return;
+        }
+        node.className = `alert ${level}`;
+        node.textContent = message;
+        node.hidden = !message;
+    };
+
+    const clearErrors = (scope) => {
+        document.querySelectorAll(`[data-field-error^="${scope}."]`).forEach((node) => {
+            node.textContent = '';
+        });
+    };
+
+    const applyErrors = (scope, errors) => {
+        clearErrors(scope);
+        Object.entries(errors || {}).forEach(([field, messages]) => {
+            const node = document.querySelector(`[data-field-error="${scope}.${field}"]`);
+            if (node) {
+                node.textContent = Array.isArray(messages) ? (messages[0] || '') : String(messages || '');
+            }
+        });
+    };
+
+    const requestJson = async (url, method, body) => {
+        const response = await fetch(url, {
+            method,
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+            },
+            body: JSON.stringify(body || {}),
+        });
+
+        let json = null;
+        try {
+            json = await response.json();
+        } catch (error) {
+            json = null;
+        }
+
+        return { response, json };
+    };
+
+    const setText = (selector, value) => {
+        const node = document.querySelector(selector);
+        if (node) {
+            node.textContent = value || '-';
+        }
+    };
+
+    const setValue = (node, value) => {
+        if (node && document.activeElement !== node) {
+            node.value = value || '';
+        }
+    };
+
+    const normalizeCustomer = () => {
+        if (state.payload.customer && typeof state.payload.customer === 'object') {
+            state.customer = state.payload.customer;
+        }
+    };
+
+    const selectedPackage = () => {
+        const packages = Array.isArray(state.payload.packages) ? state.payload.packages : [];
+        return packages[0] || {};
+    };
+
+    const selectedTrackingPhone = () => {
+        return (state.payload.dropoff || {}).phone || (state.payload.pickup || {}).phone || (state.customer || {}).phone || '';
+    };
+
+    const bankTransferText = () => {
+        return [
+            bankTransferConfig.body || '',
+            bankTransferConfig.bank_name ? `Banka: ${bankTransferConfig.bank_name}` : '',
+            bankTransferConfig.account_holder ? `Hesap Sahibi: ${bankTransferConfig.account_holder}` : '',
+            bankTransferConfig.iban ? `IBAN: ${bankTransferConfig.iban}` : '',
+            bankTransferConfig.reference_note || '',
+        ].filter(Boolean).join('\n');
+    };
+
+    const syncAccountPanels = () => {
+        const customer = state.customer || {};
+        const hasCustomer = Boolean(customer.phone || customer.name || customer.email);
+        if (accountStrip) {
+            accountStrip.hidden = !hasCustomer;
+        }
+        if (recipientAccount) {
+            recipientAccount.hidden = !hasCustomer;
+        }
+        if (accountNameNode) {
+            accountNameNode.textContent = customer.name || '-';
+        }
+        if (accountContactNode) {
+            accountContactNode.textContent = [customer.phone, customer.email].filter(Boolean).join('\n');
+        }
+        if (recipientAccountName) {
+            recipientAccountName.textContent = customer.name || '-';
+        }
+        if (recipientAccountContact) {
+            recipientAccountContact.textContent = [customer.phone, customer.email].filter(Boolean).join('\n');
+        }
+    };
+
+    const syncForms = () => {
+        normalizeCustomer();
+        const pickup = state.payload.pickup || {};
+        const dropoff = state.payload.dropoff || {};
+        const pkg = selectedPackage();
+        const customer = state.customer || {};
+
+        setValue(document.querySelector('#auth-name'), customer.name || '');
+        setValue(document.querySelector('#auth-phone'), customer.phone || '');
+        setValue(document.querySelector('#auth-email'), customer.email || '');
+        setValue(pickupNameInput, pickup.name || customer.name || '');
+        setValue(pickupPhoneInput, pickup.phone || customer.phone || '');
+        setValue(pickupAddressInput, pickup.address || '');
+        setValue(dropoffNameInput, dropoff.name || '');
+        setValue(dropoffPhoneInput, dropoff.phone || '');
+        setValue(dropoffAddressInput, dropoff.address || '');
+        if (samePersonInput) {
+            samePersonInput.checked = Boolean(state.payload.same_person);
+        }
+        setValue(packageTypeInput, pkg.package_type || 'document');
+        setValue(packageQuantityInput, String(pkg.quantity || 1));
+        setValue(packageWeightInput, pkg.weight_grams || '');
+        setValue(packageValueInput, pkg.declared_value_amount || '');
+        setValue(packageDescriptionInput, pkg.description || '');
+        setValue(deliveryNotesInput, ((state.payload.notes || {}).delivery_notes) || '');
+
+        const paymentMethod = ((state.payload.payment || {}).method) || '';
+        document.querySelectorAll('input[name="payment_method"]').forEach((node) => {
+            node.checked = node.value === paymentMethod;
+        });
+
+        syncAccountPanels();
+    };
+
+    const syncSummary = () => {
+        const pickup = state.payload.pickup || {};
+        const dropoff = state.payload.dropoff || {};
+        const payment = state.payload.payment || {};
+        const customer = state.customer || {};
+        const pkg = selectedPackage();
+
+        setText('[data-summary-pickup]', pickup.address || '-');
+        setText('[data-summary-dropoff]', dropoff.address || '-');
+        setText('[data-summary-service]', (state.payload.service_type || 'moto').toUpperCase());
+        setText('[data-summary-payment-method]', payment.method || '-');
+        setText('[data-summary-payment-timing]', payment.timing || '-');
+        setText('[data-summary-payer-role]', payment.payer_role || '-');
+        setText('[data-summary-package]', pkg.package_type || '-');
+        setText('[data-summary-customer]', customer.phone || '-');
+        setText('[data-confirm-customer]', [customer.name, customer.phone, customer.email].filter(Boolean).join('\n'));
+        setText('[data-confirm-pickup]', [pickup.name, pickup.phone, pickup.address].filter(Boolean).join('\n'));
+        setText('[data-confirm-dropoff]', [dropoff.name, dropoff.phone, dropoff.address].filter(Boolean).join('\n'));
+        setText('[data-confirm-package]', [pkg.package_type || '-', `Adet: ${pkg.quantity || 1}`, pkg.weight_grams ? `Agirlik: ${pkg.weight_grams} gr` : '', pkg.declared_value_amount ? `Deger: ${pkg.declared_value_amount} TRY` : '', pkg.description || ''].filter(Boolean).join('\n'));
+        setText('[data-confirm-payment]', `${payment.method || '-'} / ${payment.timing || '-'}`);
+    };
+
+    const syncTrackingLink = () => {
+        if (!finalizeTrackingLink || !state.finalizedOrder) {
+            return;
+        }
+        const params = new URLSearchParams({ order_no: state.finalizedOrder.order_no || '' });
+        const phone = selectedTrackingPhone();
+        if (phone) {
+            params.set('phone', phone);
+        }
+        finalizeTrackingLink.href = `${trackingBaseUrl}?${params.toString()}`;
+        finalizeTrackingLink.hidden = false;
+    };
+
+    const syncPaymentActionButton = () => {
+        if (!finalizePaymentButton) {
+            return;
+        }
+
+        const shouldShow = Boolean(
+            state.finalizedOrder
+            && state.finalizedOrder.payment_method === 'card'
+            && state.finalizedOrder.payment_state === 'pending'
+            && paymentState.card_ready
+            && endpoints.payment_initiate
+        );
+
+        finalizePaymentButton.hidden = !shouldShow;
+        finalizePaymentButton.textContent = state.paymentUrl ? 'Kart odeme ekranini tekrar ac' : 'Kart odemesine gec';
+    };
+
+    const syncBankTransferBoxes = () => {
+        const method = (state.payload.payment || {}).method || '';
+        const shouldShow = method === 'bank_transfer';
+        const text = bankTransferText();
+
+        if (bankTransferTitleNode) {
+            bankTransferTitleNode.textContent = bankTransferConfig.title || 'Havale / EFT Odeme Talimati';
+        }
+        if (bankTransferBodyNode) {
+            bankTransferBodyNode.textContent = text || 'Havale talimati henuz tanimlanmadi.';
+        }
+        if (confirmBankTransferBodyNode) {
+            confirmBankTransferBodyNode.textContent = text || 'Havale talimati henuz tanimlanmadi.';
+        }
+        if (bankTransferBox) {
+            bankTransferBox.hidden = !shouldShow;
+        }
+        if (confirmBankTransferBox) {
+            confirmBankTransferBox.hidden = !shouldShow;
+        }
+        if (finalizeBankTransferNote) {
+            finalizeBankTransferNote.hidden = !(shouldShow && state.finalizedOrder);
+            finalizeBankTransferNote.textContent = text || 'Havale talimati henuz tanimlanmadi.';
+        }
+    };
+
+    const syncPaymentDetail = () => {
+        const method = document.querySelector('input[name="payment_method"]:checked')?.value || (state.payload.payment || {}).method || '';
+        if (!paymentDetailNode) {
+            return;
+        }
+        if (method === 'bank_transfer') {
+            paymentDetailNode.textContent = 'Havale secildi. Siparis pending_payment olarak acilir. Asagidaki talimat ve referans notuna gore odemeyi tamamlayin.';
+            syncBankTransferBoxes();
+            return;
+        }
+        if (method === 'cash') {
+            paymentDetailNode.textContent = 'Nakit secildi. Phase 1 kurali geregi yalnizca teslimatta odeme aktif. Tahsilat alici tarafindan yapilir.';
+            syncBankTransferBoxes();
+            return;
+        }
+        if (method === 'card') {
+            paymentDetailNode.textContent = paymentState.card_ready
+                ? `Kart secildi. Siparis finalize sonrasi ${paymentState.provider_label || 'kart odeme'} ekranina yonlendirilirsiniz.`
+                : 'Kart odeme su an pasif. Provider aktif olmadigi icin prepaid card akisi bu release diliminde kapali.';
+            syncBankTransferBoxes();
+            return;
+        }
+        paymentDetailNode.textContent = 'Odeme yontemi secildiginde sistem order state ve payment state kombinasyonunu buna gore kurar.';
+        syncBankTransferBoxes();
+    };
+
+    const render = () => {
+        normalizeCustomer();
+        const current = state.finalizedOrder && state.status === 'completed'
+            ? 'confirm'
+            : (!state.customerId && ['recipient', 'payment', 'confirm'].includes(state.currentStep) ? 'auth' : state.currentStep);
+        const activeIndex = steps.indexOf(current);
+
+        stepNodes.forEach((node) => {
+            const idx = steps.indexOf(node.dataset.step);
+            node.classList.toggle('active', node.dataset.step === current);
+            node.classList.toggle('done', idx > -1 && idx < activeIndex);
+        });
+
+        panels.forEach((panel) => {
+            panel.classList.toggle('show', panel.dataset.stepPanel === current);
+        });
+
+        if (statusNode) {
+            statusNode.textContent = `Durum: ${state.status}`;
+        }
+
+        if (state.finalizedOrder && finalizeSuccess && finalizeOrderNo && finalizeOrderMessage) {
+            finalizeSuccess.hidden = false;
+            finalizeOrderNo.textContent = `Siparis No: ${state.finalizedOrder.order_no}`;
+            finalizeOrderMessage.textContent = `Durum: ${state.finalizedOrder.state} / Odeme: ${state.finalizedOrder.payment_state}`;
+            syncTrackingLink();
+            syncPaymentActionButton();
+        }
+
+        syncForms();
+        syncSummary();
+        syncPaymentDetail();
+        syncPaymentActionButton();
+    };
+
+    const initiateCardPayment = async (messagePrefix = 'Siparis olustu.') => {
+        if (!endpoints.payment_initiate) {
+            throw new Error('Kart odeme endpointi tanimli degil.');
+        }
+
+        showAlert(finalizeFeedback, 'info', `${messagePrefix} Kart odeme ekranina baglaniyor...`);
+        const { response, json } = await requestJson(endpoints.payment_initiate, 'POST', {});
+
+        if (!response.ok || !json || json.success !== true) {
+            throw new Error(json?.message || 'Kart odeme baslatilamadi.');
+        }
+
+        state.paymentUrl = json.data.payment_url || '';
+        state.finalizedOrder = json.data.order || state.finalizedOrder;
+        render();
+
+        if (!state.paymentUrl) {
+            throw new Error('Odeme saglayicisindan yonlendirme linki donmedi.');
+        }
+
+        showAlert(finalizeFeedback, 'success', `${messagePrefix} Kart odeme ekranina yonlendiriliyorsunuz.`);
+        window.location.href = state.paymentUrl;
+    };
+
+    const persistSession = async (patch) => {
+        const { response, json } = await requestJson(endpoints.update, 'PATCH', patch);
+        if (!response.ok || !json || json.success !== true) {
+            throw new Error(json?.message || 'Checkout session guncellenemedi.');
+        }
+        state.status = json.data.status;
+        state.currentStep = json.data.current_step;
+        state.customerId = json.data.customer_id;
+        state.payload = json.data.payload || {};
+        normalizeCustomer();
+        render();
+    };
+
+    document.querySelector('[data-action="continue-from-quote"]')?.addEventListener('click', async () => {
+        try {
+            await persistSession({ current_step: state.customerId ? 'recipient' : 'auth', status: state.customerId ? 'authenticated' : state.status });
+        } catch (error) {
+            showAlert(finalizeFeedback, 'error', error.message);
+        }
+    });
+
+    document.querySelectorAll('[data-step-back]').forEach((button) => {
+        button.addEventListener('click', async () => {
+            try {
+                await persistSession({ current_step: button.dataset.stepBack });
+            } catch (error) {
+                showAlert(finalizeFeedback, 'error', error.message);
+            }
+        });
+    });
+
+    const syncAuthMode = () => {
+        const mode = authModeInputs.find((input) => input.checked)?.value || 'register';
+        registerOnlyNodes.forEach((node) => {
+            node.hidden = mode !== 'register';
+        });
+        if (authSubmit) {
+            authSubmit.textContent = mode === 'register' ? 'Hesap olustur ve devam et' : 'Giris yap ve devam et';
+        }
+    };
+
+    authModeInputs.forEach((input) => {
+        input.addEventListener('change', syncAuthMode);
+    });
+    syncAuthMode();
+
+    authForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        clearErrors('auth');
+        const mode = authModeInputs.find((input) => input.checked)?.value || 'register';
+        const formData = new FormData(authForm);
+        const payload = {
+            phone: String(formData.get('phone') || '').trim(),
+            password: String(formData.get('password') || '').trim(),
+            device_name: 'checkout-web',
+        };
+        if (mode === 'register') {
+            payload.name = String(formData.get('name') || '').trim();
+            const email = String(formData.get('email') || '').trim();
+            if (email !== '') {
+                payload.email = email;
+            }
+        }
+
+        try {
+            const { response, json } = await requestJson(mode === 'register' ? endpoints.register : endpoints.login, 'POST', payload);
+            if (!response.ok || !json || json.success !== true) {
+                if (response.status === 422) {
+                    applyErrors('auth', json?.errors || {});
+                }
+                throw new Error(json?.message || 'Hesap islemi tamamlanamadi.');
+            }
+            if (json.data?.token) {
+                sessionStorage.setItem(`checkout_auth_${session.token}`, json.data.token);
+            }
+            state.customer = {
+                id: json.data.user.id,
+                name: json.data.user.name,
+                phone: json.data.user.phone,
+                email: json.data.user.email,
+            };
+            await persistSession({ customer_id: json.data.user.id, status: 'authenticated', current_step: 'recipient', payload: { customer: state.customer } });
+            showAlert(authNote, 'success', 'Hesap checkout oturumuna baglandi.');
+        } catch (error) {
+            showAlert(authNote, 'error', error.message);
+        }
+    });
+
+    const syncSamePerson = () => {
+        if (!samePersonInput?.checked) {
+            return;
+        }
+        if (dropoffNameInput) {
+            dropoffNameInput.value = pickupNameInput?.value || '';
+        }
+        if (dropoffPhoneInput) {
+            dropoffPhoneInput.value = pickupPhoneInput?.value || '';
+        }
+    };
+
+    samePersonInput?.addEventListener('change', syncSamePerson);
+    pickupNameInput?.addEventListener('input', syncSamePerson);
+    pickupPhoneInput?.addEventListener('input', syncSamePerson);
+    fillPickupFromAccountButton?.addEventListener('click', () => {
+        const customer = state.customer || {};
+        setValue(pickupNameInput, customer.name || '');
+        setValue(pickupPhoneInput, customer.phone || '');
+        syncSamePerson();
+    });
+
+    recipientForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        clearErrors('recipient');
+        const formData = new FormData(recipientForm);
+        const pickupAddress = String(formData.get('pickup_address') || '').trim();
+        const dropoffAddress = String(formData.get('dropoff_address') || '').trim();
+        const pickupPhone = String(formData.get('pickup_phone') || '').trim();
+        const dropoffPhone = String(formData.get('dropoff_phone') || '').trim();
+        const pickupName = String(formData.get('pickup_name') || '').trim();
+        const dropoffName = String(formData.get('dropoff_name') || '').trim();
+        const deliveryNotes = String(formData.get('delivery_notes') || '').trim();
+        const samePerson = samePersonInput?.checked === true;
+        const packageType = String(formData.get('package_type') || 'document').trim() || 'document';
+        const packageQuantity = Math.max(parseInt(String(formData.get('package_quantity') || '1'), 10) || 1, 1);
+        const packageWeight = parseInt(String(formData.get('package_weight_grams') || ''), 10);
+        const packageValue = parseInt(String(formData.get('package_declared_value_amount') || ''), 10);
+        const packageDescription = String(formData.get('package_description') || '').trim();
+        const errors = {};
+
+        if (pickupAddress.length < 5) {
+            errors.pickup_address = ['Alinis adresi en az 5 karakter olmali.'];
+        }
+        if (dropoffAddress.length < 5) {
+            errors.dropoff_address = ['Teslimat adresi en az 5 karakter olmali.'];
+        }
+        if (pickupName.length < 2) {
+            errors.pickup_name = ['Gonderen adi zorunludur.'];
+        }
+        if (dropoffName.length < 2) {
+            errors.dropoff_name = ['Alici adi zorunludur.'];
+        }
+        if (pickupPhone.length < 10) {
+            errors.pickup_phone = ['Gonderen telefonu zorunludur.'];
+        }
+        if (dropoffPhone.length < 10) {
+            errors.dropoff_phone = ['Alici telefonu zorunludur.'];
+        }
+        if (Object.keys(errors).length > 0) {
+            applyErrors('recipient', errors);
+            return;
+        }
+
+        const existingPickup = state.payload.pickup || {};
+        const existingDropoff = state.payload.dropoff || {};
+        const packages = [{ package_type: packageType, quantity: packageQuantity, description: packageDescription || null }];
+        if (!Number.isNaN(packageWeight) && packageWeight >= 0) {
+            packages[0].weight_grams = packageWeight;
+        }
+        if (!Number.isNaN(packageValue) && packageValue >= 0) {
+            packages[0].declared_value_amount = packageValue;
+        }
+
+        try {
+            await persistSession({
+                current_step: 'payment',
+                payload: {
+                    same_person: samePerson,
+                    pickup: { ...existingPickup, name: pickupName, phone: pickupPhone, address: pickupAddress },
+                    dropoff: { ...existingDropoff, name: dropoffName, phone: dropoffPhone, address: dropoffAddress },
+                    packages,
+                    notes: { ...(state.payload.notes || {}), delivery_notes: deliveryNotes },
+                },
+            });
+        } catch (error) {
+            showAlert(finalizeFeedback, 'error', error.message);
+        }
+    });
+
+    document.querySelectorAll('input[name="payment_method"]').forEach((node) => {
+        node.addEventListener('change', syncPaymentDetail);
+    });
+
+    document.querySelector('[data-payment-save]')?.addEventListener('click', async () => {
+        const selectedMethod = document.querySelector('input[name="payment_method"]:checked')?.value || '';
+        if (selectedMethod === '') {
+            showAlert(paymentHelpNode, 'error', 'Bir odeme yontemi secin.');
+            return;
+        }
+        if (selectedMethod === 'card' && !paymentState.card_ready) {
+            showAlert(paymentHelpNode, 'warn', 'Kart odeme saglayicisi henuz aktif degil.');
+            return;
+        }
+
+        const paymentPayload = selectedMethod === 'cash'
+            ? { method: 'cash', timing: 'delivery', payer_role: 'recipient' }
+            : selectedMethod === 'bank_transfer'
+                ? { method: 'bank_transfer', timing: 'prepaid', payer_role: 'sender' }
+                : { method: 'card', timing: 'prepaid', payer_role: 'sender' };
+
+        try {
+            await persistSession({ current_step: 'confirm', status: 'ready', payload: { payment: paymentPayload } });
+            showAlert(paymentHelpNode, 'success', 'Odeme secimi kaydedildi.');
+        } catch (error) {
+            showAlert(paymentHelpNode, 'error', error.message);
+        }
+    });
+
+    finalizePaymentButton?.addEventListener('click', async () => {
+        try {
+            await initiateCardPayment('Siparis odeme bekliyor.');
+        } catch (error) {
+            showAlert(finalizeFeedback, 'error', error.message);
+        }
+    });
+
+    document.querySelector('[data-finalize-submit]')?.addEventListener('click', async () => {
+        try {
+            showAlert(finalizeFeedback, 'info', 'Siparis olusturuluyor...');
+            const { response, json } = await requestJson(endpoints.finalize, 'POST', { customer_id: state.customerId });
+            if (!response.ok || !json || json.success !== true) {
+                throw new Error(json?.message || 'Siparis finalize edilemedi.');
+            }
+            state.status = json.data.checkout_session.status;
+            state.currentStep = json.data.checkout_session.current_step;
+            state.payload = json.data.checkout_session.payload || state.payload;
+            state.finalizedOrder = json.data.order || null;
+            state.paymentUrl = '';
+
+            let message = `Siparis olustu. Durum: ${json.data.order.state} / Odeme: ${json.data.order.payment_state}`;
+            if (json.data.next_action === 'await_bank_transfer_reconcile') {
+                message += ' | Havale bildirimi sonrasinda admin reconcile beklenir.';
+            } else if (json.data.next_action === 'dispatch_ready') {
+                message += ' | Siparis dispatch akisina hazir.';
+            } else if (json.data.next_action === 'initiate_card_payment') {
+                message += ' | Kart odeme saglayicisi baglaniyor.';
+            }
+
+            render();
+
+            if (json.data.next_action === 'initiate_card_payment' && paymentState.card_ready) {
+                await initiateCardPayment(message);
+                return;
+            }
+
+            showAlert(finalizeFeedback, 'success', message);
+        } catch (error) {
+            showAlert(finalizeFeedback, 'error', error.message);
+        }
+    });
+
+    render();
+});
+</script>
+@endpush
+</x-checkout::layouts.master>

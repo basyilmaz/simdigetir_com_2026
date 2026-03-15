@@ -40,6 +40,22 @@ class LandingPageSectionResource extends Resource
         'tpl_hero_slide2_image_alt',
         'tpl_hero_slide2_image_srcset',
         'tpl_hero_slide2_image_sizes',
+        'tpl_quote_widget_enabled',
+        'tpl_quote_widget_title_text',
+        'tpl_quote_widget_subtitle_text',
+        'tpl_quote_widget_pickup_label_text',
+        'tpl_quote_widget_pickup_placeholder_text',
+        'tpl_quote_widget_dropoff_label_text',
+        'tpl_quote_widget_dropoff_placeholder_text',
+        'tpl_quote_widget_service_label_text',
+        'tpl_quote_widget_submit_label_text',
+        'tpl_quote_widget_whatsapp_label_text',
+        'tpl_quote_widget_call_label_text',
+        'tpl_quote_widget_service_options',
+        'tpl_header_b2b_cta_enabled',
+        'tpl_header_b2b_cta_label_text',
+        'tpl_header_b2b_cta_href',
+        'tpl_header_b2b_cta_target',
         'tpl_services_badge_text',
         'tpl_services_title_html',
         'tpl_services_subtitle_text',
@@ -117,6 +133,87 @@ class LandingPageSectionResource extends Resource
                         ->visible(fn (Get $get): bool => static::isSectionKey($get, ['hero'])),
                     Forms\Components\TextInput::make('tpl_hero_slide2_image_sizes')
                         ->label('Hero Slayt 2 Sizes')
+                        ->visible(fn (Get $get): bool => static::isSectionKey($get, ['hero'])),
+                    Forms\Components\Toggle::make('tpl_quote_widget_enabled')
+                        ->label('Hero Fiyat Widget Aktif')
+                        ->default(true)
+                        ->inline(false)
+                        ->visible(fn (Get $get): bool => static::isSectionKey($get, ['hero'])),
+                    Forms\Components\TextInput::make('tpl_quote_widget_title_text')
+                        ->label('Fiyat Widget Baslik')
+                        ->visible(fn (Get $get): bool => static::isSectionKey($get, ['hero'])),
+                    Forms\Components\Textarea::make('tpl_quote_widget_subtitle_text')
+                        ->label('Fiyat Widget Aciklama')
+                        ->rows(2)
+                        ->visible(fn (Get $get): bool => static::isSectionKey($get, ['hero'])),
+                    Forms\Components\TextInput::make('tpl_quote_widget_pickup_label_text')
+                        ->label('Alinis Label')
+                        ->visible(fn (Get $get): bool => static::isSectionKey($get, ['hero'])),
+                    Forms\Components\TextInput::make('tpl_quote_widget_pickup_placeholder_text')
+                        ->label('Alinis Placeholder')
+                        ->visible(fn (Get $get): bool => static::isSectionKey($get, ['hero'])),
+                    Forms\Components\TextInput::make('tpl_quote_widget_dropoff_label_text')
+                        ->label('Teslimat Label')
+                        ->visible(fn (Get $get): bool => static::isSectionKey($get, ['hero'])),
+                    Forms\Components\TextInput::make('tpl_quote_widget_dropoff_placeholder_text')
+                        ->label('Teslimat Placeholder')
+                        ->visible(fn (Get $get): bool => static::isSectionKey($get, ['hero'])),
+                    Forms\Components\TextInput::make('tpl_quote_widget_service_label_text')
+                        ->label('Hizmet Tipi Label')
+                        ->visible(fn (Get $get): bool => static::isSectionKey($get, ['hero'])),
+                    Forms\Components\TextInput::make('tpl_quote_widget_submit_label_text')
+                        ->label('Hesapla Butonu')
+                        ->visible(fn (Get $get): bool => static::isSectionKey($get, ['hero'])),
+                    Forms\Components\TextInput::make('tpl_quote_widget_whatsapp_label_text')
+                        ->label('WhatsApp CTA')
+                        ->visible(fn (Get $get): bool => static::isSectionKey($get, ['hero'])),
+                    Forms\Components\TextInput::make('tpl_quote_widget_call_label_text')
+                        ->label('Arama CTA')
+                        ->visible(fn (Get $get): bool => static::isSectionKey($get, ['hero'])),
+                    Forms\Components\Toggle::make('tpl_header_b2b_cta_enabled')
+                        ->label('Header Kurumsal Giris CTA Aktif')
+                        ->default(false)
+                        ->inline(false)
+                        ->visible(fn (Get $get): bool => static::isSectionKey($get, ['hero'])),
+                    Forms\Components\TextInput::make('tpl_header_b2b_cta_label_text')
+                        ->label('Header Kurumsal Giris Metni')
+                        ->placeholder('Kurumsal Giris')
+                        ->visible(fn (Get $get): bool => static::isSectionKey($get, ['hero'])),
+                    Forms\Components\TextInput::make('tpl_header_b2b_cta_href')
+                        ->label('Header Kurumsal Giris Linki')
+                        ->placeholder('/kurumsal')
+                        ->visible(fn (Get $get): bool => static::isSectionKey($get, ['hero'])),
+                    Forms\Components\Select::make('tpl_header_b2b_cta_target')
+                        ->label('Header Kurumsal Giris Hedefi')
+                        ->options([
+                            '_self' => 'Ayni sekme',
+                            '_blank' => 'Yeni sekme',
+                        ])
+                        ->default('_self')
+                        ->native(false)
+                        ->visible(fn (Get $get): bool => static::isSectionKey($get, ['hero'])),
+                    Forms\Components\Repeater::make('tpl_quote_widget_service_options')
+                        ->label('Fiyat Widget Hizmet Tipleri')
+                        ->schema([
+                            Forms\Components\TextInput::make('value')
+                                ->label('Deger')
+                                ->required()
+                                ->maxLength(40),
+                            Forms\Components\TextInput::make('label')
+                                ->label('Gorunen Ad')
+                                ->required()
+                                ->maxLength(120),
+                            Forms\Components\TextInput::make('base_amount')
+                                ->label('Baz Tutar')
+                                ->numeric()
+                                ->required(),
+                            Forms\Components\TextInput::make('fallback_minutes')
+                                ->label('Fallback Sure')
+                                ->numeric()
+                                ->required(),
+                        ])
+                        ->columns(2)
+                        ->collapsed()
                         ->visible(fn (Get $get): bool => static::isSectionKey($get, ['hero'])),
                     Forms\Components\TextInput::make('tpl_services_badge_text')
                         ->label('Hizmetler Rozet Metni')
@@ -221,6 +318,22 @@ class LandingPageSectionResource extends Resource
             $data['tpl_hero_slide2_image_alt'] = $payload['hero_slide2_image_alt'] ?? null;
             $data['tpl_hero_slide2_image_srcset'] = $payload['hero_slide2_image_srcset'] ?? null;
             $data['tpl_hero_slide2_image_sizes'] = $payload['hero_slide2_image_sizes'] ?? null;
+            $data['tpl_quote_widget_enabled'] = $payload['quote_widget_enabled'] ?? null;
+            $data['tpl_quote_widget_title_text'] = $payload['quote_widget_title_text'] ?? null;
+            $data['tpl_quote_widget_subtitle_text'] = $payload['quote_widget_subtitle_text'] ?? null;
+            $data['tpl_quote_widget_pickup_label_text'] = $payload['quote_widget_pickup_label_text'] ?? null;
+            $data['tpl_quote_widget_pickup_placeholder_text'] = $payload['quote_widget_pickup_placeholder_text'] ?? null;
+            $data['tpl_quote_widget_dropoff_label_text'] = $payload['quote_widget_dropoff_label_text'] ?? null;
+            $data['tpl_quote_widget_dropoff_placeholder_text'] = $payload['quote_widget_dropoff_placeholder_text'] ?? null;
+            $data['tpl_quote_widget_service_label_text'] = $payload['quote_widget_service_label_text'] ?? null;
+            $data['tpl_quote_widget_submit_label_text'] = $payload['quote_widget_submit_label_text'] ?? null;
+            $data['tpl_quote_widget_whatsapp_label_text'] = $payload['quote_widget_whatsapp_label_text'] ?? null;
+            $data['tpl_quote_widget_call_label_text'] = $payload['quote_widget_call_label_text'] ?? null;
+            $data['tpl_header_b2b_cta_enabled'] = $payload['header_b2b_cta_enabled'] ?? null;
+            $data['tpl_header_b2b_cta_label_text'] = $payload['header_b2b_cta_label_text'] ?? null;
+            $data['tpl_header_b2b_cta_href'] = $payload['header_b2b_cta_href'] ?? null;
+            $data['tpl_header_b2b_cta_target'] = $payload['header_b2b_cta_target'] ?? null;
+            $data['tpl_quote_widget_service_options'] = $payload['quote_widget_service_options'] ?? [];
         }
 
         if ($sectionKey === 'services') {
@@ -258,6 +371,22 @@ class LandingPageSectionResource extends Resource
             'hero_slide2_image_alt' => $data['tpl_hero_slide2_image_alt'] ?? null,
             'hero_slide2_image_srcset' => $data['tpl_hero_slide2_image_srcset'] ?? null,
             'hero_slide2_image_sizes' => $data['tpl_hero_slide2_image_sizes'] ?? null,
+            'quote_widget_enabled' => $data['tpl_quote_widget_enabled'] ?? null,
+            'quote_widget_title_text' => $data['tpl_quote_widget_title_text'] ?? null,
+            'quote_widget_subtitle_text' => $data['tpl_quote_widget_subtitle_text'] ?? null,
+            'quote_widget_pickup_label_text' => $data['tpl_quote_widget_pickup_label_text'] ?? null,
+            'quote_widget_pickup_placeholder_text' => $data['tpl_quote_widget_pickup_placeholder_text'] ?? null,
+            'quote_widget_dropoff_label_text' => $data['tpl_quote_widget_dropoff_label_text'] ?? null,
+            'quote_widget_dropoff_placeholder_text' => $data['tpl_quote_widget_dropoff_placeholder_text'] ?? null,
+            'quote_widget_service_label_text' => $data['tpl_quote_widget_service_label_text'] ?? null,
+            'quote_widget_submit_label_text' => $data['tpl_quote_widget_submit_label_text'] ?? null,
+            'quote_widget_whatsapp_label_text' => $data['tpl_quote_widget_whatsapp_label_text'] ?? null,
+            'quote_widget_call_label_text' => $data['tpl_quote_widget_call_label_text'] ?? null,
+            'header_b2b_cta_enabled' => $data['tpl_header_b2b_cta_enabled'] ?? null,
+            'header_b2b_cta_label_text' => $data['tpl_header_b2b_cta_label_text'] ?? null,
+            'header_b2b_cta_href' => $data['tpl_header_b2b_cta_href'] ?? null,
+            'header_b2b_cta_target' => $data['tpl_header_b2b_cta_target'] ?? null,
+            'quote_widget_service_options' => static::normalizeQuoteWidgetServiceOptions($data['tpl_quote_widget_service_options'] ?? null),
         ]);
     }
 
@@ -293,6 +422,36 @@ class LandingPageSectionResource extends Resource
             'courier_cta_card_description_text' => $data['tpl_courier_cta_card_description_text'] ?? null,
             'courier_cta_side_title_html' => $data['tpl_courier_cta_side_title_html'] ?? null,
         ]);
+    }
+
+    protected static function normalizeQuoteWidgetServiceOptions(mixed $items): array
+    {
+        if (! is_array($items)) {
+            return [];
+        }
+
+        $normalized = [];
+        foreach ($items as $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+
+            $value = trim((string) ($item['value'] ?? ''));
+            $label = trim((string) ($item['label'] ?? ''));
+
+            if ($value === '' || $label === '') {
+                continue;
+            }
+
+            $normalized[] = [
+                'value' => $value,
+                'label' => $label,
+                'base_amount' => max(0, (int) ($item['base_amount'] ?? 0)),
+                'fallback_minutes' => max(1, (int) ($item['fallback_minutes'] ?? 1)),
+            ];
+        }
+
+        return $normalized;
     }
 
     protected static function filtered(array $payload): array

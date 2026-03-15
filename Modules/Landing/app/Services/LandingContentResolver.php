@@ -8,11 +8,39 @@ use Throwable;
 
 class LandingContentResolver
 {
+    private const SHARED_CHROME_KEYS = [
+        'header_b2b_cta_enabled',
+        'header_b2b_cta_label_text',
+        'header_b2b_cta_href',
+        'header_b2b_cta_target',
+    ];
+
     /**
      * Resolve content map for landing home page with safe fallbacks.
      */
     public function resolveHomeContent(): array
     {
+        $defaultQuoteServiceOptions = [
+            [
+                'value' => 'moto',
+                'label' => 'Moto Kurye',
+                'base_amount' => 25000,
+                'fallback_minutes' => 45,
+            ],
+            [
+                'value' => 'urgent',
+                'label' => 'Acil Kurye',
+                'base_amount' => 35000,
+                'fallback_minutes' => 35,
+            ],
+            [
+                'value' => 'van',
+                'label' => 'Aracli Kurye',
+                'base_amount' => 45000,
+                'fallback_minutes' => 70,
+            ],
+        ];
+
         $defaultServiceCards = [
             [
                 'number' => '01',
@@ -189,6 +217,22 @@ class LandingContentResolver
             'hero_slide2_image_alt' => 'Kuryeman',
             'hero_slide2_image_srcset' => null,
             'hero_slide2_image_sizes' => '(max-width: 768px) 100vw, 50vw',
+            'quote_widget_enabled' => true,
+            'quote_widget_title_text' => 'Aninda Fiyat Hesapla',
+            'quote_widget_subtitle_text' => 'Alinis ve teslimat adresini girin, tahmini fiyat ve sureyi aninda gorun.',
+            'quote_widget_pickup_label_text' => 'Alinis Adresi',
+            'quote_widget_pickup_placeholder_text' => 'Orn: Sisli Mecidiyekoy',
+            'quote_widget_dropoff_label_text' => 'Teslimat Adresi',
+            'quote_widget_dropoff_placeholder_text' => 'Orn: Kadikoy Moda',
+            'quote_widget_service_label_text' => 'Hizmet Tipi',
+            'quote_widget_submit_label_text' => 'Fiyat Hesapla',
+            'quote_widget_whatsapp_label_text' => 'WhatsApp ile Devam Et',
+            'quote_widget_call_label_text' => 'Beni Arayin',
+            'header_b2b_cta_enabled' => false,
+            'header_b2b_cta_label_text' => 'Kurumsal Giris',
+            'header_b2b_cta_href' => '/kurumsal',
+            'header_b2b_cta_target' => '_self',
+            'quote_widget_service_options' => $defaultQuoteServiceOptions,
             'services_badge_text' => 'Profesyonel Hizmetler',
             'services_title_html' => "Kurye <span class=\"gradient-text\">Çözümlerimiz</span>",
             'services_subtitle_text' => 'Her gönderi için doğru çözüm. Hızlı, güvenilir, profesyonel.',
@@ -249,7 +293,11 @@ class LandingContentResolver
                 return $defaults;
             }
 
-            $content = $defaults;
+            $content = array_merge(
+                $defaults,
+                $this->sharedChromeDefaults(),
+                $this->resolveSharedChromeOverrides()
+            );
             if (is_array($page->meta)) {
                 $content = array_merge($content, $page->meta);
             }
@@ -367,6 +415,58 @@ class LandingContentResolver
     }
 
     /**
+     * @return array<string, mixed>
+     */
+    private function sharedChromeDefaults(): array
+    {
+        return [
+            'header_b2b_cta_enabled' => false,
+            'header_b2b_cta_label_text' => 'Kurumsal Giris',
+            'header_b2b_cta_href' => '/kurumsal',
+            'header_b2b_cta_target' => '_self',
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function resolveSharedChromeOverrides(): array
+    {
+        try {
+            $page = app(LandingPageService::class)->getPublishedPage('home');
+            if (! $page) {
+                return [];
+            }
+
+            $heroSection = $page->sections->firstWhere('key', 'hero');
+            if (! $heroSection || ! is_array($heroSection->payload)) {
+                return [];
+            }
+
+            return $this->extractSharedChromePayload($heroSection->payload);
+        } catch (Throwable) {
+            return [];
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    private function extractSharedChromePayload(array $payload): array
+    {
+        $sharedPayload = [];
+
+        foreach (self::SHARED_CHROME_KEYS as $key) {
+            if (array_key_exists($key, $payload)) {
+                $sharedPayload[$key] = $payload[$key];
+            }
+        }
+
+        return $sharedPayload;
+    }
+
+    /**
      * Resolve standard landing page content (meta + hero) with safe fallbacks.
      */
     public function resolveStandardPageContent(string $slug, array $defaults, array $itemMap = []): array
@@ -380,12 +480,16 @@ class LandingContentResolver
                 return $defaults;
             }
 
+            $content = array_merge(
+                $defaults,
+                $this->sharedChromeDefaults(),
+                $this->resolveSharedChromeOverrides()
+            );
+
             $page = app(LandingPageService::class)->getPublishedPage($slug);
             if (! $page) {
-                return $defaults;
+                return $content;
             }
-
-            $content = $defaults;
 
             if (is_array($page->meta)) {
                 $content = array_merge($content, $page->meta);

@@ -8,12 +8,13 @@ use Tests\TestCase;
 
 class Phase2IntegrationScaffoldTest extends TestCase
 {
-    public function test_iyzico_sandbox_payment_initiation_works_with_gateway_abstraction(): void
+    public function test_paytr_sandbox_payment_initiation_works_with_gateway_abstraction(): void
     {
-        config()->set('payments.providers.iyzico.api_key', 'sandbox-key');
-        config()->set('payments.providers.iyzico.secret_key', 'sandbox-secret');
-        config()->set('payments.providers.iyzico.base_url', 'https://sandbox-api.iyzipay.com');
-        config()->set('payments.providers.iyzico.sandbox', true);
+        config()->set('payments.providers.paytr.merchant_id', 'merchant-id');
+        config()->set('payments.providers.paytr.merchant_key', 'merchant-key');
+        config()->set('payments.providers.paytr.merchant_salt', 'merchant-salt');
+        config()->set('payments.providers.paytr.base_url', 'https://www.paytr.com');
+        config()->set('payments.providers.paytr.sandbox', true);
 
         $order = Order::query()->create([
             'order_no' => 'ORD-IYZ-001',
@@ -26,15 +27,15 @@ class Phase2IntegrationScaffoldTest extends TestCase
         ]);
 
         $response = $this->postJson('/api/v1/payments/initiate', [
-            'provider' => 'iyzico',
+            'provider' => 'paytr',
             'order_id' => $order->id,
         ]);
 
         $response->assertStatus(201)->assertJsonPath('success', true);
-        $this->assertStringContainsString('sandbox-api.iyzipay.com/mock/checkout/', (string) $response->json('data.payment_url'));
+        $this->assertStringContainsString('paytr.com/odeme/guvenli/', (string) $response->json('data.payment_url'));
         $this->assertDatabaseHas('payment_transactions', [
             'order_id' => $order->id,
-            'provider' => 'iyzico',
+            'provider' => 'paytr',
             'status' => 'pending',
         ]);
     }

@@ -3,7 +3,9 @@ param(
     [string]$EnvFile = ".env",
     [switch]$RunApiSmoke,
     [switch]$SendExternalNotifications,
-    [switch]$StrictEnv
+    [switch]$StrictEnv,
+    [ValidateSet("auto", "payments_off", "payments_on_paytr")]
+    [string]$ReleaseMode = "auto"
 )
 
 $ErrorActionPreference = "Stop"
@@ -137,6 +139,57 @@ function Add-ValidationWarning {
     Write-Warning $Message
 }
 
+function Get-PaymentProviderLabel {
+    param([string]$Provider)
+
+    switch ($Provider.Trim().ToLowerInvariant()) {
+        "paytr" { return "PAYTR" }
+        "iyzico" { return "Iyzico" }
+        "mockpay" { return "MockPay" }
+        "mock" { return "MockPay" }
+        "none" { return "No Payment Provider" }
+        default { return $Provider }
+    }
+}
+
+function Assert-PaymentProviderConfig {
+    param(
+        [hashtable]$EnvMap,
+        [string]$Provider,
+        [bool]$StrictValidation
+    )
+
+    $normalizedProvider = $Provider.Trim().ToLowerInvariant()
+    switch ($normalizedProvider) {
+        "paytr" {
+            $script:paymentCallbackSecret = Assert-EnvValue -EnvMap $EnvMap -Name "PAYTR_CALLBACK_SECRET" -WarnOnly:(!$StrictValidation)
+            $script:paymentSandboxFlag = Get-ConfigValue -EnvMap $EnvMap -Name "PAYTR_SANDBOX"
+            $null = Assert-EnvValue -EnvMap $EnvMap -Name "PAYTR_MERCHANT_ID" -WarnOnly:(!$StrictValidation)
+            $null = Assert-EnvValue -EnvMap $EnvMap -Name "PAYTR_MERCHANT_KEY" -WarnOnly:(!$StrictValidation)
+            $null = Assert-EnvValue -EnvMap $EnvMap -Name "PAYTR_MERCHANT_SALT" -WarnOnly:(!$StrictValidation)
+            if ($script:paymentSandboxFlag.ToLowerInvariant() -eq "true") {
+                Add-ValidationWarning -Message "PAYTR_SANDBOX=true. Live smoke icin false olmasi onerilir."
+            }
+        }
+        "iyzico" {
+            $script:paymentCallbackSecret = Assert-EnvValue -EnvMap $EnvMap -Name "IYZICO_CALLBACK_SECRET" -WarnOnly:(!$StrictValidation)
+            $script:paymentSandboxFlag = Get-ConfigValue -EnvMap $EnvMap -Name "IYZICO_SANDBOX"
+            $null = Assert-EnvValue -EnvMap $EnvMap -Name "IYZICO_API_KEY" -WarnOnly:(!$StrictValidation)
+            $null = Assert-EnvValue -EnvMap $EnvMap -Name "IYZICO_SECRET_KEY" -WarnOnly:(!$StrictValidation)
+            if ($script:paymentSandboxFlag.ToLowerInvariant() -eq "true") {
+                Add-ValidationWarning -Message "IYZICO_SANDBOX=true. Live smoke icin false olmasi onerilir."
+            }
+        }
+        default {
+            if ($StrictValidation) {
+                $validationErrors.Add("[env] Unsupported PAYMENT_DEFAULT_PROVIDER in strict mode: $Provider") | Out-Null
+            } else {
+                Add-ValidationWarning -Message "PAYMENT_DEFAULT_PROVIDER=$Provider. Provider-specific payment checks skipped."
+            }
+        }
+    }
+}
+
 function Finalize-ValidationStep {
     if ($validationWarnings.Count -gt 0) {
         Write-Host ""
@@ -179,6 +232,7 @@ $strictValidation = $StrictEnv -or $RunApiSmoke -or $SendExternalNotifications
 
 Write-Host "[1/3] .env checklist validation"
 Write-Host " - strict mode: $strictValidation"
+Write-Host " - release mode: $ReleaseMode"
 $paymentDefaultProvider = Assert-EnvValue -EnvMap $envMap -Name "PAYMENT_DEFAULT_PROVIDER" -WarnOnly:(!$strictValidation)
 $smsDefaultProvider = Assert-EnvValue -EnvMap $envMap -Name "SMS_DEFAULT_PROVIDER" -WarnOnly:(!$strictValidation)
 $mailMailer = Assert-EnvValue -EnvMap $envMap -Name "MAIL_MAILER"
@@ -188,31 +242,42 @@ Write-Host " - payments required: $paymentsRequired"
 $paymentProvider = $paymentDefaultProvider.Trim().ToLowerInvariant()
 $smsProvider = $smsDefaultProvider.Trim().ToLowerInvariant()
 $mailer = $mailMailer.Trim().ToLowerInvariant()
+$paymentProviderLabel = Get-PaymentProviderLabel -Provider $paymentProvider
+$releaseModeNormalized = $ReleaseMode.Trim().ToLowerInvariant()
 
-$iyzicoApiKey = ""
-$iyzicoSecretKey = ""
-$iyzicoCallbackSecret = ""
-$iyzicoSandbox = Get-ConfigValue -EnvMap $envMap -Name "IYZICO_SANDBOX"
+$paymentCallbackSecret = ""
+$paymentSandboxFlag = ""
 
-if ($paymentProvider -eq "iyzico") {
-    $iyzicoApiKey = Assert-EnvValue -EnvMap $envMap -Name "IYZICO_API_KEY" -WarnOnly:(!$strictValidation)
-    $iyzicoSecretKey = Assert-EnvValue -EnvMap $envMap -Name "IYZICO_SECRET_KEY" -WarnOnly:(!$strictValidation)
-    $iyzicoCallbackSecret = Assert-EnvValue -EnvMap $envMap -Name "IYZICO_CALLBACK_SECRET" -WarnOnly:(!$strictValidation)
-    if ($iyzicoSandbox.ToLowerInvariant() -eq "true") {
-        Add-ValidationWarning -Message "IYZICO_SANDBOX=true. Live smoke icin false olmasi onerilir."
+if ($releaseModeNormalized -eq "payments_off") {
+    if ($paymentsRequired) {
+        $validationErrors.Add("[env] ReleaseMode=payments_off requires PAYMENT_REQUIRED=false.") | Out-Null
     }
-} elseif (-not $paymentsRequired) {
+
+    if ($paymentProvider -ne "mockpay" -and $paymentProvider -ne "mock" -and $paymentProvider -ne "none") {
+        $validationErrors.Add("[env] ReleaseMode=payments_off requires PAYMENT_DEFAULT_PROVIDER=mockpay.") | Out-Null
+    }
+}
+
+if ($releaseModeNormalized -eq "payments_on_paytr") {
+    if (-not $paymentsRequired) {
+        $validationErrors.Add("[env] ReleaseMode=payments_on_paytr requires PAYMENT_REQUIRED=true.") | Out-Null
+    }
+
+    if ($paymentProvider -ne "paytr") {
+        $validationErrors.Add("[env] ReleaseMode=payments_on_paytr requires PAYMENT_DEFAULT_PROVIDER=paytr.") | Out-Null
+    }
+}
+
+if (-not $paymentsRequired) {
     if ($paymentProvider -eq "mockpay" -or $paymentProvider -eq "mock" -or $paymentProvider -eq "none") {
-        Add-ValidationWarning -Message "PAYMENT_REQUIRED=false. Iyzico kontrolleri atlandi."
+        Add-ValidationWarning -Message "PAYMENT_REQUIRED=false. Card provider kontrolleri atlandi."
     } elseif ($strictValidation) {
         $validationErrors.Add("[env] PAYMENT_DEFAULT_PROVIDER should be 'mockpay' when PAYMENT_REQUIRED=false.") | Out-Null
     } else {
         Add-ValidationWarning -Message "PAYMENT_REQUIRED=false ancak PAYMENT_DEFAULT_PROVIDER=$paymentProvider."
     }
-} elseif ($strictValidation) {
-    $validationErrors.Add("[env] PAYMENT_DEFAULT_PROVIDER must be 'iyzico' in strict mode.") | Out-Null
 } else {
-    Add-ValidationWarning -Message "PAYMENT_DEFAULT_PROVIDER=$paymentProvider. API smoke strict modda iyzico beklenir."
+    Assert-PaymentProviderConfig -EnvMap $envMap -Provider $paymentProvider -StrictValidation:$strictValidation
 }
 
 $netgsmUser = ""
@@ -344,7 +409,7 @@ if ($provider -eq "iyzico") {
     }
     $raw = "$($callbackPayload.provider_reference)|$($callbackPayload.status)|$($callbackPayload.amount)"
     $hmac = New-Object System.Security.Cryptography.HMACSHA256
-    $hmac.Key = [Text.Encoding]::UTF8.GetBytes($iyzicoCallbackSecret)
+    $hmac.Key = [Text.Encoding]::UTF8.GetBytes($paymentCallbackSecret)
     $sigBytes = $hmac.ComputeHash([Text.Encoding]::UTF8.GetBytes($raw))
     $signature = ($sigBytes | ForEach-Object { $_.ToString("x2") }) -join ""
 
@@ -357,6 +422,8 @@ if ($provider -eq "iyzico") {
     if (-not $callback.success) {
         throw "Payment callback failed."
     }
+} elseif ($provider -eq "paytr") {
+    Add-ValidationWarning -Message "PAYTR callback smoke henuz otomatik degil. Payment initiation dogrulandi, callback simulasyonu atlandi."
 }
 
 if ($SendExternalNotifications) {
@@ -400,6 +467,6 @@ if ($SendExternalNotifications) {
 
 Write-Host "Live smoke completed."
 Write-Host "Order: $($order.data.order_no)"
-Write-Host "Payment Provider: $provider"
+Write-Host "Payment Provider: $paymentProviderLabel"
 Write-Host "Payment URL: $($initPayment.data.payment_url)"
 Write-Host "Notifications: " + ($(if ($SendExternalNotifications) { "sent" } else { "skipped" }))

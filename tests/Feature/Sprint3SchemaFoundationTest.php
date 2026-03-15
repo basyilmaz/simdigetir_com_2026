@@ -14,8 +14,12 @@ class Sprint3SchemaFoundationTest extends TestCase
             'order_no',
             'state',
             'payment_state',
+            'payment_method',
+            'payment_timing',
+            'payer_role',
             'total_amount',
             'price_breakdown',
+            'checkout_snapshot',
         ]));
 
         $this->assertTrue(Schema::hasTable('order_packages'));
@@ -58,6 +62,30 @@ class Sprint3SchemaFoundationTest extends TestCase
             'status',
             'callback_payload',
         ]));
+
+        $this->assertTrue(Schema::hasTable('checkout_sessions'));
+        $this->assertTrue(Schema::hasColumns('checkout_sessions', [
+            'token',
+            'customer_id',
+            'pricing_quote_id',
+            'status',
+            'current_step',
+            'payload',
+            'expires_at',
+        ]));
+
+        $this->assertTrue(Schema::hasTable('order_proofs'));
+        $this->assertTrue(Schema::hasColumns('order_proofs', [
+            'order_id',
+            'courier_id',
+            'stage',
+            'proof_type',
+            'proof_value',
+            'file_url',
+        ]));
+
+        $this->assertTrue(Schema::hasColumns('users', [
+            'phone',
+        ]));
     }
 }
-

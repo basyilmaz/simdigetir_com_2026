@@ -1,10 +1,11 @@
 {
-    "Settings":  true,
-    "Leads":  true,
-    "Landing":  true,
-    "AdsCore":  true,
-    "AdsGoogle":  true,
-    "AdsMeta":  true,
-    "Attribution":  true,
-    "Reporting":  true
+    "Settings": true,
+    "Leads": true,
+    "Landing": true,
+    "AdsCore": true,
+    "AdsGoogle": true,
+    "AdsMeta": true,
+    "Attribution": true,
+    "Reporting": true,
+    "Checkout": true
 }

@@ -154,8 +154,15 @@ class CourierController extends Controller
         return response()->json(['success' => true, 'data' => $updated]);
     }
 
-    public function pickup(Courier $courier, Order $order, CourierOrderWorkflowService $workflow): JsonResponse
+    public function pickup(Request $request, Courier $courier, Order $order, CourierOrderWorkflowService $workflow): JsonResponse
     {
+        $validated = $request->validate([
+            'proof_type' => ['nullable', 'string', 'max:30'],
+            'proof_value' => ['nullable', 'string', 'max:255'],
+            'file_url' => ['nullable', 'string', 'max:500'],
+            'metadata' => ['nullable', 'array'],
+        ]);
+
         $assignment = OrderAssignment::query()
             ->where('order_id', $order->id)
             ->where('courier_id', $courier->id)
@@ -167,7 +174,13 @@ class CourierController extends Controller
         }
 
         try {
-            $updatedOrder = $workflow->pickup($assignment);
+            $updatedOrder = $workflow->pickup(
+                assignment: $assignment,
+                proofType: $validated['proof_type'] ?? null,
+                proofValue: $validated['proof_value'] ?? null,
+                fileUrl: $validated['file_url'] ?? null,
+                metadata: (array) ($validated['metadata'] ?? [])
+            );
         } catch (RuntimeException|Throwable $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
         }
@@ -231,4 +244,3 @@ class CourierController extends Controller
         ]);
     }
 }
-

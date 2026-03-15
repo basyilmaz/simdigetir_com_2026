@@ -11,6 +11,7 @@ use App\Models\Courier;
 use App\Models\CourierDocument;
 use App\Models\CourierAvailability;
 use App\Models\DeliveryProof;
+use App\Models\OrderProof;
 use App\Models\OrderAssignment;
 use App\Models\DispatchDecision;
 use App\Models\CorporateAccount;
@@ -77,7 +78,7 @@ class AppServiceProvider extends ServiceProvider
         OrderAssignment::observe(AdminMutationAuditObserver::class);
         DispatchDecision::observe(AdminMutationAuditObserver::class);
         OrderTrackingEvent::observe(AdminMutationAuditObserver::class);
-        DeliveryProof::observe(AdminMutationAuditObserver::class);
+        OrderProof::observe(AdminMutationAuditObserver::class);
         SettlementBatch::observe(AdminMutationAuditObserver::class);
         CourierWalletEntry::observe(AdminMutationAuditObserver::class);
         PaymentReconciliation::observe(AdminMutationAuditObserver::class);
