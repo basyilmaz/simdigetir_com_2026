@@ -40,7 +40,15 @@ else
   echo "[pre-push] No upstream branch found, VERSION check skipped."
 fi
 
-if ! run_quality_gate; then
-  echo "[pre-push] PowerShell not found; cannot run quality gate."
-  exit 1
+quality_gate_status=0
+run_quality_gate || quality_gate_status=$?
+
+if [ "$quality_gate_status" -ne 0 ]; then
+  if [ "$quality_gate_status" -eq 127 ]; then
+    echo "[pre-push] PowerShell not found; cannot run quality gate."
+    exit 1
+  fi
+
+  echo "[pre-push] Quality gate failed."
+  exit "$quality_gate_status"
 fi
