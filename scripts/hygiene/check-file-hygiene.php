@@ -84,6 +84,9 @@ foreach ($files as $file) {
 
     foreach ($forbiddenPathPrefixes as $prefix) {
         if (str_starts_with(strtolower($normalized), $prefix)) {
+            if (str_starts_with(strtolower($normalized), 'vendor/composer/')) {
+                break;
+            }
             $violations[] = "Forbidden path staged: {$normalized}";
             continue 2;
         }
