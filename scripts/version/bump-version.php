@@ -8,16 +8,46 @@ declare(strict_types=1);
  *   php scripts/version/bump-version.php --part=patch
  *   php scripts/version/bump-version.php --part=minor
  *   php scripts/version/bump-version.php --part=major
+ *   php scripts/version/bump-version.php --severity=p1
+ *   php scripts/version/bump-version.php --severity=breaking
  */
 
 $root = dirname(__DIR__, 2);
 $versionFile = $root.DIRECTORY_SEPARATOR.'VERSION';
-$part = 'patch';
+$part = null;
+$partExplicitlyProvided = false;
+$severity = null;
+$severityMap = [
+    'p0' => 'patch',
+    'p1' => 'minor',
+    'p2' => 'patch',
+    'p3' => 'patch',
+    'hotfix' => 'patch',
+    'security' => 'patch',
+    'feature' => 'minor',
+    'breaking' => 'major',
+    'chore' => 'patch',
+];
 
 foreach (array_slice($argv, 1) as $arg) {
     if (str_starts_with($arg, '--part=')) {
         $part = strtolower(trim(substr($arg, 7)));
+        $partExplicitlyProvided = true;
+        continue;
     }
+
+    if (str_starts_with($arg, '--severity=')) {
+        $severity = strtolower(trim(substr($arg, 11)));
+    }
+}
+
+if ($severity !== null && ! array_key_exists($severity, $severityMap)) {
+    fwrite(STDERR, "Invalid --severity value. Use: ".implode(' | ', array_keys($severityMap))."\n");
+    exit(1);
+}
+
+if ($part === null) {
+    $part = $severity !== null ? $severityMap[$severity] : 'patch';
 }
 
 if (! in_array($part, ['patch', 'minor', 'major'], true)) {
@@ -77,4 +107,13 @@ foreach ($envFiles as $envFile) {
     file_put_contents($envFile, $contents);
 }
 
-fwrite(STDOUT, "Version bumped: {$currentRaw} -> {$newVersion}\n");
+$metadata = [];
+if ($severity !== null) {
+    $metadata[] = "severity={$severity}";
+}
+if ($partExplicitlyProvided) {
+    $metadata[] = "part_override={$part}";
+}
+$metadataSuffix = $metadata === [] ? '' : ' ('.implode(', ', $metadata).')';
+
+fwrite(STDOUT, "Version bumped: {$currentRaw} -> {$newVersion}{$metadataSuffix}\n");

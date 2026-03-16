@@ -4,6 +4,7 @@ param(
     [switch]$RunApiSmoke,
     [switch]$SendExternalNotifications,
     [switch]$StrictEnv,
+    [switch]$RequireMapsKey,
     [ValidateSet("auto", "payments_off", "payments_on_paytr")]
     [string]$ReleaseMode = "auto"
 )
@@ -310,7 +311,11 @@ if ($strictValidation -and ($mailer -eq "log" -or $mailer -eq "array")) {
 
 $mapsKey = Get-ConfigValue -EnvMap $envMap -Name "GOOGLE_MAPS_API_KEY"
 if (Test-IsPlaceholder -Value $mapsKey) {
-    Add-ValidationWarning -Message "GOOGLE_MAPS_API_KEY missing/placeholder. Distance fallback aktif olur."
+    if ($RequireMapsKey -or ($strictValidation -and $releaseModeNormalized -eq "payments_on_paytr")) {
+        $validationErrors.Add("[env] GOOGLE_MAPS_API_KEY is missing/placeholder but maps key is required for this run.") | Out-Null
+    } else {
+        Add-ValidationWarning -Message "GOOGLE_MAPS_API_KEY missing/placeholder. Distance fallback aktif olur."
+    }
 } else {
     Write-Host "[ok] GOOGLE_MAPS_API_KEY"
 }

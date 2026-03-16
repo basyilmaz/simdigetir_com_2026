@@ -50,6 +50,12 @@ Reason:
 powershell -ExecutionPolicy Bypass -File .\scripts\release\prepare-hostinger-payments-off-release.ps1 -EnvFile .env.hostinger.production
 ```
 
+Priority-aware bump example:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\release\prepare-hostinger-payments-off-release.ps1 -EnvFile .env.hostinger.production -VersionSeverity p0
+```
+
 Repeat run without another semantic version bump:
 
 ```powershell

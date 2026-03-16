@@ -86,8 +86,13 @@ Reason:
 5. Checkout now carries `service_label` so downstream modules display human-readable service names instead of only the raw service key.
 
 ### Remaining follow-up
-1. Live deploy for the new pricing catalog slice
-2. Live browser validation for:
-   - home quote widget service list
-   - pricing admin create/edit flow
-   - checkout summary service label
+1. Couriers/support operational onboarding (real data rollout).
+2. Optional: maps-key-required release mode enforcement on location-critical campaigns.
+
+### Closure update (2026-03-17)
+1. Live pricing baseline was applied because `service_base_price` rules were empty.
+2. Live probes confirmed:
+   - home quote widget now lists `Moto Kurye`, `Aracli Kurye`, `Yaya Kurye`
+   - checkout summary carries service label in tokenized session flow
+3. Admin pricing create/edit path remains available in Filament resource and is covered by:
+   - `tests/Feature/PricingBackofficeIntegrationTest.php`

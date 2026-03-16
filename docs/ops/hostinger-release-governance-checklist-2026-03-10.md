@@ -22,11 +22,13 @@
 ## Step 0: Versioning gate
 
 1. Before GitHub push, bump app version:
-   - `php scripts/version/bump-version.php --part=patch`
-2. Commit and push `VERSION` with code changes.
-3. Before live cutover, stamp runtime deploy version:
+   - `php scripts/version/bump-version.php --severity=p2`
+2. Priority-first alternative:
+   - `powershell -ExecutionPolicy Bypass -File scripts/version/bump-version-by-priority.ps1 -Priority P1`
+3. Commit and push `VERSION` with code changes.
+4. Before live cutover, stamp runtime deploy version:
    - `php scripts/version/stamp-env-version.php --env=.env --channel=live`
-4. Rebuild config cache:
+5. Rebuild config cache:
    - `php artisan config:clear`
    - `php artisan config:cache`
 
@@ -54,6 +56,12 @@ Run from repository root:
 ./scripts/release/prepare-hostinger-payments-off-release.ps1 -EnvFile .env.hostinger.production
 ```
 
+If release priority is high-impact feature/hotfix, specify severity:
+
+```powershell
+./scripts/release/prepare-hostinger-payments-off-release.ps1 -EnvFile .env.hostinger.production -VersionSeverity p1
+```
+
 For rehearsal without mutating `APP_VERSION`:
 
 ```powershell
@@ -66,6 +74,15 @@ Expected:
 - Backend regression passes.
 - Frontend regression passes.
 - Strict env checklist passes.
+
+If location-accurate pricing is mandatory for this release, enforce maps key in checklist:
+
+```powershell
+./scripts/run-phase2-live-smoke.ps1 -EnvFile .env.hostinger.production -StrictEnv -RequireMapsKey -ReleaseMode payments_off
+```
+
+Rule:
+- `-RequireMapsKey` turns `GOOGLE_MAPS_API_KEY` placeholder from warning into error.
 
 Report output:
 

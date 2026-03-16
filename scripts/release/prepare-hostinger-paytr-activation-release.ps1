@@ -2,7 +2,9 @@ param(
     [string]$Path = ".",
     [string]$EnvFile = ".env.hostinger.production",
     [ValidateSet("patch", "minor", "major")]
-    [string]$VersionPart = "patch",
+    [string]$VersionPart,
+    [ValidateSet("p0", "p1", "p2", "p3", "hotfix", "security", "feature", "breaking", "chore")]
+    [string]$VersionSeverity = "p1",
     [switch]$SkipVersionBump,
     [switch]$NoTimestamp,
     [switch]$SkipEnvStamp,
@@ -34,8 +36,13 @@ Write-Host "Path: $((Get-Location).Path)"
 Write-Host "EnvFile: $EnvFile"
 
 if (-not $SkipVersionBump) {
+    $versionArgs = @("scripts/version/bump-version.php", "--severity=$VersionSeverity")
+    if ($PSBoundParameters.ContainsKey("VersionPart") -and -not [string]::IsNullOrWhiteSpace($VersionPart)) {
+        $versionArgs += "--part=$VersionPart"
+    }
+
     Invoke-CheckedCommand -Label "Version Bump" -Action {
-        & php scripts/version/bump-version.php --part=$VersionPart
+        & php @versionArgs
     }
 } else {
     Write-Host ""
