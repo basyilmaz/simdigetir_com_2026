@@ -113,8 +113,8 @@ class LandingStandardPagesDynamicContentTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Destek Hattı');
-        $response->assertSee('+90 555 000 00 00');
-        $response->assertSee('"telephone":"+905550000000"', false);
+        $response->assertSee('0551 356 72 92');
+        $response->assertSee('"telephone":"+905513567292"', false);
         $response->assertSee('Test Kanalı');
     }
 
@@ -221,4 +221,3 @@ class LandingStandardPagesDynamicContentTest extends TestCase
         $response->assertSee('"name":"Custom Corporate Service"', false);
     }
 }
-

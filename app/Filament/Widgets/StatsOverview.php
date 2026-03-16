@@ -29,8 +29,8 @@ class StatsOverview extends BaseWidget
         $openTickets = SupportTicket::whereIn('status', ['open', 'pending'])->count();
 
         return [
-            Stat::make('Bugünkü Talepler', $todayLeads)
-                ->description("Toplam {$newLeads} yeni talep bekliyor")
+            Stat::make('Bugün Gelen Talepler', $todayLeads)
+                ->description("Bekleyen yeni talepler: {$newLeads}")
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->color('warning')
                 ->chart([7, 3, 4, 5, 6, $todayLeads > 0 ? $todayLeads : 1]),

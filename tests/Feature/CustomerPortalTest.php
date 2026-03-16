@@ -12,6 +12,44 @@ use Tests\TestCase;
 
 class CustomerPortalTest extends TestCase
 {
+    public function test_guest_can_open_customer_register_page(): void
+    {
+        $response = $this->get('/hesabim/kayit');
+
+        $response->assertOk();
+        $response->assertSee('Musteri Kaydi');
+        $response->assertSee('Hesap Olustur');
+        $response->assertSee(route('checkout.customer.login'));
+    }
+
+    public function test_register_alias_redirects_to_customer_register_page(): void
+    {
+        $response = $this->get('/register');
+
+        $response->assertRedirect('/hesabim/kayit');
+    }
+
+    public function test_customer_can_register_with_phone_and_is_logged_into_dashboard(): void
+    {
+        $response = $this->followingRedirects()->post('/hesabim/kayit', [
+            'name' => 'Yeni Musteri',
+            'phone' => '0551 111 22 33',
+            'email' => '',
+            'password' => 'secret123',
+            'password_confirmation' => 'secret123',
+        ]);
+
+        $response->assertOk();
+        $response->assertSee('Hesabiniz olusturuldu ve giris yapildi.');
+        $response->assertSee('Yeni Musteri');
+
+        $this->assertDatabaseHas('users', [
+            'name' => 'Yeni Musteri',
+            'phone' => '905511112233',
+            'is_active' => 1,
+        ]);
+    }
+
     public function test_guest_is_redirected_to_customer_login_when_opening_dashboard(): void
     {
         $response = $this->get('/hesabim');
@@ -201,6 +239,49 @@ class CustomerPortalTest extends TestCase
         $response->assertSee('Musteri Havale Notu');
         $response->assertSee('Akbank');
         $response->assertSee('Aciklamaya ORD-PORTAL-DETAIL-001 yazin.');
+    }
+
+    public function test_customer_can_open_own_order_receipt_page(): void
+    {
+        $customer = User::factory()->create([
+            'name' => 'Portal Receipt Customer',
+            'phone' => '905551220011',
+            'password' => 'secret123',
+        ]);
+
+        $order = Order::query()->create([
+            'customer_id' => $customer->id,
+            'order_no' => 'ORD-PORTAL-RECEIPT-001',
+            'state' => 'paid',
+            'payment_state' => 'succeeded',
+            'payment_method' => 'bank_transfer',
+            'payment_timing' => 'prepaid',
+            'pickup_address' => 'Sisli',
+            'dropoff_address' => 'Besiktas',
+            'total_amount' => 15400,
+            'currency' => 'TRY',
+        ]);
+
+        $order->paymentTransactions()->create([
+            'provider' => 'bank_transfer',
+            'provider_reference' => 'BNK-RECEIPT-001',
+            'amount' => 15400,
+            'currency' => 'TRY',
+            'status' => 'succeeded',
+        ]);
+
+        $this->post('/hesabim/giris', [
+            'phone' => '0555 122 00 11',
+            'password' => 'secret123',
+        ]);
+
+        $response = $this->get('/hesabim/siparisler/ORD-PORTAL-RECEIPT-001/dekont');
+
+        $response->assertOk();
+        $response->assertSee('Ödeme Dekontu');
+        $response->assertSee('ORD-PORTAL-RECEIPT-001');
+        $response->assertSee('BNK-RECEIPT-001');
+        $response->assertSee('154,00 TRY');
     }
 
     public function test_customer_dashboard_supports_state_filter_and_search(): void

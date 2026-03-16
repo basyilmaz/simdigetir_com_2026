@@ -2,6 +2,7 @@
 
 namespace Modules\Landing\Services;
 
+use App\Domain\Pricing\Services\PricingServiceCatalog;
 use Illuminate\Support\Facades\Schema;
 use PDO;
 use Throwable;
@@ -232,7 +233,7 @@ class LandingContentResolver
             'header_b2b_cta_label_text' => 'Kurumsal Giris',
             'header_b2b_cta_href' => '/kurumsal',
             'header_b2b_cta_target' => '_self',
-            'quote_widget_service_options' => $defaultQuoteServiceOptions,
+            'quote_widget_service_options' => $this->resolveQuoteServiceOptions($defaultQuoteServiceOptions),
             'services_badge_text' => 'Profesyonel Hizmetler',
             'services_title_html' => "Kurye <span class=\"gradient-text\">Çözümlerimiz</span>",
             'services_subtitle_text' => 'Her gönderi için doğru çözüm. Hızlı, güvenilir, profesyonel.',
@@ -408,6 +409,10 @@ class LandingContentResolver
                 }
             }
 
+            $content['quote_widget_service_options'] = $this->resolveQuoteServiceOptions(
+                (array) ($content['quote_widget_service_options'] ?? $defaultQuoteServiceOptions)
+            );
+
             return $content;
         } catch (Throwable) {
             return $defaults;
@@ -520,6 +525,19 @@ class LandingContentResolver
             return $content;
         } catch (Throwable) {
             return $defaults;
+        }
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $fallbackOptions
+     * @return array<int, array<string, mixed>>
+     */
+    private function resolveQuoteServiceOptions(array $fallbackOptions): array
+    {
+        try {
+            return app(PricingServiceCatalog::class)->getQuoteServiceOptions($fallbackOptions);
+        } catch (Throwable) {
+            return $fallbackOptions;
         }
     }
 

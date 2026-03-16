@@ -12,6 +12,14 @@
 
 @section('structured_data')
 @php
+    $aboutFunfacts = collect((array) ($landingContent['funfacts'] ?? []))
+        ->filter(fn ($item) => is_array($item) && (bool) ($item['is_active'] ?? true))
+        ->values();
+    $aboutStatPrimaryValue = (string) data_get($aboutFunfacts, '0.value', '2020');
+    $aboutStatPrimaryLabel = (string) data_get($aboutFunfacts, '0.label', 'Kurulus Yili');
+    $aboutStatSecondaryValue = (string) data_get($aboutFunfacts, '1.value', '500+');
+    $aboutStatSecondaryLabel = (string) data_get($aboutFunfacts, '1.label', 'Aktif Kurye');
+
     $aboutSchema = $landingContent['structured_data'] ?? [
         '@context' => 'https://schema.org',
         '@type' => 'Organization',
@@ -85,12 +93,12 @@
                 
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
                     <div class="about-stat">
-                        <div class="about-stat-value"><span data-count="2020">0</span></div>
-                        <div class="about-stat-label">Kuruluş Yılı</div>
+                        <div class="about-stat-value">{{ $aboutStatPrimaryValue }}</div>
+                        <div class="about-stat-label">{{ $aboutStatPrimaryLabel }}</div>
                     </div>
                     <div class="about-stat">
-                        <div class="about-stat-value"><span data-count="500">0</span>+</div>
-                        <div class="about-stat-label">Aktif Kurye</div>
+                        <div class="about-stat-value">{{ $aboutStatSecondaryValue }}</div>
+                        <div class="about-stat-label">{{ $aboutStatSecondaryLabel }}</div>
                     </div>
                 </div>
             </div>
@@ -393,5 +401,4 @@
     }
 </style>
 @endpush
-
 

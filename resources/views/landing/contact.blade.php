@@ -1,6 +1,6 @@
 @extends('layouts.landing')
 
-@section('title', $landingContent['meta_title'] ?? 'Ä°letiÅŸim - SimdiGetir')
+@section('title', $landingContent['meta_title'] ?? 'İletişim - SimdiGetir')
 @section('meta_description', $landingContent['meta_description'] ?? 'SimdiGetir kurye hizmeti ile iletisime gecin. 7/24 aktif musteri destegi. Telefon: 0551 356 72 92')
 @section('meta_keywords', $landingContent['meta_keywords'] ?? 'simdigetir iletisim, kurye telefon, 7/24 kurye')
 
@@ -13,20 +13,18 @@
 @section('structured_data')
 @php
     $telephone = '+905513567292';
+    $displayPhone = '0551 356 72 92';
+    $whatsAppLink = 'https://wa.me/905513567292';
     $email = 'webgetir@simdigetir.com';
-    $streetAddress = 'YeÅŸilce Mahallesi Aytekin Sokak No:5/2';
-    $addressLocality = 'KaÄŸÄ±thane';
-    $addressRegion = 'Ä°stanbul';
+    $streetAddress = 'Yeşilce Mahallesi Aytekin Sokak No:5/2';
+    $addressLocality = 'Kağıthane';
+    $addressRegion = 'İstanbul';
     $postalCode = '34418';
 
     foreach (($landingContent['contact_channels'] ?? []) as $channel) {
         $link = trim((string) ($channel['link'] ?? ''));
         $value = trim((string) ($channel['value'] ?? ''));
         $title = mb_strtolower(trim((string) ($channel['title'] ?? '')));
-
-        if ($link !== '' && str_starts_with($link, 'tel:')) {
-            $telephone = preg_replace('/\s+/', '', substr($link, 4)) ?: $telephone;
-        }
 
         if ($link !== '' && str_starts_with($link, 'mailto:')) {
             $email = substr($link, 7) ?: $email;
@@ -50,8 +48,8 @@
     $contactSchema = [
         '@context' => 'https://schema.org',
         '@type' => 'ContactPage',
-        'name' => 'SimdiGetir Ä°letiÅŸim',
-        'description' => 'SimdiGetir kurye hizmeti iletiÅŸim bilgileri. 7/24 aktif mÃ¼ÅŸteri desteÄŸi.',
+        'name' => 'SimdiGetir İletişim',
+        'description' => 'SimdiGetir kurye hizmeti iletişim bilgileri. 7/24 aktif müşteri desteği.',
         'url' => url('/iletisim'),
         'mainEntity' => [
             '@type' => 'LocalBusiness',
@@ -94,13 +92,13 @@
     <div class="container" style="text-align: center;">
         <div class="hero-badge animate__animated animate__fadeInUp">
             <span class="pulse"></span>
-            {{ $landingContent['hero_badge_text'] ?? 'MÃ¼ÅŸteri Servisi Aktif' }}
+            {{ $landingContent['hero_badge_text'] ?? 'Müşteri Servisi Aktif' }}
         </div>
         <h1 class="animate__animated animate__fadeInUp animate__delay-1s" style="font-size: 3rem;">
-            {!! $landingContent['hero_title_html'] ?? "<span class='gradient-text'>7/24</span> YanÄ±nÄ±zdayÄ±z" !!}
+            {!! $landingContent['hero_title_html'] ?? "<span class='gradient-text'>7/24</span> Yanınızdayız" !!}
         </h1>
         <p class="animate__animated animate__fadeInUp animate__delay-2s" style="max-width: 600px; margin: 0 auto;">
-            {{ $landingContent['hero_description_text'] ?? 'Uzman ekibimiz sorularÄ±nÄ±zÄ± yanÄ±tlamak iÃ§in her zaman hazÄ±r.' }}
+            {{ $landingContent['hero_description_text'] ?? 'Uzman ekibimiz sorularınızı yanıtlamak için her zaman hazır.' }}
         </p>
         <div class="animate__animated animate__fadeInUp animate__delay-3s" style="margin-top: 3rem;">
             <img src="{{ asset('images/hero-contact.svg') }}" alt="SimdiGetir İletişim" width="550" height="400" loading="lazy" decoding="async" style="max-width: 550px; width: 100%; border-radius: 20px;">
@@ -115,10 +113,10 @@
             <!-- Contact Info -->
             <div>
                 <div class="section-badge">
-                    <i class="fa-solid fa-headset"></i> Ä°letiÅŸim KanallarÄ±
+                    <i class="fa-solid fa-headset"></i> İletişim Kanalları
                 </div>
                 <h2 style="font-size: 2rem; margin-bottom: 2rem;">
-                    Bize <span class="gradient-text">UlaÅŸÄ±n</span>
+                    Bize <span class="gradient-text">Ulaşın</span>
                 </h2>
                 
                 <div class="contact-cards">
@@ -130,6 +128,20 @@
                             $isExternal = (bool) ($channel['target_blank'] ?? false);
                             $icon = $channel['icon_class'] ?? 'fa-circle-info';
                             $iconPrefix = str_contains($icon, 'fa-whatsapp') ? 'fa-brands' : 'fa-solid';
+                            $normalizedTitle = mb_strtolower(trim((string) ($channel['title'] ?? '')));
+                            $isPhoneChannel = str_contains($normalizedTitle, 'telefon') || str_contains($icon, 'fa-phone');
+                            $isWhatsAppChannel = str_contains($normalizedTitle, 'whatsapp') || str_contains($icon, 'fa-whatsapp');
+
+                            if ($isPhoneChannel) {
+                                $link = 'tel:'.$telephone;
+                                $channel['value'] = $displayPhone;
+                            }
+
+                            if ($isWhatsAppChannel) {
+                                $link = $whatsAppLink;
+                                $isExternal = true;
+                                $channel['value'] = $displayPhone;
+                            }
                         @endphp
 
                         @if (! empty($link))
@@ -162,37 +174,37 @@
                 <!-- WhatsApp Destek Card -->
                 <div class="glass ai-assistant-card">
                     <div class="ai-assistant-header">
-                        <div class="ai-avatar">ğŸ’¬</div>
+                        <div class="ai-avatar">&#128172;</div>
                         <div>
                             <strong>SimdiGetir Destek</strong>
-                            <span class="ai-online">â— Ã‡evrimiÃ§i</span>
+                            <span class="ai-online">● Çevrimiçi</span>
                         </div>
                     </div>
                     <p>
-                        WhatsApp Ã¼zerinden "<strong>Merhaba</strong>" yazarak anÄ±nda sohbet baÅŸlatabilirsiniz!
+                        WhatsApp üzerinden "<strong>Merhaba</strong>" yazarak anında sohbet başlatabilirsiniz!
                     </p>
                     <a href="https://wa.me/905513567292?text=Merhaba" target="_blank" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
-                        <i class="fa-brands fa-whatsapp"></i> Hemen YazÄ±n
+                        <i class="fa-brands fa-whatsapp"></i> Hemen Yazın
                     </a>
                 </div>
             </div>
             
             <!-- Contact Form -->
             <div class="glass contact-form-wrapper">
-                <h3 style="margin-bottom: 0.5rem; font-size: 1.5rem;">Mesaj GÃ¶nderin</h3>
+                <h3 style="margin-bottom: 0.5rem; font-size: 1.5rem;">Mesaj Gönderin</h3>
                 <p style="color: var(--text-muted); margin-bottom: 2rem; font-size: 0.9rem;">
-                    MesajÄ±nÄ±zÄ± deÄŸerlendirip size uygun Ã§Ã¶zÃ¼m sunacaÄŸÄ±z.
+                    Mesajınızı değerlendirip size uygun çözüm sunacağız.
                 </p>
                 
                 <form id="contact-form" onsubmit="submitContactForm(event)">
                     <div class="responsive-stack" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="form-group">
                             <label>Ad Soyad *</label>
-                            <input type="text" name="name" required placeholder="Tam adÄ±nÄ±z">
+                            <input type="text" name="name" required placeholder="Tam adınız">
                         </div>
                         <div class="form-group">
                             <label>Telefon *</label>
-                            <input type="tel" name="phone" required placeholder="05XX XXX XX XX" pattern="0[0-9]{10}" title="LÃ¼tfen 05XX XXX XX XX formatÄ±nda girin">
+                            <input type="tel" name="phone" required placeholder="05XX XXX XX XX" pattern="0[0-9]{10}" title="Lütfen 05XX XXX XX XX formatında girin">
                         </div>
                     </div>
                     
@@ -204,27 +216,27 @@
                     <div class="form-group">
                         <label>Konu</label>
                         <select name="subject">
-                            <option value="">Konu SeÃ§in</option>
+                            <option value="">Konu Seçin</option>
                             <option value="Genel Bilgi">Genel Bilgi</option>
                             <option value="Fiyat Teklifi">Fiyat Teklifi</option>
                             <option value="Kurumsal Hizmet">Kurumsal Hizmet</option>
-                            <option value="Kurye BaÅŸvurusu">Kurye BaÅŸvurusu</option>
-                            <option value="Åikayet/Ã–neri">Åikayet/Ã–neri</option>
+                            <option value="Kurye Başvurusu">Kurye Başvurusu</option>
+                            <option value="Sikayet/Oneri">Sikayet/Oneri</option>
                         </select>
                     </div>
                     
                     <div class="form-group">
-                        <label>MesajÄ±nÄ±z *</label>
-                        <textarea name="message" rows="5" required placeholder="Size nasÄ±l yardÄ±mcÄ± olabiliriz?"></textarea>
+                        <label>Mesajınız *</label>
+                        <textarea name="message" rows="5" required placeholder="Size nasıl yardımcı olabiliriz?"></textarea>
                     </div>
                     
                     <button type="submit" class="btn btn-primary" style="width: 100%;" id="contact-submit">
-                        <i class="fa-solid fa-paper-plane"></i> Mesaj GÃ¶nder
+                        <i class="fa-solid fa-paper-plane"></i> Mesaj Gönder
                     </button>
                 </form>
                 
                 <div id="contact-success" style="display: none;" class="alert alert-success">
-                    <i class="fa-solid fa-check-circle"></i> MesajÄ±nÄ±z alÄ±ndÄ±! En kÄ±sa sÃ¼rede size dÃ¶nÃ¼ÅŸ yapacaÄŸÄ±z.
+                    <i class="fa-solid fa-check-circle"></i> Mesajınız alındı! En kısa sürede size dönüş yapacağız.
                 </div>
             </div>
         </div>
@@ -253,7 +265,7 @@
     <div class="container">
         <div class="cta-section">
             <div class="cta-content">
-                <h2>Hemen <span class="gradient-text">ArayÄ±n</span></h2>
+                <h2>Hemen <span class="gradient-text">Arayın</span></h2>
                 <p>
                     Uzman ekibimiz sizi bekliyor!
                 </p>
@@ -408,7 +420,7 @@
         const successDiv = document.getElementById('contact-success');
         
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="typing-dots"><span></span><span></span><span></span></span> GÃ¶nderiliyor...';
+        submitBtn.innerHTML = '<span class="typing-dots"><span></span><span></span><span></span></span> Gönderiliyor...';
         
         const formData = new FormData(form);
         const data = {
@@ -453,21 +465,18 @@
                 successDiv.style.display = 'block';
                 trackEvent('lead_submit', { lead_type: 'contact' });
             } else {
-                alert(result.message || 'Bir hata oluÅŸtu. LÃ¼tfen tekrar deneyin.');
+                alert(result.message || 'Bir hata oluştu. Lütfen tekrar deneyin.');
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Mesaj GÃ¶nder';
+                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Mesaj Gönder';
             }
         } catch (error) {
-            alert('BaÄŸlantÄ± hatasÄ±. LÃ¼tfen tekrar deneyin.');
+            alert('Bağlantı hatası. Lütfen tekrar deneyin.');
             submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Mesaj GÃ¶nder';
+            submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Mesaj Gönder';
         }
     }
 </script>
 @endpush
-
-
-
 
 
 

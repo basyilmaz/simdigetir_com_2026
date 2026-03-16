@@ -19,6 +19,8 @@ class LandingDynamicContentTest extends TestCase
         $response->assertSee('data-quote-widget', false);
         $response->assertSee('Fiyat Hesapla');
         $response->assertSee('data-quote-start-checkout', false);
+        $response->assertSee('data-quote-start-checkout-fallback', false);
+        $response->assertSee('Devam Et');
     }
 
     public function test_home_hides_hero_quote_widget_when_disabled(): void

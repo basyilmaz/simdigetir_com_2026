@@ -104,6 +104,10 @@
             <button type="submit" class="btn btn-primary hero-quote-submit" data-quote-submit data-default-label="{{ $submitLabel }}">
                 <i class="fa-solid fa-calculator"></i> {{ $submitLabel }}
             </button>
+
+            <a href="{{ route('checkout.index') }}" class="btn btn-outline hero-quote-direct" data-quote-start-checkout-direct>
+                <i class="fa-solid fa-cart-shopping"></i> Teklifsiz Devam Et
+            </a>
         </form>
 
         <p class="hero-quote-feedback" data-quote-feedback hidden></p>
@@ -117,8 +121,11 @@
             <p class="hero-quote-fallback" data-quote-fallback hidden></p>
             <div class="hero-quote-ctas">
                 <button type="button" class="btn btn-primary" data-quote-start-checkout hidden>
-                    <i class="fa-solid fa-arrow-right"></i> Siparise Gec
+                    <i class="fa-solid fa-arrow-right"></i> Siparişe Geç
                 </button>
+                <a href="{{ route('checkout.index') }}" class="btn btn-outline" data-quote-start-checkout-fallback>
+                    <i class="fa-solid fa-cart-shopping"></i> Devam Et
+                </a>
                 <a href="{{ $whatsappHref }}" class="btn btn-primary" data-quote-cta="whatsapp" target="_blank" rel="noopener">
                     <i class="fa-brands fa-whatsapp"></i> {{ $whatsappLabel }}
                 </a>
@@ -187,6 +194,12 @@
         .hero-quote-submit {
             min-height: 44px;
             justify-content: center;
+        }
+
+        .hero-quote-direct {
+            min-height: 44px;
+            justify-content: center;
+            text-align: center;
         }
 
         .hero-quote-feedback {
@@ -311,6 +324,8 @@
             const distance = widget.querySelector('[data-quote-distance]');
             const fallback = widget.querySelector('[data-quote-fallback]');
             const startCheckoutButton = widget.querySelector('[data-quote-start-checkout]');
+            const startCheckoutFallbackLink = widget.querySelector('[data-quote-start-checkout-fallback]');
+            const startCheckoutDirectLink = widget.querySelector('[data-quote-start-checkout-direct]');
             const pickupInput = widget.querySelector('#quote-pickup-address');
             const dropoffInput = widget.querySelector('#quote-dropoff-address');
             const serviceTypeInput = widget.querySelector('#quote-service-type');
@@ -343,6 +358,50 @@
             };
 
             const normalizeText = (value) => String(value || '').trim().toLocaleLowerCase('tr-TR');
+
+            const buildFallbackCheckoutUrl = () => {
+                const params = new URLSearchParams();
+                const pickup = pickupInput?.value?.trim() || '';
+                const dropoff = dropoffInput?.value?.trim() || '';
+                const serviceType = serviceTypeInput?.value || 'moto';
+                const serviceLabel = serviceTypeInput?.options?.[serviceTypeInput.selectedIndex]?.text || serviceType;
+
+                if (pickup !== '') {
+                    params.set('pickup', pickup);
+                }
+                if (dropoff !== '') {
+                    params.set('dropoff', dropoff);
+                }
+                if (serviceType !== '') {
+                    params.set('service_type', serviceType);
+                }
+                if (serviceLabel !== '') {
+                    params.set('service_label', serviceLabel);
+                }
+
+                const query = params.toString();
+                return query !== ''
+                    ? `${quoteConfig.checkoutBaseUrl}?${query}`
+                    : quoteConfig.checkoutBaseUrl;
+            };
+
+            const syncFallbackCheckoutLink = () => {
+                const fallbackUrl = buildFallbackCheckoutUrl();
+
+                if (startCheckoutFallbackLink) {
+                    startCheckoutFallbackLink.href = fallbackUrl;
+                    startCheckoutFallbackLink.hidden = false;
+                }
+
+                if (startCheckoutDirectLink) {
+                    startCheckoutDirectLink.href = fallbackUrl;
+                }
+            };
+
+            syncFallbackCheckoutLink();
+            pickupInput?.addEventListener('input', syncFallbackCheckoutLink);
+            dropoffInput?.addEventListener('input', syncFallbackCheckoutLink);
+            serviceTypeInput?.addEventListener('change', syncFallbackCheckoutLink);
 
             const setFeedback = (message, level) => {
                 if (!message) {
@@ -423,7 +482,7 @@
             const setLoading = (isLoading) => {
                 submitButton.disabled = isLoading;
                 submitButton.innerHTML = isLoading
-                    ? '<span class="typing-dots"><span></span><span></span><span></span></span> Hesaplaniyor...'
+                    ? '<span class="typing-dots"><span></span><span></span><span></span></span> Hesaplanıyor...'
                     : `<i class="fa-solid fa-calculator"></i> ${submitLabel}`;
             };
 
@@ -443,22 +502,23 @@
                 const usingFallback = durationMinutesRaw <= 0 || distanceMeters <= 0;
 
                 priceRange.textContent = `${formatMoney(priceMin, payload?.currency)} - ${formatMoney(priceMax, payload?.currency)}`;
-                eta.textContent = `Tahmini sure: ${durationMinutes} dk`;
+                eta.textContent = `Tahmini süre: ${durationMinutes} dk`;
                 distance.textContent = distanceMeters > 0
                     ? `Tahmini mesafe: ${(distanceMeters / 1000).toFixed(1)} km`
-                    : 'Mesafe verisi gecici olarak yaklasik hesaplanmistir.';
+                    : 'Mesafe verisi geçici olarak yaklaşık hesaplanmıştır.';
 
                 fallback.hidden = !usingFallback;
                 fallback.textContent = usingFallback
-                    ? 'Mesafe servisi gecici olarak yaklasik hesaplama kullaniyor.'
+                    ? 'Mesafe servisi geçici olarak yaklaşık hesaplama kullanıyor.'
                     : '';
 
                 result.hidden = false;
                 if (startCheckoutButton) {
                     startCheckoutButton.hidden = false;
                     startCheckoutButton.disabled = false;
-                    startCheckoutButton.innerHTML = '<i class="fa-solid fa-arrow-right"></i> Siparise Gec';
+                    startCheckoutButton.innerHTML = '<i class="fa-solid fa-arrow-right"></i> Siparişe Geç';
                 }
+                syncFallbackCheckoutLink();
 
                 if (window.innerWidth < 768) {
                     result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -471,6 +531,7 @@
                 if (startCheckoutButton) {
                     startCheckoutButton.hidden = true;
                 }
+                syncFallbackCheckoutLink();
 
                 if (status === 422) {
                     applyFieldErrors(body?.errors || {});
@@ -479,16 +540,16 @@
                 }
 
                 if (status === 429) {
-                    setFeedback('Cok hizli istek gonderdiniz. 30 saniye sonra tekrar deneyin.', 'info');
+                    setFeedback('Çok hızlı istek gönderdiniz. 30 saniye sonra tekrar deneyin.', 'info');
                     return;
                 }
 
                 if (status >= 500) {
-                    setFeedback('Sunucu gecici olarak yanit veremiyor. Lutfen tekrar deneyin.', 'error');
+                    setFeedback('Sunucu geçici olarak yanıt veremiyor. Lütfen tekrar deneyin.', 'error');
                     return;
                 }
 
-                setFeedback('Teklif alinirken bir hata olustu. Lutfen tekrar deneyin.', 'error');
+                setFeedback('Teklif alınırken bir hata oluştu. Lütfen tekrar deneyin.', 'error');
             };
 
             const requestQuote = async (payload) => {
@@ -593,10 +654,11 @@
                     if (startCheckoutButton) {
                         startCheckoutButton.hidden = true;
                     }
+                    syncFallbackCheckoutLink();
                     setFeedback(
                         isTimeoutError
-                            ? 'Yanit suresi asildi. Lutfen tekrar deneyin.'
-                            : 'Baglanti hatasi olustu. Lutfen tekrar deneyin.',
+                            ? 'Yanıt süresi aşıldı. Lütfen tekrar deneyin.'
+                            : 'Bağlantı hatası oluştu. Lütfen tekrar deneyin.',
                         'error'
                     );
 
@@ -612,13 +674,15 @@
 
             startCheckoutButton?.addEventListener('click', async () => {
                 if (!latestQuotePayload?.id) {
-                    setFeedback('Lutfen once gecerli bir teklif alin.', 'error');
+                    setFeedback('Teklif verisi eksik. Yedek checkout akışına yönlendiriliyorsunuz.', 'info');
+                    window.location.href = buildFallbackCheckoutUrl();
                     return;
                 }
 
                 const serviceType = serviceTypeInput.value || 'moto';
+                const selectedServiceLabel = serviceTypeInput.options?.[serviceTypeInput.selectedIndex]?.text || serviceType;
                 startCheckoutButton.disabled = true;
-                startCheckoutButton.innerHTML = '<span class="typing-dots"><span></span><span></span><span></span></span> Hazirlaniyor...';
+                startCheckoutButton.innerHTML = '<span class="typing-dots"><span></span><span></span><span></span></span> Hazırlanıyor...';
 
                 try {
                     const response = await fetch(quoteConfig.checkoutSessionEndpoint, {
@@ -632,6 +696,7 @@
                             current_step: 'quote',
                             payload: {
                                 service_type: serviceType,
+                                service_label: selectedServiceLabel,
                                 pickup: {
                                     address: pickupInput.value.trim(),
                                 },
@@ -655,7 +720,7 @@
                     }
 
                     if (!response.ok || !body?.success || !body?.data?.token) {
-                        throw new Error(body?.message || 'Checkout oturumu baslatilamadi.');
+                        throw new Error(body?.message || 'Checkout oturumu başlatılamadı.');
                     }
 
                     if (typeof trackEvent === 'function') {
@@ -667,9 +732,10 @@
 
                     window.location.href = `${quoteConfig.checkoutBaseUrl}/${body.data.token}`;
                 } catch (error) {
-                    setFeedback(error instanceof Error ? error.message : 'Checkout oturumu baslatilamadi.', 'error');
+                    setFeedback('Checkout oturumu otomatik açılamadı. Yedek akışa yönlendiriliyorsunuz.', 'info');
                     startCheckoutButton.disabled = false;
-                    startCheckoutButton.innerHTML = '<i class="fa-solid fa-arrow-right"></i> Siparise Gec';
+                    startCheckoutButton.innerHTML = '<i class="fa-solid fa-arrow-right"></i> Siparişe Geç';
+                    window.location.href = buildFallbackCheckoutUrl();
                 }
             });
 
@@ -690,4 +756,3 @@
     </script>
     @endpush
 @endif
-

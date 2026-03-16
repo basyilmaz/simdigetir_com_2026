@@ -51,9 +51,9 @@ class PaymentTransactionResource extends Resource
             Forms\Components\Section::make('Tutar Bilgileri')
                 ->icon('heroicon-o-currency-dollar')
                 ->schema([
-                    Forms\Components\TextInput::make('amount')
+                    Forms\Components\Placeholder::make('amount_display')
                         ->label('Tutar')
-                        ->disabled(),
+                        ->content(fn (?PaymentTransaction $record): string => static::formatAmount($record?->amount, $record?->currency)),
                     Forms\Components\TextInput::make('currency')
                         ->label('Para Birimi')
                         ->disabled(),
@@ -67,9 +67,9 @@ class PaymentTransactionResource extends Resource
 
             Forms\Components\Section::make('Teknik Detaylar')
                 ->schema([
-                    Forms\Components\DateTimePicker::make('processed_at')
-                        ->label('İşlem Tarihi')
-                        ->disabled(),
+                    Forms\Components\Placeholder::make('processed_at_display')
+                        ->label('İşlem / Kayıt Durumu')
+                        ->content(fn (?PaymentTransaction $record): string => static::resolveProcessedAtSummary($record)),
                     Forms\Components\KeyValue::make('request_payload')
                         ->label('İstek Verisi')
                         ->disabled(),
@@ -117,14 +117,16 @@ class PaymentTransactionResource extends Resource
                     }),
                 Tables\Columns\TextColumn::make('amount')
                     ->label('Tutar')
-                    ->formatStateUsing(fn ($state) => number_format((int) $state) . ' ₺'),
+                    ->formatStateUsing(fn ($state, PaymentTransaction $record): string => static::formatAmount($state, $record->currency)),
                 Tables\Columns\TextColumn::make('order_id')
                     ->label('Sipariş')
                     ->searchable()
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('processed_at')
-                    ->label('İşlem Tarihi')
+                    ->label('İşlem / Kayıt')
+                    ->state(fn (PaymentTransaction $record) => $record->processed_at ?? $record->created_at)
                     ->dateTime('d.m.Y H:i')
+                    ->description(fn (PaymentTransaction $record): ?string => static::resolveProcessedAtMeta($record))
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Tarih')
@@ -170,16 +172,7 @@ class PaymentTransactionResource extends Resource
                         $rows = PaymentTransaction::query()
                             ->latest('id')
                             ->cursor()
-                            ->map(fn (PaymentTransaction $payment): array => [
-                                $payment->id,
-                                $payment->provider,
-                                $payment->provider_reference,
-                                $payment->status,
-                                $payment->amount,
-                                $payment->currency,
-                                $payment->order_id,
-                                optional($payment->created_at)->format('Y-m-d H:i:s'),
-                            ]);
+                            ->map(fn (PaymentTransaction $payment): array => static::exportRow($payment));
 
                         return CsvExporter::download(
                             filename: 'payment-transactions-' . now()->format('Ymd-His') . '.csv',
@@ -205,5 +198,57 @@ class PaymentTransactionResource extends Resource
     public static function getGloballySearchableAttributes(): array
     {
         return ['provider_reference', 'provider', 'status'];
+    }
+
+    public static function formatAmount(mixed $amount, ?string $currency = 'TRY'): string
+    {
+        if ($amount === null || $amount === '') {
+            return '-';
+        }
+
+        $formatted = number_format(((int) $amount) / 100, 2, ',', '.');
+        $normalizedCurrency = strtoupper(trim((string) ($currency ?: 'TRY')));
+        $suffix = in_array($normalizedCurrency, ['TRY', 'TL'], true) ? '₺' : $normalizedCurrency;
+
+        return "{$formatted} {$suffix}";
+    }
+
+    public static function resolveProcessedAtSummary(?PaymentTransaction $payment): string
+    {
+        if (! $payment) {
+            return '-';
+        }
+
+        if ($payment->processed_at) {
+            return 'İşlendi: '.$payment->processed_at->format('d.m.Y H:i');
+        }
+
+        if ($payment->created_at) {
+            return 'Bekliyor - Kayıt: '.$payment->created_at->format('d.m.Y H:i');
+        }
+
+        return '-';
+    }
+
+    public static function resolveProcessedAtMeta(PaymentTransaction $payment): ?string
+    {
+        return $payment->processed_at ? null : 'Henüz işlenmedi';
+    }
+
+    /**
+     * @return array<int, string|int|null>
+     */
+    public static function exportRow(PaymentTransaction $payment): array
+    {
+        return [
+            $payment->id,
+            $payment->provider,
+            $payment->provider_reference,
+            $payment->status,
+            static::formatAmount($payment->amount, $payment->currency),
+            $payment->currency,
+            $payment->order_id,
+            optional($payment->processed_at ?? $payment->created_at)->format('Y-m-d H:i:s'),
+        ];
     }
 }

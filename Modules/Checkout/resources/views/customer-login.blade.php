@@ -36,6 +36,7 @@ body{margin:0;background:linear-gradient(180deg,#fff7ed,#f3ede5);color:#201b17;f
           <input id="portal-password" name="password" type="password" placeholder="Sifreniz" autocomplete="current-password">
         </div>
         <button type="submit" class="btn">Panele Gir</button>
+        <a href="{{ route('checkout.customer.register') }}" class="btn secondary">Yeni hesap olustur</a>
       </form>
     </section>
 

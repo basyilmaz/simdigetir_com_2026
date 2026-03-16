@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\OrderResource\RelationManagers;
 
+use App\Filament\Resources\PaymentTransactionResource;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
@@ -43,9 +44,10 @@ class PaymentTransactionsRelationManager extends RelationManager
                     }),
                 Tables\Columns\TextColumn::make('amount')
                     ->label('Tutar')
-                    ->formatStateUsing(fn ($state): string => number_format((int) $state) . ' ₺'),
+                    ->formatStateUsing(fn ($state, $record): string => PaymentTransactionResource::formatAmount($state, $record->currency)),
                 Tables\Columns\TextColumn::make('processed_at')
-                    ->label('İşlem Tarihi')
+                    ->label('İşlem / Kayıt')
+                    ->state(fn ($record) => $record->processed_at ?? $record->created_at)
                     ->dateTime('d.m.Y H:i'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Kayıt')

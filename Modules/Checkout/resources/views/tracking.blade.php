@@ -45,6 +45,18 @@ body{margin:0;background:linear-gradient(180deg,#fff7ed,#f3ede5);color:#201b17;f
   </section>
 
   @if ($tracking)
+    <div
+      class="alert info"
+      style="margin-top:20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;"
+      data-tracking-autorefresh
+      data-order-no="{{ $prefillOrderNo }}"
+      data-phone="{{ $prefillPhone }}"
+      data-endpoint="{{ route('api.v1.order-tracking.show') }}"
+    >
+      <span>Canlı takip aktif. Ekran her <strong data-tracking-countdown>30</strong> sn güncellenir.</span>
+      <button type="button" class="btn" style="min-height:42px;padding:0 14px;" data-tracking-toggle>Otomatik Yenilemeyi Durdur</button>
+    </div>
+
     <div class="grid">
       <section class="card panel">
         <div class="stack">
@@ -118,4 +130,87 @@ body{margin:0;background:linear-gradient(180deg,#fff7ed,#f3ede5);color:#201b17;f
     </div>
   @endif
 </div>
+
+@if ($tracking && $lookupSubmitted && $prefillOrderNo !== '' && $prefillPhone !== '')
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const refreshNode = document.querySelector('[data-tracking-autorefresh]');
+  if (!refreshNode) {
+    return;
+  }
+
+  const orderNo = String(refreshNode.getAttribute('data-order-no') || '').trim();
+  const phone = String(refreshNode.getAttribute('data-phone') || '').trim();
+  const endpoint = String(refreshNode.getAttribute('data-endpoint') || '').trim();
+  const countdownNode = refreshNode.querySelector('[data-tracking-countdown]');
+  const toggleButton = refreshNode.querySelector('[data-tracking-toggle]');
+  const initialSeconds = 30;
+  let enabled = true;
+  let remainingSeconds = initialSeconds;
+
+  const updateCountdown = () => {
+    if (!countdownNode) {
+      return;
+    }
+    countdownNode.textContent = String(Math.max(0, remainingSeconds));
+  };
+
+  const buildRefreshUrl = () => {
+    const params = new URLSearchParams({
+      order_no: orderNo,
+      phone: phone,
+    });
+
+    return `${endpoint}?${params.toString()}`;
+  };
+
+  const refreshTracking = async () => {
+    if (!enabled || document.hidden || orderNo === '' || phone === '' || endpoint === '') {
+      return;
+    }
+
+    try {
+      const response = await fetch(buildRefreshUrl(), {
+        headers: { Accept: 'application/json' },
+      });
+
+      if (response.ok) {
+        window.location.reload();
+      }
+    } catch (error) {
+      // Keep page stable on transient network issues; next cycle will retry.
+    }
+  };
+
+  toggleButton?.addEventListener('click', function () {
+    enabled = !enabled;
+    toggleButton.textContent = enabled
+      ? 'Otomatik Yenilemeyi Durdur'
+      : 'Otomatik Yenilemeyi Başlat';
+
+    if (enabled) {
+      remainingSeconds = initialSeconds;
+      updateCountdown();
+    }
+  });
+
+  updateCountdown();
+  window.setInterval(function () {
+    if (!enabled) {
+      return;
+    }
+
+    remainingSeconds -= 1;
+    if (remainingSeconds <= 0) {
+      remainingSeconds = initialSeconds;
+      refreshTracking();
+    }
+
+    updateCountdown();
+  }, 1000);
+});
+</script>
+@endpush
+@endif
 </x-checkout::layouts.master>

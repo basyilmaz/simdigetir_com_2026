@@ -133,6 +133,8 @@ class LeadResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('company_name')
                     ->label('Firma')
+                    ->formatStateUsing(fn ($state, Lead $record): string => static::resolveCompanyDisplay($record))
+                    ->description(fn (Lead $record): ?string => blank($record->company_name) && $record->type === 'corporate_quote' ? 'Kurumsal talepte firma bilgisi eksik' : null)
                     ->searchable()
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('phone')
@@ -199,19 +201,11 @@ class LeadResource extends Resource
                         $rows = Lead::query()
                             ->latest()
                             ->cursor()
-                            ->map(fn (Lead $lead): array => [
-                                $lead->id,
-                                $lead->type,
-                                $lead->name,
-                                $lead->phone,
-                                $lead->email,
-                                $lead->status,
-                                optional($lead->created_at)->format('Y-m-d H:i:s'),
-                            ]);
+                            ->map(fn (Lead $lead): array => static::exportRow($lead));
 
                         return CsvExporter::download(
                             filename: 'leads-' . now()->format('Ymd-His') . '.csv',
-                            headers: ['ID', 'Tip', 'İsim', 'Telefon', 'E-posta', 'Durum', 'Tarih'],
+                            headers: ['ID', 'Tip', 'İsim', 'Firma', 'Telefon', 'E-posta', 'Durum', 'Tarih'],
                             rows: $rows
                         );
                     }),
@@ -281,6 +275,34 @@ class LeadResource extends Resource
     public static function getGlobalSearchEloquentQuery(): Builder
     {
         return parent::getGlobalSearchEloquentQuery()->select(['id', 'name', 'phone', 'email', 'company_name']);
+    }
+
+    public static function resolveCompanyDisplay(Lead $lead): string
+    {
+        $companyName = trim((string) ($lead->company_name ?? ''));
+
+        if ($companyName !== '') {
+            return $companyName;
+        }
+
+        return $lead->type === 'corporate_quote' ? 'Eksik' : '-';
+    }
+
+    /**
+     * @return array<int, string|int|null>
+     */
+    public static function exportRow(Lead $lead): array
+    {
+        return [
+            $lead->id,
+            $lead->type,
+            $lead->name,
+            static::resolveCompanyDisplay($lead),
+            $lead->phone,
+            $lead->email,
+            $lead->status,
+            optional($lead->created_at)->format('Y-m-d H:i:s'),
+        ];
     }
 
     public static function getEloquentQuery(): Builder

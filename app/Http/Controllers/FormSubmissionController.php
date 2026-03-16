@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\FormDefinition;
 use App\Models\FormSubmission;
+use App\Support\FormDefinitionDefaults;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -17,6 +18,17 @@ class FormSubmissionController extends Controller
             ->where('key', $key)
             ->where('is_active', true)
             ->first();
+
+        if (! $definition) {
+            $defaultDefinitionPayload = FormDefinitionDefaults::byKey($key);
+
+            if (is_array($defaultDefinitionPayload)) {
+                $definition = FormDefinition::query()->updateOrCreate(
+                    ['key' => $key],
+                    $defaultDefinitionPayload
+                );
+            }
+        }
 
         if (! $definition) {
             return response()->json([
@@ -48,11 +60,13 @@ class FormSubmissionController extends Controller
             'user_agent' => $request->userAgent(),
         ]);
 
+        $companyName = trim((string) ($validated['company_name'] ?? $request->input('company_name', '')));
+
         if ($definition->target_type === 'lead' && class_exists(Lead::class)) {
             Lead::query()->create([
                 'type' => (string) ($validated['type'] ?? 'contact'),
                 'name' => (string) ($validated['name'] ?? 'Anonim'),
-                'company_name' => $validated['company_name'] ?? null,
+                'company_name' => $companyName !== '' ? $companyName : null,
                 'phone' => $validated['phone'] ?? '-',
                 'email' => $validated['email'] ?? null,
                 'message' => $validated['message'] ?? null,
@@ -119,8 +133,8 @@ class FormSubmissionController extends Controller
         $rules['utm_campaign'] = ['nullable', 'string', 'max:100'];
         $rules['utm_term'] = ['nullable', 'string', 'max:100'];
         $rules['utm_content'] = ['nullable', 'string', 'max:100'];
+        $rules['company_name'] = $rules['company_name'] ?? ['nullable', 'string', 'max:255'];
 
         return $rules;
     }
 }
-

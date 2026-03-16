@@ -5,6 +5,7 @@ namespace Modules\Checkout\Services;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class CustomerPortalAuthService
 {
@@ -56,9 +57,41 @@ class CustomerPortalAuthService
             ->find((int) $userId);
     }
 
+    public function register(array $attributes): User
+    {
+        $normalizedPhone = $this->normalizePhone((string) ($attributes['phone'] ?? ''));
+        $email = trim((string) ($attributes['email'] ?? ''));
+
+        return User::query()->create([
+            'name' => trim((string) ($attributes['name'] ?? '')),
+            'email' => $email !== '' ? $email : $this->syntheticEmailFromPhone($normalizedPhone),
+            'phone' => $normalizedPhone,
+            'password' => (string) ($attributes['password'] ?? ''),
+            'is_active' => true,
+        ]);
+    }
+
+    public function normalizePhone(string $phone): string
+    {
+        $digits = preg_replace('/\D+/', '', trim($phone)) ?? '';
+        if ($digits === '') {
+            return '';
+        }
+
+        if (strlen($digits) === 10) {
+            return '90'.$digits;
+        }
+
+        if (strlen($digits) === 11 && Str::startsWith($digits, '0')) {
+            return '9'.$digits;
+        }
+
+        return $digits;
+    }
+
     private function comparablePhone(string $phone): string
     {
-        $digits = preg_replace('/[^0-9]/', '', trim($phone)) ?? '';
+        $digits = $this->normalizePhone($phone);
         if ($digits === '') {
             return '';
         }
@@ -68,5 +101,10 @@ class CustomerPortalAuthService
         }
 
         return $digits;
+    }
+
+    private function syntheticEmailFromPhone(string $phone): string
+    {
+        return 'customer+'.$phone.'@simdigetir.local';
     }
 }

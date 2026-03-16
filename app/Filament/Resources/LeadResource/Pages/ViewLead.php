@@ -4,11 +4,11 @@ namespace App\Filament\Resources\LeadResource\Pages;
 
 use App\Filament\Resources\LeadResource;
 use Filament\Actions;
-use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Pages\ViewRecord;
+use Illuminate\Support\HtmlString;
 use Modules\Leads\Models\Lead;
 
 class ViewLead extends ViewRecord
@@ -54,19 +54,11 @@ class ViewLead extends ViewRecord
                     ->columns(2),
                 Section::make('Aktivite Akışı')
                     ->schema([
-                        RepeatableEntry::make('activity_timeline')
+                        TextEntry::make('activity_timeline')
                             ->label('')
-                            ->state(fn (Lead $record): array => static::buildTimelineItems($record))
-                            ->schema([
-                                TextEntry::make('event')
-                                    ->label('Olay'),
-                                TextEntry::make('at')
-                                    ->label('Zaman'),
-                                TextEntry::make('description')
-                                    ->label('Detay')
-                                    ->columnSpanFull(),
-                            ])
-                            ->columns(2),
+                            ->state(fn (Lead $record): HtmlString => static::renderTimelineHtml($record))
+                            ->html()
+                            ->columnSpanFull(),
                     ]),
             ]);
     }
@@ -117,6 +109,55 @@ class ViewLead extends ViewRecord
         }
 
         return $items;
+    }
+
+    /**
+     * @return array<int, array{event: string, at: string, description: string}>
+     */
+    public static function timelineItemsForDisplay(Lead $lead): array
+    {
+        return collect(static::buildTimelineItems($lead))
+            ->map(function (array $item): array {
+                return [
+                    'event' => trim((string) ($item['event'] ?? '')),
+                    'at' => trim((string) ($item['at'] ?? '')),
+                    'description' => trim((string) ($item['description'] ?? '')),
+                ];
+            })
+            ->filter(fn (array $item): bool => $item['event'] !== '' || $item['description'] !== '')
+            ->unique(fn (array $item): string => implode('|', $item))
+            ->values()
+            ->all();
+    }
+
+    public static function renderTimelineHtml(Lead $lead): HtmlString
+    {
+        $items = static::timelineItemsForDisplay($lead);
+
+        if ($items === []) {
+            return new HtmlString('<div class="text-sm text-gray-500">Aktivite kaydi bulunmuyor.</div>');
+        }
+
+        $html = '<div class="space-y-3">';
+
+        foreach ($items as $item) {
+            $html .= sprintf(
+                '<div class="rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm">'
+                .'<div class="flex items-center justify-between gap-3">'
+                .'<div class="font-medium text-gray-900">%s</div>'
+                .'<div class="text-xs text-gray-500">%s</div>'
+                .'</div>'
+                .'<div class="mt-2 text-sm text-gray-600">%s</div>'
+                .'</div>',
+                e($item['event'] !== '' ? $item['event'] : 'Aktivite'),
+                e($item['at'] !== '' ? $item['at'] : '-'),
+                e($item['description'] !== '' ? $item['description'] : '-')
+            );
+        }
+
+        $html .= '</div>';
+
+        return new HtmlString($html);
     }
 
     protected static function statusLabel(string $state): string

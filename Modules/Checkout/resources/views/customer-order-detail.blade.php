@@ -18,6 +18,7 @@ body{margin:0;background:linear-gradient(180deg,#fff7ed,#f3ede5);color:#201b17;f
     <div class="actions">
       <a href="{{ route('checkout.customer.dashboard') }}" class="btn secondary">Panele Don</a>
       <a href="{{ route('checkout.tracking', ['order_no' => $order->order_no, 'phone' => $customer->phone]) }}" class="btn">Canli Takip</a>
+      <a href="{{ route('checkout.customer.orders.receipt', ['orderNo' => $order->order_no]) }}" class="btn secondary">Dekont</a>
     </div>
   </div>
 
@@ -168,7 +169,7 @@ body{margin:0;background:linear-gradient(180deg,#fff7ed,#f3ede5);color:#201b17;f
         <div class="list">
           <div class="detail-item">
             <strong>Hizmet</strong>
-            <div class="detail-note">{{ $checkoutSnapshot['service_type'] ?? $order->vehicle_type ?? '-' }}</div>
+            <div class="detail-note">{{ $checkoutSnapshot['service_label'] ?? $checkoutSnapshot['service_type'] ?? $order->vehicle_type ?? '-' }}</div>
           </div>
           <div class="detail-item">
             <strong>Same Person</strong>

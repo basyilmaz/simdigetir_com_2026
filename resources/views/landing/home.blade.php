@@ -175,6 +175,9 @@
                                     <a href="/kurye-basvuru" class="btn btn-primary" style="background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%); border: none;">
                                         <i class="fa-solid fa-bolt"></i> Hemen Başvur
                                     </a>
+                                    <a href="{{ route('checkout.index') }}" class="btn btn-outline" data-hero-open-quote>
+                                        <i class="fa-solid fa-calculator"></i> Fiyat Hesapla
+                                    </a>
                                 </div>
                             </div>
                             
@@ -285,6 +288,35 @@
             if (quoteWidgetInteractionLocks === 0) {
                 startHeroAutoplay();
             }
+        });
+
+        const focusQuoteWidget = () => {
+            const quoteInput = document.querySelector('#quote-pickup-address');
+            if (!quoteInput) {
+                window.location.href = "{{ route('checkout.index') }}";
+                return;
+            }
+
+            quoteInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            window.setTimeout(() => quoteInput.focus(), 220);
+        };
+
+        document.querySelectorAll('[data-hero-open-quote]').forEach((button) => {
+            button.addEventListener('click', function (event) {
+                const quoteInput = document.querySelector('#quote-pickup-address');
+                if (!quoteInput) {
+                    return;
+                }
+
+                event.preventDefault();
+                if (typeof swiper.slideToLoop === 'function') {
+                    swiper.slideToLoop(0, 600);
+                } else {
+                    swiper.slideTo(0, 600);
+                }
+
+                window.setTimeout(focusQuoteWidget, 650);
+            });
         });
     });
 </script>

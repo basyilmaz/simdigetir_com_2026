@@ -11,6 +11,48 @@ use Tests\TestCase;
 
 class CheckoutPageTest extends TestCase
 {
+    public function test_guest_can_open_checkout_entry_page(): void
+    {
+        $response = $this->get('/checkout');
+
+        $response->assertOk();
+        $response->assertSee('Siparişe Başla');
+        $response->assertSee('Ana Sayfada Fiyat Hesapla');
+        $response->assertSee('Hesap Oluştur');
+        $response->assertSee(route('checkout.customer.register'));
+    }
+
+    public function test_checkout_entry_with_prefilled_query_redirects_to_tokenized_checkout_session(): void
+    {
+        $response = $this->get('/checkout?pickup=Besiktas%20Meydan&dropoff=Sisli%20Merkez&service_type=moto&service_label=Moto%20Kurye');
+
+        $response->assertRedirect();
+        $this->assertDatabaseCount('checkout_sessions', 1);
+        $this->assertDatabaseCount('pricing_quotes', 1);
+
+        $session = CheckoutSession::query()->latest('id')->first();
+        $this->assertNotNull($session);
+        $this->assertSame('quote', $session->current_step);
+        $this->assertSame('moto', (string) data_get($session->payload, 'service_type'));
+        $this->assertSame('Moto Kurye', (string) data_get($session->payload, 'service_label'));
+        $this->assertSame('Besiktas Meydan', (string) data_get($session->payload, 'pickup.address'));
+        $this->assertSame('Sisli Merkez', (string) data_get($session->payload, 'dropoff.address'));
+
+        $this->get('/checkout/'.$session->token)
+            ->assertOk()
+            ->assertSee('SimdiGetir Checkout')
+            ->assertSee('Besiktas Meydan')
+            ->assertSee('Sisli Merkez')
+            ->assertSee('Moto Kurye');
+    }
+
+    public function test_siparis_shortcut_redirects_to_checkout_entry_page(): void
+    {
+        $response = $this->get('/siparis');
+
+        $response->assertRedirect('/checkout');
+    }
+
     public function test_guest_can_open_checkout_page_for_tokenized_session(): void
     {
         $quote = PricingQuote::query()->create([
@@ -49,10 +91,10 @@ class CheckoutPageTest extends TestCase
         $response->assertSee('SimdiGetir Checkout');
         $response->assertSee('Sisli Merkez');
         $response->assertSee('Kadikoy Moda');
-        $response->assertSee('Kayit veya giris');
-        $response->assertSee('Gonderen, alici ve paket detaylari');
-        $response->assertSee('Odeme yontemi');
-        $response->assertSee('Gonderi Sekli');
+        $response->assertSee('Kayıt veya giriş');
+        $response->assertSee('Gönderen, alıcı ve paket detayları');
+        $response->assertSee('Ödeme yöntemi');
+        $response->assertSee('Gönderi Şekli');
         $response->assertSee('data-checkout-app', false);
     }
 
@@ -96,10 +138,10 @@ class CheckoutPageTest extends TestCase
         $response = $this->get('/checkout/'.$session->token);
 
         $response->assertOk();
-        $response->assertSee('Bagli hesap');
+        $response->assertSee('Bağlı hesap');
         $response->assertSee('Ayse Yilmaz');
         $response->assertSee('05513567292');
-        $response->assertSee('Gondereni hesap sahibi ile doldur');
+        $response->assertSee('Göndereni hesap sahibi ile doldur');
         $response->assertSee('Telefon kutusu');
     }
 
@@ -146,6 +188,41 @@ class CheckoutPageTest extends TestCase
         $response->assertSee('Ziraat Bankasi');
         $response->assertSee('TR11 1111 1111 1111 1111 1111 11');
         $response->assertSee('Aciklamaya siparis numarasini yazin.');
+    }
+
+    public function test_checkout_page_prefers_service_label_over_service_key_in_summary(): void
+    {
+        $quote = PricingQuote::query()->create([
+            'quote_no' => 'QTE-WEB-003B',
+            'request_snapshot' => [],
+            'resolved_rules' => [],
+            'subtotal_amount' => 12500,
+            'discount_amount' => 0,
+            'surge_amount' => 0,
+            'total_amount' => 12500,
+            'currency' => 'TRY',
+            'expires_at' => now()->addMinutes(15),
+        ]);
+
+        $session = CheckoutSession::query()->create([
+            'token' => 'checkout-web-token-003b',
+            'pricing_quote_id' => $quote->id,
+            'status' => 'draft',
+            'current_step' => 'quote',
+            'payload' => [
+                'service_type' => 'moto',
+                'service_label' => 'Moto Kurye',
+                'pickup' => ['address' => 'Besiktas'],
+                'dropoff' => ['address' => 'Maslak'],
+            ],
+            'expires_at' => now()->addHour(),
+        ]);
+
+        $response = $this->get('/checkout/'.$session->token);
+
+        $response->assertOk();
+        $response->assertSee('Moto Kurye');
+        $response->assertDontSee('>MOTO<', false);
     }
 
     public function test_checkout_page_shows_card_payment_cta_when_provider_is_ready_and_order_is_pending_payment(): void
@@ -207,8 +284,67 @@ class CheckoutPageTest extends TestCase
         $response = $this->get('/checkout/'.$session->token);
 
         $response->assertOk();
-        $response->assertSee('Kart odemesine gec');
+        $response->assertSee('>Kart ödemesine geç<', false);
         $response->assertSee('PAYTR');
         $response->assertSee('payment_initiate', false);
+    }
+
+    public function test_checkout_page_does_not_render_card_payment_cta_for_cash_on_delivery_order(): void
+    {
+        $quote = PricingQuote::query()->create([
+            'quote_no' => 'QTE-WEB-005',
+            'request_snapshot' => [],
+            'resolved_rules' => [],
+            'subtotal_amount' => 9500,
+            'discount_amount' => 0,
+            'surge_amount' => 0,
+            'total_amount' => 9500,
+            'currency' => 'TRY',
+            'expires_at' => now()->addMinutes(15),
+        ]);
+
+        $customer = User::factory()->create([
+            'name' => 'Nakit Alici',
+            'phone' => '05516667788',
+        ]);
+
+        $order = Order::query()->create([
+            'customer_id' => $customer->id,
+            'order_no' => 'ORD-WEB-CASH-001',
+            'state' => 'paid',
+            'payment_state' => 'cash_on_delivery',
+            'payment_method' => 'cash',
+            'payment_timing' => 'delivery',
+            'payer_role' => 'recipient',
+            'pickup_address' => 'Sisli',
+            'dropoff_address' => 'Kadikoy',
+            'total_amount' => 9500,
+            'currency' => 'TRY',
+        ]);
+
+        $session = CheckoutSession::query()->create([
+            'token' => 'checkout-web-token-005',
+            'pricing_quote_id' => $quote->id,
+            'customer_id' => $customer->id,
+            'status' => 'completed',
+            'current_step' => 'confirm',
+            'payload' => [
+                'pickup' => ['address' => 'Sisli'],
+                'dropoff' => ['address' => 'Kadikoy'],
+                'payment' => ['method' => 'cash', 'timing' => 'delivery', 'payer_role' => 'recipient'],
+                'finalized_order' => [
+                    'order_id' => $order->id,
+                    'order_no' => 'ORD-WEB-CASH-001',
+                    'next_action' => 'dispatch_ready',
+                ],
+            ],
+            'expires_at' => now()->addHour(),
+        ]);
+
+        $response = $this->get('/checkout/'.$session->token);
+
+        $response->assertOk();
+        $response->assertSee('Siparişi takip et');
+        $response->assertDontSee('>Kart ödemesine geç<', false);
     }
 }

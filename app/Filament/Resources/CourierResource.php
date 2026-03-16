@@ -121,6 +121,11 @@ class CourierResource extends Resource
                     ->sortable(),
             ])
             ->defaultSort('id', 'desc')
+            ->emptyStateHeading(static::emptyStateHeading())
+            ->emptyStateDescription(static::emptyStateDescription())
+            ->emptyStateActions([
+                Tables\Actions\CreateAction::make()->label('Kurye Ekle'),
+            ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
                     ->label('Durum')
@@ -190,6 +195,16 @@ class CourierResource extends Resource
     public static function getGloballySearchableAttributes(): array
     {
         return ['full_name', 'phone', 'email', 'vehicle_type'];
+    }
+
+    public static function emptyStateHeading(): string
+    {
+        return 'Henüz kurye kaydı yok';
+    }
+
+    public static function emptyStateDescription(): string
+    {
+        return 'Kurye kayıtları başvuru formundan, API başvurusundan veya admin tarafından manuel oluşturulabilir.';
     }
 
     public static function getEloquentQuery(): Builder

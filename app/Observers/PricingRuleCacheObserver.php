@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Domain\Pricing\Services\PricingQuoteResolver;
+use App\Domain\Pricing\Services\PricingServiceCatalog;
 use App\Models\PricingRule;
 use Illuminate\Support\Facades\Cache;
 
@@ -26,6 +27,6 @@ class PricingRuleCacheObserver
     private function flush(): void
     {
         Cache::forget(PricingQuoteResolver::ACTIVE_RULES_CACHE_KEY);
+        Cache::forget(PricingServiceCatalog::SERVICE_CATALOG_CACHE_KEY);
     }
 }
-

@@ -43,4 +43,27 @@ class CustomerPortalOrderController extends Controller
             'bankTransfer' => $contentResolver->bankTransferInstructions(),
         ]);
     }
+
+    public function receipt(Request $request, string $orderNo, CustomerPortalAuthService $authService): View|RedirectResponse
+    {
+        $user = $authService->currentUser($request);
+        if (! $user) {
+            return redirect()
+                ->route('checkout.customer.login')
+                ->withErrors(['phone' => 'Devam etmek için giriş yapın.']);
+        }
+
+        $order = Order::query()
+            ->where('customer_id', $user->id)
+            ->where('order_no', $orderNo)
+            ->with([
+                'paymentTransactions' => fn ($query) => $query->latest('id'),
+            ])
+            ->firstOrFail();
+
+        return view('checkout::customer-order-receipt', [
+            'customer' => $user,
+            'order' => $order,
+        ]);
+    }
 }

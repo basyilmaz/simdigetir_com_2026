@@ -19,6 +19,51 @@ class CustomerPortalSessionController extends Controller
         return view('checkout::customer-login');
     }
 
+    public function showRegister(Request $request, CustomerPortalAuthService $authService): View|RedirectResponse
+    {
+        if ($authService->currentUser($request)) {
+            return redirect()->route('checkout.customer.dashboard');
+        }
+
+        return view('checkout::customer-register');
+    }
+
+    public function register(Request $request, CustomerPortalAuthService $authService): RedirectResponse
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'max:30'],
+            'email' => ['nullable', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $normalizedPhone = $authService->normalizePhone((string) $request->input('phone'));
+        if ($normalizedPhone === '') {
+            return back()
+                ->withErrors(['phone' => 'Gecerli bir telefon numarasi girin.'])
+                ->withInput($request->except('password', 'password_confirmation'));
+        }
+
+        if (\App\Models\User::query()->where('phone', $normalizedPhone)->exists()) {
+            return back()
+                ->withErrors(['phone' => 'Bu telefon numarasi ile kayitli bir hesap var.'])
+                ->withInput($request->except('password', 'password_confirmation'));
+        }
+
+        $user = $authService->register([
+            'name' => (string) $request->input('name'),
+            'phone' => $normalizedPhone,
+            'email' => $request->input('email'),
+            'password' => (string) $request->input('password'),
+        ]);
+
+        $authService->login($request, $user);
+
+        return redirect()
+            ->intended(route('checkout.customer.dashboard'))
+            ->with('status', 'Hesabiniz olusturuldu ve giris yapildi.');
+    }
+
     public function login(Request $request, CustomerPortalAuthService $authService): RedirectResponse
     {
         $validated = $request->validate([

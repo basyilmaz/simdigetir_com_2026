@@ -158,6 +158,11 @@ class SupportTicketResource extends Resource
                     ->sortable(),
             ])
             ->defaultSort('id', 'desc')
+            ->emptyStateHeading(static::emptyStateHeading())
+            ->emptyStateDescription(static::emptyStateDescription())
+            ->emptyStateActions([
+                Tables\Actions\CreateAction::make()->label('Talep Oluştur'),
+            ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
                     ->label('Durum')
@@ -212,6 +217,16 @@ class SupportTicketResource extends Resource
     public static function getGloballySearchableAttributes(): array
     {
         return ['ticket_no', 'subject', 'description'];
+    }
+
+    public static function emptyStateHeading(): string
+    {
+        return 'Henüz destek talebi yok';
+    }
+
+    public static function emptyStateDescription(): string
+    {
+        return 'Destek talepleri müşteri, kurye veya admin akışlarından oluşur. Gerekirse bu ekrandan manuel talep de açabilirsiniz.';
     }
 
     public static function getEloquentQuery(): Builder

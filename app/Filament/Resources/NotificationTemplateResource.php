@@ -20,11 +20,11 @@ class NotificationTemplateResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-left-right';
 
-    protected static ?string $navigationLabel = 'Bildirim Sablonlari';
+    protected static ?string $navigationLabel = 'Bildirim Şablonları';
 
     protected static ?string $modelLabel = 'Bildirim Sablonu';
 
-    protected static ?string $pluralModelLabel = 'Bildirim Sablonlari';
+    protected static ?string $pluralModelLabel = 'Bildirim Şablonları';
 
     protected static ?string $navigationGroup = 'Operasyon';
 
@@ -138,6 +138,11 @@ class NotificationTemplateResource extends Resource
                 Tables\Filters\TernaryFilter::make('is_active')
                     ->label('Aktiflik'),
             ])
+            ->emptyStateHeading(static::emptyStateHeading())
+            ->emptyStateDescription(static::emptyStateDescription())
+            ->emptyStateActions([
+                Tables\Actions\CreateAction::make()->label('Şablon Oluştur'),
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
@@ -176,6 +181,40 @@ class NotificationTemplateResource extends Resource
         }
 
         return $data;
+    }
+
+    public static function emptyStateHeading(): string
+    {
+        return 'Henüz bildirim şablonu yok';
+    }
+
+    public static function emptyStateDescription(): string
+    {
+        return 'Sipariş yaşam döngüsü SMS şablonlarını katalogdan tek tıkla hazırlayabilir veya özel şablon oluşturabilirsiniz.';
+    }
+
+    public static function bootstrapCatalogTemplates(): int
+    {
+        $count = 0;
+
+        foreach (NotificationTemplateCatalog::defaultSmsTemplates() as $eventKey => $template) {
+            NotificationTemplate::query()->updateOrCreate(
+                [
+                    'event_key' => $eventKey,
+                    'channel' => 'sms',
+                ],
+                [
+                    'subject' => null,
+                    'body' => $template['body'],
+                    'variables' => $template['variables'],
+                    'is_active' => true,
+                ]
+            );
+
+            $count++;
+        }
+
+        return $count;
     }
 
     private static function renderPlaceholderGuide(string $eventKey, string $channel): string

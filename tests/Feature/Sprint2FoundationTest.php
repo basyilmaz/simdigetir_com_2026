@@ -6,6 +6,7 @@ use App\Models\FormDefinition;
 use App\Models\LegalDocument;
 use App\Models\SitemapEntry;
 use Modules\Landing\Models\LandingPage;
+use Modules\Leads\Models\Lead;
 use Tests\TestCase;
 
 class Sprint2FoundationTest extends TestCase
@@ -70,6 +71,36 @@ class Sprint2FoundationTest extends TestCase
         ]);
     }
 
+    public function test_corporate_quote_form_submission_bootstraps_missing_builtin_definition(): void
+    {
+        FormDefinition::query()->where('key', 'corporate-quote')->delete();
+        Lead::query()->delete();
+
+        $response = $this->postJson('/api/forms/corporate-quote/submit', [
+            'type' => 'corporate_quote',
+            'name' => 'Bootstrap Corporate',
+            'company_name' => 'Castintech',
+            'phone' => '05320001122',
+            'email' => 'corporate@example.com',
+            'message' => 'Bootstrap check',
+            'page_url' => 'https://simdigetir.test/kurumsal',
+        ]);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('success', true);
+
+        $this->assertDatabaseHas('form_definitions', [
+            'key' => 'corporate-quote',
+            'is_active' => true,
+        ]);
+
+        $this->assertDatabaseHas('leads', [
+            'type' => 'corporate_quote',
+            'name' => 'Bootstrap Corporate',
+            'company_name' => 'Castintech',
+        ]);
+    }
+
     public function test_legal_document_is_versioned_and_publicly_rendered(): void
     {
         $document = LegalDocument::query()->create([
@@ -127,4 +158,3 @@ class Sprint2FoundationTest extends TestCase
         $response->assertSee('/kullanim-kosullari', false);
     }
 }
-
