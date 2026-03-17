@@ -16,15 +16,15 @@
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:site_name" content="SimdiGetir">
     <meta property="og:locale" content="tr_TR">
-    <meta property="og:image" content="@yield('og_image', asset('images/og-default.jpg'))">
-    <meta property="og:image:width" content="1024">
-    <meta property="og:image:height" content="434">
+    <meta property="og:image" content="@yield('og_image', asset('images/og-banner.png'))">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="@hasSection('og_title')@yield('og_title')@else@yield('title', 'SimdiGetir - Hizli ve Guvenilir Kurye')@endif">
     <meta name="twitter:description" content="@hasSection('og_description')@yield('og_description')@else@yield('meta_description', 'Hizli ve guvenilir kurye hizmeti. 7/24 teslimat.')@endif">
-    <meta name="twitter:image" content="@yield('og_image', asset('images/og-default.jpg'))">
+    <meta name="twitter:image" content="@yield('og_image', asset('images/og-banner.png'))">
     
     <!-- Geo Tags (Istanbul) -->
     <meta name="geo.region" content="TR-34">
@@ -35,11 +35,31 @@
     <title>@yield('title', 'SimdiGetir - Hizli ve Guvenilir Kurye')</title>
     
     <!-- Favicon & PWA -->
-    <link rel="icon" type="image/svg+xml" href="{{ asset('images/favicon-32x32.svg') }}">
-    <link rel="icon" type="image/svg+xml" sizes="16x16" href="{{ asset('images/favicon-16x16.svg') }}">
-    <link rel="apple-touch-icon" href="{{ asset('images/apple-touch-icon.svg') }}">
+    @php
+        $brandDefaultFavicon32 = asset('images/favicon-32x32.png');
+        $brandDefaultFavicon16 = asset('images/favicon-16x16.png');
+        $brandDefaultAppleTouch = asset('images/apple-touch-app.png');
+        $brandFavicon32Light = trim((string) \Modules\Settings\Models\Setting::getValue('brand.favicon_32_light_url', $brandDefaultFavicon32));
+        $brandFavicon32Dark = trim((string) \Modules\Settings\Models\Setting::getValue('brand.favicon_32_dark_url', $brandFavicon32Light !== '' ? $brandFavicon32Light : $brandDefaultFavicon32));
+        $brandFavicon16Light = trim((string) \Modules\Settings\Models\Setting::getValue('brand.favicon_16_light_url', $brandDefaultFavicon16));
+        $brandFavicon16Dark = trim((string) \Modules\Settings\Models\Setting::getValue('brand.favicon_16_dark_url', $brandFavicon16Light !== '' ? $brandFavicon16Light : $brandDefaultFavicon16));
+        $brandAppleTouchIcon = trim((string) \Modules\Settings\Models\Setting::getValue('brand.apple_touch_icon_url', $brandDefaultAppleTouch));
+        $brandFavicon32Light = $brandFavicon32Light !== '' ? $brandFavicon32Light : $brandDefaultFavicon32;
+        $brandFavicon32Dark = $brandFavicon32Dark !== '' ? $brandFavicon32Dark : $brandFavicon32Light;
+        $brandFavicon16Light = $brandFavicon16Light !== '' ? $brandFavicon16Light : $brandDefaultFavicon16;
+        $brandFavicon16Dark = $brandFavicon16Dark !== '' ? $brandFavicon16Dark : $brandFavicon16Light;
+        $brandAppleTouchIcon = $brandAppleTouchIcon !== '' ? $brandAppleTouchIcon : $brandDefaultAppleTouch;
+    @endphp
+    <link rel="icon" sizes="32x32" href="{{ $brandFavicon32Light }}" media="(prefers-color-scheme: light)">
+    <link rel="icon" sizes="32x32" href="{{ $brandFavicon32Dark }}" media="(prefers-color-scheme: dark)">
+    <link rel="icon" sizes="16x16" href="{{ $brandFavicon16Light }}" media="(prefers-color-scheme: light)">
+    <link rel="icon" sizes="16x16" href="{{ $brandFavicon16Dark }}" media="(prefers-color-scheme: dark)">
+    <link id="site-favicon-runtime-32" rel="icon" sizes="32x32" href="{{ $brandFavicon32Light }}">
+    <link id="site-favicon-runtime-16" rel="icon" sizes="16x16" href="{{ $brandFavicon16Light }}">
+    <link rel="apple-touch-icon" href="{{ $brandAppleTouchIcon }}">
     <link rel="manifest" href="{{ asset('manifest.json') }}">
-    <meta name="theme-color" content="#FF6B35">
+    <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0b1020" media="(prefers-color-scheme: dark)">
 
     <!-- JSON-LD Structured Data -->
     @yield('structured_data')
@@ -1010,6 +1030,27 @@
             position: absolute;
             inset: 0;
             background: linear-gradient(135deg, rgba(124, 58, 237, 0.2) 0%, transparent 100%);
+        }
+
+        .simdigetir-logo-media {
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .simdigetir-logo-image {
+            display: none;
+            width: auto;
+            max-width: min(320px, 56vw);
+            object-fit: contain;
+        }
+
+        html[data-theme="light"] .simdigetir-logo-image-light {
+            display: block;
+        }
+
+        html[data-theme="dark"] .simdigetir-logo-image-dark {
+            display: block;
         }
         
         @keyframes pulse-glow {
@@ -2843,6 +2884,39 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto !important;
+            }
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+
+            .cursor-outer,
+            .cursor-inner,
+            .floating-orb {
+                display: none !important;
+            }
+
+            .marquee-wrapper,
+            .hero-badge .pulse,
+            .typing-dots span,
+            .preloader-text span,
+            .ai-avatar,
+            .whatsapp-float,
+            .cta-section::before {
+                animation: none !important;
+            }
+
+            .marquee-wrapper {
+                transform: none !important;
+            }
+
             .service-card,
             .service-card-icon,
             .service-card::before {
@@ -3243,18 +3317,50 @@
 
 
 
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
     <script>
+        const reducedMotionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+        const reducedMotionEnabled = reducedMotionMediaQuery.matches;
+        document.documentElement.dataset.reducedMotion = reducedMotionEnabled ? 'true' : 'false';
+
+        const brandThemeAssets = {
+            favicon32Light: @json($brandFavicon32Light),
+            favicon32Dark: @json($brandFavicon32Dark),
+            favicon16Light: @json($brandFavicon16Light),
+            favicon16Dark: @json($brandFavicon16Dark),
+        };
+
+        function syncRuntimeFaviconsByTheme(theme) {
+            const normalizedTheme = theme === 'dark' ? 'dark' : 'light';
+            const favicon32 = document.getElementById('site-favicon-runtime-32');
+            const favicon16 = document.getElementById('site-favicon-runtime-16');
+
+            if (favicon32) {
+                favicon32.href = normalizedTheme === 'dark'
+                    ? brandThemeAssets.favicon32Dark
+                    : brandThemeAssets.favicon32Light;
+            }
+
+            if (favicon16) {
+                favicon16.href = normalizedTheme === 'dark'
+                    ? brandThemeAssets.favicon16Dark
+                    : brandThemeAssets.favicon16Light;
+            }
+        }
+
         // Theme Toggle (run immediately to prevent flash)
         (function() {
             const savedTheme = localStorage.getItem('simdigetir-theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
+            syncRuntimeFaviconsByTheme(savedTheme);
         })();
         
         // Preloader
         window.addEventListener('load', () => {
-            const delay = sessionStorage.getItem('simdigetir-visited') ? 300 : 1500;
+            const delay = reducedMotionEnabled ? 0 : (sessionStorage.getItem('simdigetir-visited') ? 300 : 1500);
             setTimeout(() => {
-                document.getElementById('preloader').classList.add('loaded');
+                document.getElementById('preloader')?.classList.add('loaded');
                 sessionStorage.setItem('simdigetir-visited', '1');
             }, delay);
         });
@@ -3263,12 +3369,17 @@
         const cursorOuter = document.getElementById('cursor-outer');
         const cursorInner = document.getElementById('cursor-inner');
         
-        document.addEventListener('mousemove', (e) => {
-            cursorOuter.style.left = e.clientX + 'px';
-            cursorOuter.style.top = e.clientY + 'px';
-            cursorInner.style.left = e.clientX + 'px';
-            cursorInner.style.top = e.clientY + 'px';
-        });
+        if (reducedMotionEnabled) {
+            cursorOuter?.remove();
+            cursorInner?.remove();
+        } else if (cursorOuter && cursorInner) {
+            document.addEventListener('mousemove', (e) => {
+                cursorOuter.style.left = e.clientX + 'px';
+                cursorOuter.style.top = e.clientY + 'px';
+                cursorInner.style.left = e.clientX + 'px';
+                cursorInner.style.top = e.clientY + 'px';
+            });
+        }
         
         // Header scroll effect
         window.addEventListener('scroll', () => {
@@ -3445,25 +3556,175 @@
             });
         });
         
-        // Intersection Observer for animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-        
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('fadeInUp');
-                    observer.unobserve(entry.target);
-                }
+        function collectMotionTargets(selectors) {
+            const uniqueTargets = new Set();
+
+            selectors.forEach((selector) => {
+                document.querySelectorAll(selector).forEach((node) => {
+                    if (!(node instanceof HTMLElement) || uniqueTargets.has(node)) {
+                        return;
+                    }
+
+                    uniqueTargets.add(node);
+                });
             });
-        }, observerOptions);
-        
-        document.querySelectorAll('.service-card, .feature-card, .faq-item').forEach(el => {
-            el.style.opacity = '0';
-            observer.observe(el);
-        });
+
+            return Array.from(uniqueTargets);
+        }
+
+        function revealMotionTargets(targets) {
+            targets.forEach((target) => {
+                target.style.opacity = '';
+                target.style.transform = '';
+                target.style.willChange = 'auto';
+            });
+        }
+
+        function initIntersectionMotionFallback(targets) {
+            if (!targets.length) {
+                return;
+            }
+
+            if (typeof IntersectionObserver === 'undefined') {
+                revealMotionTargets(targets);
+                return;
+            }
+
+            const fallbackObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach((entry) => {
+                    if (!entry.isIntersecting) {
+                        return;
+                    }
+
+                    entry.target.classList.add('fadeInUp');
+                    entry.target.style.opacity = '';
+                    entry.target.style.transform = '';
+                    observer.unobserve(entry.target);
+                });
+            }, {
+                threshold: 0.12,
+                rootMargin: '0px 0px -45px 0px',
+            });
+
+            targets.forEach((target) => {
+                target.style.opacity = '0';
+                fallbackObserver.observe(target);
+            });
+        }
+
+        function initPhasedScrollMotion() {
+            const phaseOneSelectors = [
+                '.hero .hero-card',
+                '.hero .hero-quote-widget',
+                '.hero .hero-stat',
+            ];
+            const phaseTwoSelectors = [
+                '.services-grid .service-card',
+                '.features-grid .feature-card',
+                '.process-grid .process-card',
+                '.blog-grid .blog-card',
+                '.testimonial-card',
+                '.faq-item',
+                '.footer-trust-item',
+            ];
+
+            const phaseOneTargets = collectMotionTargets(phaseOneSelectors);
+            const phaseTwoTargets = collectMotionTargets(phaseTwoSelectors);
+            const allTargets = Array.from(new Set([...phaseOneTargets, ...phaseTwoTargets]));
+
+            if (!allTargets.length) {
+                return;
+            }
+
+            if (reducedMotionMediaQuery.matches) {
+                document.documentElement.dataset.motionMode = 'reduced';
+                revealMotionTargets(allTargets);
+                return;
+            }
+
+            if (typeof window.gsap === 'undefined' || typeof window.ScrollTrigger === 'undefined') {
+                document.documentElement.dataset.motionMode = 'intersection-fallback';
+                initIntersectionMotionFallback(allTargets);
+                return;
+            }
+
+            window.gsap.registerPlugin(window.ScrollTrigger);
+            document.documentElement.dataset.motionMode = 'gsap-scrolltrigger';
+
+            const phases = [
+                {
+                    name: 'phase-1',
+                    targets: phaseOneTargets,
+                    start: 'top 90%',
+                    y: 22,
+                    duration: 0.48,
+                    stagger: 0.08,
+                },
+                {
+                    name: 'phase-2',
+                    targets: phaseTwoTargets,
+                    start: 'top 86%',
+                    y: 28,
+                    duration: 0.58,
+                    stagger: 0.1,
+                },
+            ];
+
+            phases.forEach((phase) => {
+                if (!phase.targets.length) {
+                    return;
+                }
+
+                phase.targets.forEach((target) => {
+                    target.dataset.motionPhase = phase.name;
+                    target.style.willChange = 'transform, opacity';
+                });
+
+                window.gsap.set(phase.targets, {
+                    autoAlpha: 0,
+                    y: phase.y,
+                    force3D: true,
+                });
+
+                window.ScrollTrigger.batch(phase.targets, {
+                    start: phase.start,
+                    once: true,
+                    onEnter: (batch) => {
+                        window.gsap.to(batch, {
+                            autoAlpha: 1,
+                            y: 0,
+                            duration: phase.duration,
+                            stagger: phase.stagger,
+                            ease: 'power2.out',
+                            overwrite: 'auto',
+                            onComplete: () => {
+                                batch.forEach((node) => {
+                                    node.style.willChange = 'auto';
+                                });
+                            },
+                        });
+                    },
+                });
+            });
+
+            const onReducedMotionEnabled = (event) => {
+                if (!event.matches) {
+                    return;
+                }
+
+                window.ScrollTrigger.getAll().forEach((trigger) => trigger.kill(true));
+                document.documentElement.dataset.motionMode = 'reduced';
+                revealMotionTargets(allTargets);
+            };
+
+            if (typeof reducedMotionMediaQuery.addEventListener === 'function') {
+                reducedMotionMediaQuery.addEventListener('change', onReducedMotionEnabled);
+            } else if (typeof reducedMotionMediaQuery.addListener === 'function') {
+                reducedMotionMediaQuery.addListener(onReducedMotionEnabled);
+            }
+        }
+
+        initPhasedScrollMotion();
         
         // Counter Animation
         document.addEventListener('DOMContentLoaded', () => {
@@ -3494,7 +3755,11 @@
                     if (entry.isIntersecting) {
                         const target = parseFloat(entry.target.getAttribute('data-count'));
                         if (!isNaN(target)) {
-                            animateCounter(entry.target, target);
+                            if (reducedMotionEnabled) {
+                                entry.target.textContent = target.toLocaleString('tr-TR');
+                            } else {
+                                animateCounter(entry.target, target);
+                            }
                         }
                         counterObserver.unobserve(entry.target);
                     }
@@ -3506,14 +3771,16 @@
         
         // Theme Toggle
         const themeToggleBtn = document.getElementById('theme-toggle');
-        
-        themeToggleBtn.addEventListener('click', () => {
-            const htmlEl = document.documentElement;
-            const current = htmlEl.getAttribute('data-theme');
-            const next = current === 'dark' ? 'light' : 'dark';
-            htmlEl.setAttribute('data-theme', next);
-            localStorage.setItem('simdigetir-theme', next);
-        });
+        if (themeToggleBtn) {
+            themeToggleBtn.addEventListener('click', () => {
+                const htmlEl = document.documentElement;
+                const current = htmlEl.getAttribute('data-theme');
+                const next = current === 'dark' ? 'light' : 'dark';
+                htmlEl.setAttribute('data-theme', next);
+                localStorage.setItem('simdigetir-theme', next);
+                syncRuntimeFaviconsByTheme(next);
+            });
+        }
     </script>
     
     @stack('scripts')
@@ -3553,14 +3820,14 @@
             }
         });
         backToTop.addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ top: 0, behavior: reducedMotionEnabled ? 'auto' : 'smooth' });
         });
         
         // Cookie Banner
         const cookieBanner = document.getElementById('cookie-banner');
         const cookieAccept = document.getElementById('cookie-accept');
         if (!localStorage.getItem('simdigetir-cookies')) {
-            setTimeout(() => cookieBanner.classList.add('visible'), 1500);
+            setTimeout(() => cookieBanner.classList.add('visible'), reducedMotionEnabled ? 0 : 1500);
         }
         cookieAccept.addEventListener('click', () => {
             localStorage.setItem('simdigetir-cookies', 'accepted');

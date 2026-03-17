@@ -20,14 +20,14 @@
 | B-02 | P1 | B | Typography hierarchy unification | Display/heading/body/caption consistently applied in primary pages | snapshot/manual typography check | done |
 | B-03 | P2 | B | Service cards premium hover polish | Hover effects active without layout jitter | mobile + desktop regression | done |
 | B-04 | P2 | B | Footer trust row + consistency polish | Footer trust and brand elements render consistently | runtime smoke + visual check | done |
-| C-01 | P1 | C | GSAP ScrollTrigger phased integration | Motion works in scoped sections and does not block interactions | browser E2E + reduced-motion check | todo |
-| C-02 | P1 | C | Reduced-motion accessibility fallback | `prefers-reduced-motion` disables non-critical animations | accessibility test pass | todo |
-| C-03 | P2 | C | Lottie delivery micro-animation | Lottie assets load lazily and fail gracefully | network throttle check | todo |
-| C-04 | P2 | C | Motion performance budget guard | Added JS/CSS budget within agreed thresholds | bundle diff + Lighthouse sample | todo |
-| D-01 | P0 | D | Baseline evidence capture before each train | live ref, DB backup ref, env checksum recorded | ops doc update | todo |
-| D-02 | P0 | D | Mandatory gate run for each merge batch | quality gate green before merge | `run-quality-gate` | todo |
-| D-03 | P0 | D | Staging parity matrix execution | no unresolved parity P0/P1 in scope | parity report | todo |
-| D-04 | P0 | D | Release gate + rollback rehearsal | rollback command tested before GO | release checklist evidence | todo |
+| C-01 | P1 | C | GSAP ScrollTrigger phased integration | Motion works in scoped sections and does not block interactions | browser E2E + reduced-motion check | done |
+| C-02 | P1 | C | Reduced-motion accessibility fallback | `prefers-reduced-motion` disables non-critical animations | accessibility test pass | done |
+| C-03 | P2 | C | Lottie delivery micro-animation | Lottie assets load lazily and fail gracefully | network throttle check | done |
+| C-04 | P2 | C | Motion performance budget guard | Added JS/CSS budget within agreed thresholds | bundle diff + Lighthouse sample | done |
+| D-01 | P0 | D | Baseline evidence capture before each train | live ref, DB backup ref, env checksum recorded | ops doc update | in_progress |
+| D-02 | P0 | D | Mandatory gate run for each merge batch | quality gate green before merge | `run-quality-gate` | done |
+| D-03 | P0 | D | Staging parity matrix execution | no unresolved parity P0/P1 in scope | parity report | in_progress |
+| D-04 | P0 | D | Release gate + rollback rehearsal | rollback command tested before GO | release checklist evidence | in_progress |
 | D-05 | P1 | D | Postdeploy monitoring pack | 30-60 min smoke and error dashboard checks logged | postdeploy report | todo |
 
 ## Train Mapping

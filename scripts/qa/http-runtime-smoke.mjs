@@ -39,6 +39,21 @@ const extractOgImage = (html) => {
   return match ? match[1] : "";
 };
 
+const hasSupportedOgImage = (url) => {
+  if (!url) {
+    return false;
+  }
+
+  try {
+    const pathname = new URL(url).pathname.toLowerCase();
+    return [".jpg", ".jpeg", ".png", ".webp"].some((ext) =>
+      pathname.endsWith(ext),
+    );
+  } catch {
+    return false;
+  }
+};
+
 const run = async () => {
   await fs.mkdir(outDir, { recursive: true });
 
@@ -69,8 +84,8 @@ const run = async () => {
         result.error = `HTTP_${response.status}`;
       }
 
-      if (!result.ogImage || !result.ogImage.toLowerCase().endsWith(".jpg")) {
-        result.error = result.error || "OG_IMAGE_NOT_JPG";
+      if (!hasSupportedOgImage(result.ogImage)) {
+        result.error = result.error || "OG_IMAGE_NOT_RASTER";
       }
 
       if (page === "/" && !result.hasCastintech) {

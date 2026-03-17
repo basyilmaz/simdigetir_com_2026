@@ -171,6 +171,49 @@ class LandingDynamicContentTest extends TestCase
         $response->assertSee("trackEvent('quote_cta_call_click', payload);", false);
     }
 
+    public function test_home_contains_gsap_scrolltrigger_phased_motion_contract(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js', false);
+        $response->assertSee('https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js', false);
+        $response->assertSee('initPhasedScrollMotion', false);
+        $response->assertSee('phaseOneSelectors', false);
+        $response->assertSee('phaseTwoSelectors', false);
+        $response->assertSee("document.documentElement.dataset.motionMode = 'gsap-scrolltrigger';", false);
+        $response->assertSee("document.documentElement.dataset.motionMode = 'reduced';", false);
+        $response->assertSee('window.ScrollTrigger.batch', false);
+    }
+
+    public function test_home_contains_reduced_motion_accessibility_fallback_contract(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee("document.documentElement.dataset.reducedMotion = reducedMotionEnabled ? 'true' : 'false';", false);
+        $response->assertSee('animation-duration: 0.01ms !important;', false);
+        $response->assertSee('.marquee-wrapper', false);
+        $response->assertSee("window.scrollTo({ top: 0, behavior: reducedMotionEnabled ? 'auto' : 'smooth' });", false);
+        $response->assertSee("quoteInput.scrollIntoView({ behavior: shouldReduceMotion ? 'auto' : 'smooth', block: 'center' });", false);
+        $response->assertSee('if (!shouldReduceMotion && totalSlides > 1)', false);
+    }
+
+    public function test_home_contains_lottie_micro_animation_lazy_and_fallback_contract(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('data-delivery-lottie', false);
+        $response->assertSee('delivery-rider.json', false);
+        $response->assertSee('data-lottie-state="idle"', false);
+        $response->assertSee('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js', false);
+        $response->assertSee("if (typeof IntersectionObserver === 'undefined')", false);
+        $response->assertSee("rootMargin: '240px 0px'", false);
+        $response->assertSee("showFallback('library-failed');", false);
+        $response->assertSee("showFallback('asset-failed');", false);
+    }
+
     public function test_home_includes_google_ads_tag_by_default(): void
     {
         $response = $this->get('/');
@@ -189,6 +232,18 @@ class LandingDynamicContentTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('https://www.googletagmanager.com/gtag/js?id=AW-11111111111', false);
         $response->assertSee("gtag('config', 'AW-11111111111');", false);
+    }
+
+    public function test_home_contains_theme_aware_logo_and_favicon_contract(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('simdigetir-logo-image-light', false);
+        $response->assertSee('simdigetir-logo-image-dark', false);
+        $response->assertSee('site-favicon-runtime-32', false);
+        $response->assertSee('site-favicon-runtime-16', false);
+        $response->assertSee('syncRuntimeFaviconsByTheme', false);
     }
 
     public function test_home_and_standard_pages_use_db_backed_header_b2b_cta_when_enabled(): void

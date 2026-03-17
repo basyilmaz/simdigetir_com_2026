@@ -1,0 +1,30 @@
+{
+  "generatedAt": "2026-03-17T14:39:00.303Z",
+  "baseUrl": "http://127.0.0.1:8000",
+  "budgets": {
+    "maxScriptKb": 1200,
+    "maxStylesheetKb": 260,
+    "maxMotionKb": 750,
+    "maxLottieJsonKb": 120,
+    "maxLcpMs": 8000,
+    "maxCls": 0.2,
+    "maxScriptDeltaKb": 120,
+    "maxStylesheetDeltaKb": 30,
+    "maxMotionDeltaKb": 120,
+    "maxLottieJsonDeltaKb": 30
+  },
+  "totals": {
+    "scriptKb": 936.13,
+    "stylesheetKb": 190.79,
+    "motionKb": 687.07,
+    "lottieJsonKb": 36.74
+  },
+  "perfSample": {
+    "firstContentfulPaintMs": 4616,
+    "largestContentfulPaintMs": 6080,
+    "cumulativeLayoutShift": 0.0256,
+    "longTaskTotalMs": 746,
+    "domContentLoadedMs": 4719.3,
+    "loadEventEndMs": 5317.6
+  }
+}

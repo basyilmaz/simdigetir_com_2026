@@ -228,11 +228,11 @@
         let quoteWidgetInteractionLocks = 0;
         const swiper = new Swiper('.hero-swiper', {
             loop: !lockHeroQuoteVisible,
-            effect: 'fade',
+            effect: shouldReduceMotion ? 'slide' : 'fade',
             fadeEffect: {
-                crossFade: true
+                crossFade: !shouldReduceMotion
             },
-            speed: 1000,
+            speed: shouldReduceMotion ? 0 : 1000,
             autoplay: shouldReduceMotion || lockHeroQuoteVisible ? false : {
                 delay: 5000,
                 disableOnInteraction: false,
@@ -311,7 +311,7 @@
                 return;
             }
 
-            quoteInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            quoteInput.scrollIntoView({ behavior: shouldReduceMotion ? 'auto' : 'smooth', block: 'center' });
             window.setTimeout(() => quoteInput.focus(), 220);
         };
 
@@ -471,7 +471,7 @@
                             style="width:100%; aspect-ratio: 16/9; object-fit:cover; border-radius:16px; margin-bottom:1rem;"
                         >
                     @else
-                        <div class="service-card-icon" @if(!empty($serviceCard['icon_style'])) style="{{ $serviceCard['icon_style'] }}" @endif>{{ $serviceCard['icon_text'] ?? '🚚' }}</div>
+                        <div class="service-card-icon" @if(!empty($serviceCard['icon_style'])) style="{{ $serviceCard['icon_style'] }}" @endif>{{ $serviceCard['icon_text'] ?? '⚡' }}</div>
                     @endif
                     <h3>{{ $serviceCard['title'] ?? 'Kurye Hizmeti' }}</h3>
                     <p>{{ $serviceCard['description'] ?? '' }}</p>
@@ -631,7 +631,18 @@
     <div class="container">
         <div class="responsive-stack" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
             <div class="glass" style="padding: 3rem; text-align: center; background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(34, 211, 238, 0.05) 100%);">
-                <span style="font-size: 5rem; display: block; margin-bottom: 1.5rem;">🏍️</span>
+                                <div
+                    class="delivery-lottie-wrap"
+                    data-delivery-lottie
+                    data-lottie-src="{{ asset('animations/delivery-rider.json') }}"
+                    data-lottie-state="idle"
+                    aria-hidden="true"
+                >
+                    <div class="delivery-lottie-canvas" data-delivery-lottie-canvas></div>
+                    <span class="delivery-lottie-fallback" data-delivery-lottie-fallback>
+                        <i class="fa-solid fa-motorcycle"></i>
+                    </span>
+                </div>
                 <h3 style="margin-bottom: 1rem; font-size: 1.75rem;">{{ $landingContent['courier_cta_card_title_text'] ?? 'Kurye Ailemize Katıl' }}</h3>
                 <p style="color: var(--text-secondary); margin-bottom: 2rem;">
                     {{ $landingContent['courier_cta_card_description_text'] ?? 'Esnek çalışma saatleri, hızlı ödeme!' }}
@@ -735,8 +746,13 @@
         const track = document.getElementById('testimonial-track');
         const prevBtn = document.getElementById('testimonial-prev');
         const nextBtn = document.getElementById('testimonial-next');
+        const shouldReduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         let currentSlide = 0;
         const totalSlides = track ? track.children.length : 0;
+
+        if (!track || totalSlides === 0) {
+            return;
+        }
         
         function updateSlider() {
             if (track) {
@@ -759,16 +775,204 @@
         }
         
         // Auto-play
-        setInterval(() => {
-            currentSlide = (currentSlide + 1) % totalSlides;
-            updateSlider();
-        }, 5000);
+        if (!shouldReduceMotion && totalSlides > 1) {
+            setInterval(() => {
+                currentSlide = (currentSlide + 1) % totalSlides;
+                updateSlider();
+            }, 5000);
+        }
+    })();
+</script>
+
+<script>
+    // Courier CTA Lottie micro animation (lazy + graceful fallback)
+    (function () {
+        const lottieNode = document.querySelector('[data-delivery-lottie]');
+        if (!lottieNode) {
+            return;
+        }
+
+        const lottieCanvas = lottieNode.querySelector('[data-delivery-lottie-canvas]');
+        const fallbackNode = lottieNode.querySelector('[data-delivery-lottie-fallback]');
+        const lottieSrc = lottieNode.getAttribute('data-lottie-src');
+        const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+        const showFallback = (state) => {
+            lottieNode.dataset.lottieState = state;
+            fallbackNode?.classList.remove('is-hidden');
+        };
+
+        const hideFallback = () => {
+            fallbackNode?.classList.add('is-hidden');
+        };
+
+        if (!lottieCanvas || !lottieSrc) {
+            showFallback('missing-config');
+            return;
+        }
+
+        if (reducedMotionQuery.matches) {
+            showFallback('reduced-motion');
+            return;
+        }
+
+        const ensureLottieLibrary = () =>
+            new Promise((resolve, reject) => {
+                if (window.lottie && typeof window.lottie.loadAnimation === 'function') {
+                    resolve(window.lottie);
+                    return;
+                }
+
+                const existingLoader = document.querySelector('script[data-lottie-web-loader="true"]');
+                if (existingLoader) {
+                    existingLoader.addEventListener('load', () => resolve(window.lottie), { once: true });
+                    existingLoader.addEventListener('error', () => reject(new Error('lottie-library-load-failed')), { once: true });
+                    return;
+                }
+
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js';
+                script.async = true;
+                script.defer = true;
+                script.dataset.lottieWebLoader = 'true';
+                script.onload = () => {
+                    if (window.lottie && typeof window.lottie.loadAnimation === 'function') {
+                        resolve(window.lottie);
+                        return;
+                    }
+
+                    reject(new Error('lottie-library-missing'));
+                };
+                script.onerror = () => reject(new Error('lottie-library-load-failed'));
+                document.head.appendChild(script);
+            });
+
+        let hasStarted = false;
+
+        const mountAnimation = async () => {
+            if (hasStarted) {
+                return;
+            }
+            hasStarted = true;
+            lottieNode.dataset.lottieState = 'loading-library';
+
+            try {
+                const lottieApi = await ensureLottieLibrary();
+                lottieNode.dataset.lottieState = 'loading-asset';
+
+                const animation = lottieApi.loadAnimation({
+                    container: lottieCanvas,
+                    renderer: 'svg',
+                    loop: true,
+                    autoplay: true,
+                    path: lottieSrc,
+                    rendererSettings: {
+                        progressiveLoad: true,
+                        preserveAspectRatio: 'xMidYMid meet',
+                    },
+                });
+
+                const onAssetFailure = () => {
+                    animation.destroy();
+                    showFallback('asset-failed');
+                };
+
+                animation.addEventListener('DOMLoaded', () => {
+                    hideFallback();
+                    lottieNode.dataset.lottieState = 'ready';
+                });
+                animation.addEventListener('data_failed', onAssetFailure);
+                animation.addEventListener('error', onAssetFailure);
+
+                const onMotionPreferenceChange = (event) => {
+                    if (!event.matches) {
+                        return;
+                    }
+
+                    animation.destroy();
+                    showFallback('reduced-motion');
+                };
+
+                if (typeof reducedMotionQuery.addEventListener === 'function') {
+                    reducedMotionQuery.addEventListener('change', onMotionPreferenceChange);
+                } else if (typeof reducedMotionQuery.addListener === 'function') {
+                    reducedMotionQuery.addListener(onMotionPreferenceChange);
+                }
+            } catch (error) {
+                showFallback('library-failed');
+            }
+        };
+
+        if (typeof IntersectionObserver === 'undefined') {
+            mountAnimation();
+            return;
+        }
+
+        const observer = new IntersectionObserver((entries, intersectionObserver) => {
+            entries.forEach((entry) => {
+                if (!entry.isIntersecting) {
+                    return;
+                }
+
+                intersectionObserver.unobserve(entry.target);
+                mountAnimation();
+            });
+        }, {
+            rootMargin: '240px 0px',
+            threshold: 0.01,
+        });
+
+        observer.observe(lottieNode);
     })();
 </script>
 @endpush
 
 @push('styles')
 <style>
+    .delivery-lottie-wrap {
+        position: relative;
+        width: 9rem;
+        height: 9rem;
+        margin: 0 auto 1.5rem;
+        border-radius: 1.5rem;
+        border: 1px solid var(--border-glass);
+        background: linear-gradient(135deg, rgba(124, 58, 237, 0.12) 0%, rgba(34, 211, 238, 0.12) 100%);
+        overflow: hidden;
+        display: grid;
+        place-items: center;
+    }
+
+    .delivery-lottie-canvas {
+        width: 100%;
+        height: 100%;
+    }
+
+    .delivery-lottie-canvas svg {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    .delivery-lottie-fallback {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        font-size: 2.5rem;
+        color: var(--text-primary);
+        transition: opacity 0.25s ease;
+    }
+
+    .delivery-lottie-fallback.is-hidden {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .delivery-lottie-fallback {
+            transition: none !important;
+        }
+    }
+
     @media (max-width: 768px) {
         #teklif-al > .container > div,
         .section > .container > div:last-child {
