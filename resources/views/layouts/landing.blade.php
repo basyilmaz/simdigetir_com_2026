@@ -173,46 +173,47 @@
     
     <!-- Swiper CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-    
+
+    @include('components.design-tokens')
     <style>
         :root {
-            /* AI/Tech Color Palette - Inspired by AIForge */
-            --primary: #7c3aed;
-            --primary-light: #a78bfa;
-            --primary-dark: #5b21b6;
-            --secondary: #6366f1;
-            --accent: #22d3ee;
-            --accent-2: #f472b6;
+            /* Landing aliases mapped to shared tokens */
+            --primary: var(--sg-brand-primary);
+            --primary-light: var(--sg-brand-primary-light);
+            --primary-dark: var(--sg-brand-primary-dark);
+            --secondary: var(--sg-brand-secondary);
+            --accent: var(--sg-brand-accent);
+            --accent-2: var(--sg-brand-accent-2);
             --success: #10b981;
             --warning: #f59e0b;
             
             /* Dark Theme */
-            --bg-dark: #0c0118;
-            --bg-darker: #06000d;
-            --bg-card: rgba(124, 58, 237, 0.08);
-            --bg-glass: rgba(255, 255, 255, 0.03);
-            --border-glass: rgba(255, 255, 255, 0.08);
-            --border-glow: rgba(124, 58, 237, 0.3);
+            --bg-dark: var(--sg-surface-landing-dark);
+            --bg-darker: var(--sg-surface-landing-darker);
+            --bg-card: var(--sg-card-brand-soft);
+            --bg-glass: var(--sg-card-light-overlay);
+            --border-glass: var(--sg-border-glass-dark);
+            --border-glow: var(--sg-border-glow-dark);
             
             --text-primary: #ffffff;
             --text-secondary: rgba(255, 255, 255, 0.7);
             --text-muted: rgba(255, 255, 255, 0.5);
             
             /* Gradients */
-            --gradient-primary: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
-            --gradient-accent: linear-gradient(135deg, #22d3ee 0%, #7c3aed 100%);
-            --gradient-purple: linear-gradient(135deg, #7c3aed 0%, #6366f1 50%, #22d3ee 100%);
-            --gradient-glow: radial-gradient(ellipse at center, rgba(124, 58, 237, 0.15) 0%, transparent 70%);
+            --gradient-primary: var(--sg-gradient-primary);
+            --gradient-accent: var(--sg-gradient-accent);
+            --gradient-purple: var(--sg-gradient-purple);
+            --gradient-glow: var(--sg-gradient-glow);
         }
         
         /* ===== LIGHT MODE ===== */
         [data-theme="light"] {
-            --bg-dark: #f8f9fc;
-            --bg-darker: #eef0f5;
-            --bg-card: rgba(124, 58, 237, 0.06);
+            --bg-dark: var(--sg-surface-landing-light);
+            --bg-darker: var(--sg-surface-landing-light-alt);
+            --bg-card: var(--sg-card-brand-soft-light);
             --bg-glass: rgba(0, 0, 0, 0.03);
-            --border-glass: rgba(0, 0, 0, 0.1);
-            --border-glow: rgba(124, 58, 237, 0.2);
+            --border-glass: var(--sg-border-glass-light);
+            --border-glow: var(--sg-border-glow-light);
             --text-primary: #1a1a2e;
             --text-secondary: rgba(26, 26, 46, 0.7);
             --text-muted: rgba(26, 26, 46, 0.5);
@@ -2598,28 +2599,28 @@
 
         /* ===== P1 GLASSMORPHISM PASS ===== */
         :root {
-            --glass-surface-strong: rgba(255, 255, 255, 0.07);
-            --glass-surface-soft: rgba(255, 255, 255, 0.02);
-            --glass-stroke: rgba(255, 255, 255, 0.14);
-            --glass-stroke-hover: rgba(124, 58, 237, 0.45);
-            --glass-highlight: rgba(34, 211, 238, 0.24);
-            --glass-blur-size: 18px;
-            --glass-shadow-soft: 0 16px 40px rgba(6, 0, 13, 0.32);
-            --glass-shadow-hover: 0 24px 52px rgba(124, 58, 237, 0.22);
-            --glass-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            --glass-form-focus: 0 0 0 3px rgba(124, 58, 237, 0.2);
+            --glass-surface-strong: var(--sg-glass-surface-strong);
+            --glass-surface-soft: var(--sg-glass-surface-soft);
+            --glass-stroke: var(--sg-glass-stroke);
+            --glass-stroke-hover: var(--sg-glass-stroke-hover);
+            --glass-highlight: var(--sg-glass-highlight);
+            --glass-blur-size: var(--sg-glass-blur-size);
+            --glass-shadow-soft: var(--sg-glass-shadow-soft);
+            --glass-shadow-hover: var(--sg-glass-shadow-hover);
+            --glass-shadow-inset: var(--sg-glass-shadow-inset);
+            --glass-form-focus: var(--sg-glass-form-focus);
         }
 
         [data-theme="light"] {
-            --glass-surface-strong: rgba(255, 255, 255, 0.86);
-            --glass-surface-soft: rgba(255, 255, 255, 0.62);
-            --glass-stroke: rgba(99, 102, 241, 0.16);
-            --glass-stroke-hover: rgba(124, 58, 237, 0.34);
-            --glass-highlight: rgba(34, 211, 238, 0.18);
-            --glass-shadow-soft: 0 12px 30px rgba(15, 23, 42, 0.08);
-            --glass-shadow-hover: 0 20px 44px rgba(99, 102, 241, 0.16);
-            --glass-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.75);
-            --glass-form-focus: 0 0 0 3px rgba(99, 102, 241, 0.14);
+            --glass-surface-strong: var(--sg-glass-surface-strong);
+            --glass-surface-soft: var(--sg-glass-surface-soft);
+            --glass-stroke: var(--sg-glass-stroke);
+            --glass-stroke-hover: var(--sg-glass-stroke-hover);
+            --glass-highlight: var(--sg-glass-highlight);
+            --glass-shadow-soft: var(--sg-glass-shadow-soft);
+            --glass-shadow-hover: var(--sg-glass-shadow-hover);
+            --glass-shadow-inset: var(--sg-glass-shadow-inset);
+            --glass-form-focus: var(--sg-glass-form-focus);
         }
 
         .header-main-bar,
