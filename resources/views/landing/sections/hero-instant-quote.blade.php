@@ -14,6 +14,9 @@
     $submitLabel = (string) ($landingContent['quote_widget_submit_label_text'] ?? 'Fiyat Hesapla');
     $whatsappLabel = (string) ($landingContent['quote_widget_whatsapp_label_text'] ?? 'WhatsApp ile Devam Et');
     $callLabel = (string) ($landingContent['quote_widget_call_label_text'] ?? 'Beni Arayin');
+    $googleMapsApiKey = trim((string) config('services_integrations.maps.google_maps_api_key', ''));
+    $autocompleteProvider = $googleMapsApiKey !== '' ? 'google_places' : 'manual';
+    $autocompleteCountry = strtolower((string) ($landingContent['quote_widget_autocomplete_country'] ?? 'tr'));
 
     $serviceOptions = collect((array) ($landingContent['quote_widget_service_options'] ?? []))
         ->map(function ($option) {
@@ -59,7 +62,13 @@
 @endphp
 
 @if($quoteWidgetEnabled)
-    <section class="hero-quote-widget glass" data-quote-widget>
+    <section
+        class="hero-quote-widget glass"
+        data-quote-widget
+        data-quote-autocomplete-provider="{{ $autocompleteProvider }}"
+        data-quote-autocomplete-country="{{ $autocompleteCountry }}"
+        @if($googleMapsApiKey !== '') data-google-maps-api-key="{{ $googleMapsApiKey }}" @endif
+    >
         <h3>{{ $quoteWidgetTitle }}</h3>
         <p>{{ $quoteWidgetSubtitle }}</p>
 
@@ -75,6 +84,8 @@
                     required
                     placeholder="{{ $pickupPlaceholder }}"
                 >
+                <input type="hidden" name="pickup_lat" data-quote-pickup-lat>
+                <input type="hidden" name="pickup_lng" data-quote-pickup-lng>
                 <p class="hero-quote-input-hint" data-field-error="pickup_address"></p>
             </div>
 
@@ -89,6 +100,8 @@
                     required
                     placeholder="{{ $dropoffPlaceholder }}"
                 >
+                <input type="hidden" name="dropoff_lat" data-quote-dropoff-lat>
+                <input type="hidden" name="dropoff_lng" data-quote-dropoff-lng>
                 <p class="hero-quote-input-hint" data-field-error="dropoff_address"></p>
             </div>
 
@@ -328,7 +341,14 @@
             const startCheckoutDirectLink = widget.querySelector('[data-quote-start-checkout-direct]');
             const pickupInput = widget.querySelector('#quote-pickup-address');
             const dropoffInput = widget.querySelector('#quote-dropoff-address');
+            const pickupLatInput = widget.querySelector('[data-quote-pickup-lat]');
+            const pickupLngInput = widget.querySelector('[data-quote-pickup-lng]');
+            const dropoffLatInput = widget.querySelector('[data-quote-dropoff-lat]');
+            const dropoffLngInput = widget.querySelector('[data-quote-dropoff-lng]');
             const serviceTypeInput = widget.querySelector('#quote-service-type');
+            const autocompleteProvider = String(widget.dataset.quoteAutocompleteProvider || 'manual');
+            const autocompleteCountry = String(widget.dataset.quoteAutocompleteCountry || 'tr').trim().toLowerCase();
+            const googleMapsApiKey = String(widget.dataset.googleMapsApiKey || '').trim();
             let latestQuotePayload = null;
             const fieldErrors = {
                 pickup_address: widget.querySelector('[data-field-error="pickup_address"]'),
@@ -358,6 +378,115 @@
             };
 
             const normalizeText = (value) => String(value || '').trim().toLocaleLowerCase('tr-TR');
+            const parseCoordinate = (value) => {
+                const parsed = Number(value);
+
+                return Number.isFinite(parsed) ? parsed : null;
+            };
+            const writeCoordinates = (target, lat, lng) => {
+                if (target === 'pickup') {
+                    if (pickupLatInput) {
+                        pickupLatInput.value = lat === null ? '' : String(lat);
+                    }
+                    if (pickupLngInput) {
+                        pickupLngInput.value = lng === null ? '' : String(lng);
+                    }
+
+                    return;
+                }
+
+                if (dropoffLatInput) {
+                    dropoffLatInput.value = lat === null ? '' : String(lat);
+                }
+                if (dropoffLngInput) {
+                    dropoffLngInput.value = lng === null ? '' : String(lng);
+                }
+            };
+            const readCoordinates = (target) => {
+                if (target === 'pickup') {
+                    return {
+                        lat: parseCoordinate(pickupLatInput?.value),
+                        lng: parseCoordinate(pickupLngInput?.value),
+                    };
+                }
+
+                return {
+                    lat: parseCoordinate(dropoffLatInput?.value),
+                    lng: parseCoordinate(dropoffLngInput?.value),
+                };
+            };
+
+            const loadGoogleMapsPlaces = () => {
+                if (!googleMapsApiKey) {
+                    return Promise.reject(new Error('maps_api_key_missing'));
+                }
+
+                if (window.google?.maps?.places?.Autocomplete) {
+                    return Promise.resolve(window.google.maps.places);
+                }
+
+                if (window.__simdiGoogleMapsPlacesLoaderPromise) {
+                    return window.__simdiGoogleMapsPlacesLoaderPromise;
+                }
+
+                window.__simdiGoogleMapsPlacesLoaderPromise = new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    const params = new URLSearchParams({
+                        key: googleMapsApiKey,
+                        libraries: 'places',
+                        language: 'tr',
+                        region: 'TR',
+                        loading: 'async',
+                    });
+
+                    script.src = `https://maps.googleapis.com/maps/api/js?${params.toString()}`;
+                    script.async = true;
+                    script.defer = true;
+                    script.onload = () => {
+                        if (window.google?.maps?.places?.Autocomplete) {
+                            resolve(window.google.maps.places);
+                            return;
+                        }
+
+                        reject(new Error('maps_places_not_ready'));
+                    };
+                    script.onerror = () => reject(new Error('maps_script_load_failed'));
+                    document.head.appendChild(script);
+                });
+
+                return window.__simdiGoogleMapsPlacesLoaderPromise;
+            };
+
+            const bindAutocomplete = (inputNode, target) => {
+                if (!inputNode || !window.google?.maps?.places?.Autocomplete) {
+                    return;
+                }
+
+                const autocomplete = new window.google.maps.places.Autocomplete(inputNode, {
+                    fields: ['formatted_address', 'geometry.location', 'name'],
+                    types: ['geocode'],
+                    componentRestrictions: autocompleteCountry ? { country: autocompleteCountry } : undefined,
+                });
+
+                autocomplete.addListener('place_changed', () => {
+                    const place = autocomplete.getPlace();
+                    const lat = place?.geometry?.location?.lat?.();
+                    const lng = place?.geometry?.location?.lng?.();
+
+                    if (typeof lat === 'number' && typeof lng === 'number') {
+                        writeCoordinates(target, lat, lng);
+                    } else {
+                        writeCoordinates(target, null, null);
+                    }
+
+                    const resolvedAddress = String(place?.formatted_address || place?.name || '').trim();
+                    if (resolvedAddress !== '') {
+                        inputNode.value = resolvedAddress;
+                    }
+
+                    syncFallbackCheckoutLink();
+                });
+            };
 
             const buildFallbackCheckoutUrl = () => {
                 const params = new URLSearchParams();
@@ -399,9 +528,36 @@
             };
 
             syncFallbackCheckoutLink();
-            pickupInput?.addEventListener('input', syncFallbackCheckoutLink);
-            dropoffInput?.addEventListener('input', syncFallbackCheckoutLink);
+            pickupInput?.addEventListener('input', () => {
+                writeCoordinates('pickup', null, null);
+                syncFallbackCheckoutLink();
+            });
+            dropoffInput?.addEventListener('input', () => {
+                writeCoordinates('dropoff', null, null);
+                syncFallbackCheckoutLink();
+            });
             serviceTypeInput?.addEventListener('change', syncFallbackCheckoutLink);
+
+            if (autocompleteProvider === 'google_places') {
+                loadGoogleMapsPlaces()
+                    .then(() => {
+                        bindAutocomplete(pickupInput, 'pickup');
+                        bindAutocomplete(dropoffInput, 'dropoff');
+
+                        if (typeof trackEvent === 'function') {
+                            trackEvent('quote_autocomplete_ready', {
+                                provider: autocompleteProvider,
+                            });
+                        }
+                    })
+                    .catch(() => {
+                        if (typeof trackEvent === 'function') {
+                            trackEvent('quote_autocomplete_fallback', {
+                                provider: 'manual',
+                            });
+                        }
+                    });
+            }
 
             const setFeedback = (message, level) => {
                 if (!message) {
@@ -605,9 +761,33 @@
                     currency: 'TRY',
                     pickup: {
                         address: validation.pickupAddress,
+                        ...(() => {
+                            const coords = readCoordinates('pickup');
+                            const payloadCoordinates = {};
+                            if (coords.lat !== null) {
+                                payloadCoordinates.lat = coords.lat;
+                            }
+                            if (coords.lng !== null) {
+                                payloadCoordinates.lng = coords.lng;
+                            }
+
+                            return payloadCoordinates;
+                        })(),
                     },
                     dropoff: {
                         address: validation.dropoffAddress,
+                        ...(() => {
+                            const coords = readCoordinates('dropoff');
+                            const payloadCoordinates = {};
+                            if (coords.lat !== null) {
+                                payloadCoordinates.lat = coords.lat;
+                            }
+                            if (coords.lng !== null) {
+                                payloadCoordinates.lng = coords.lng;
+                            }
+
+                            return payloadCoordinates;
+                        })(),
                     },
                     context: {
                         channel: 'landing_hero_quote_widget',
@@ -699,9 +879,33 @@
                                 service_label: selectedServiceLabel,
                                 pickup: {
                                     address: pickupInput.value.trim(),
+                                    ...(() => {
+                                        const coords = readCoordinates('pickup');
+                                        const payloadCoordinates = {};
+                                        if (coords.lat !== null) {
+                                            payloadCoordinates.lat = coords.lat;
+                                        }
+                                        if (coords.lng !== null) {
+                                            payloadCoordinates.lng = coords.lng;
+                                        }
+
+                                        return payloadCoordinates;
+                                    })(),
                                 },
                                 dropoff: {
                                     address: dropoffInput.value.trim(),
+                                    ...(() => {
+                                        const coords = readCoordinates('dropoff');
+                                        const payloadCoordinates = {};
+                                        if (coords.lat !== null) {
+                                            payloadCoordinates.lat = coords.lat;
+                                        }
+                                        if (coords.lng !== null) {
+                                            payloadCoordinates.lng = coords.lng;
+                                        }
+
+                                        return payloadCoordinates;
+                                    })(),
                                 },
                                 quote_preview: {
                                     quote_no: latestQuotePayload.quote_no || null,

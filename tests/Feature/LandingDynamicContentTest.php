@@ -12,15 +12,31 @@ class LandingDynamicContentTest extends TestCase
     public function test_home_renders_hero_quote_widget_when_enabled(): void
     {
         config()->set('landing.quote_widget_enabled', true);
+        config()->set('services_integrations.maps.google_maps_api_key', '');
 
         $response = $this->get('/');
 
         $response->assertStatus(200);
         $response->assertSee('data-quote-widget', false);
+        $response->assertSee('data-quote-autocomplete-provider="manual"', false);
         $response->assertSee('Fiyat Hesapla');
         $response->assertSee('data-quote-start-checkout', false);
         $response->assertSee('data-quote-start-checkout-fallback', false);
         $response->assertSee('Devam Et');
+    }
+
+    public function test_home_exposes_google_places_autocomplete_when_maps_key_present(): void
+    {
+        config()->set('landing.quote_widget_enabled', true);
+        config()->set('services_integrations.maps.google_maps_api_key', 'test-maps-api-key');
+
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('data-quote-autocomplete-provider="google_places"', false);
+        $response->assertSee('data-google-maps-api-key="test-maps-api-key"', false);
+        $response->assertSee('loadGoogleMapsPlaces');
+        $response->assertSee('quote_autocomplete_fallback');
     }
 
     public function test_home_hides_hero_quote_widget_when_disabled(): void
