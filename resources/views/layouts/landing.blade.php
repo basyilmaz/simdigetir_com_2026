@@ -46,22 +46,36 @@
     
     <!-- Google Ads & Analytics -->
     @php
-        $gtagId = \Modules\Settings\Models\Setting::getValue('seo.gtag_id', 'G-XYCY1D28EF');
+        $defaultGtagId = (string) env('GOOGLE_TAG_ID', 'G-XYCY1D28EF');
+        $defaultAdsId = (string) env('GOOGLE_ADS_ID', 'AW-17989545006');
+        $gtagIdRaw = (string) \Modules\Settings\Models\Setting::getValue('seo.gtag_id', $defaultGtagId);
+        $adsIdRaw = (string) \Modules\Settings\Models\Setting::getValue('seo.gads_id', $defaultAdsId);
+        $gtagId = trim($gtagIdRaw) !== '' ? trim($gtagIdRaw) : $defaultGtagId;
+        $adsId = trim($adsIdRaw) !== '' ? trim($adsIdRaw) : $defaultAdsId;
+        // Prefer Ads tag as loader so manual snippet parity stays deterministic.
+        $primaryGoogleTagId = $adsId ?: $gtagId;
     @endphp
-    @if($gtagId)
-    <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gtagId }}"></script>
+    @if($primaryGoogleTagId)
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ $primaryGoogleTagId }}"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
+        @if($gtagId)
         gtag('config', '{{ $gtagId }}');
-        @php $adsId = \Modules\Settings\Models\Setting::getValue('seo.gads_id', ''); @endphp
+        @endif
         @if($adsId)
         gtag('config', '{{ $adsId }}');
         @endif
         
         // Google Ads Conversion Tracking Helper
         function trackConversion(label, url) {
+            if (!'{{ $adsId }}') {
+                if (url) {
+                    window.location = url;
+                }
+                return false;
+            }
             gtag('event', 'conversion', {
                 'send_to': '{{ $adsId }}/' + label,
                 'event_callback': function() {

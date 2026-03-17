@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use Modules\Landing\Models\LandingPage;
 use Modules\Landing\Models\LandingPageSection;
 use Modules\Landing\Models\LandingSectionItem;
+use Modules\Settings\Models\Setting;
 use Tests\TestCase;
 
 class LandingDynamicContentTest extends TestCase
@@ -168,6 +169,26 @@ class LandingDynamicContentTest extends TestCase
         $response->assertSee("trackEvent('quote_start_checkout_click', payload);", false);
         $response->assertSee("trackEvent('quote_cta_whatsapp_click', payload);", false);
         $response->assertSee("trackEvent('quote_cta_call_click', payload);", false);
+    }
+
+    public function test_home_includes_google_ads_tag_by_default(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('https://www.googletagmanager.com/gtag/js?id=AW-17989545006', false);
+        $response->assertSee("gtag('config', 'AW-17989545006');", false);
+    }
+
+    public function test_home_uses_admin_overridden_google_ads_id_when_configured(): void
+    {
+        Setting::setValue('seo.gads_id', 'AW-11111111111', 'seo');
+
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('https://www.googletagmanager.com/gtag/js?id=AW-11111111111', false);
+        $response->assertSee("gtag('config', 'AW-11111111111');", false);
     }
 
     public function test_home_and_standard_pages_use_db_backed_header_b2b_cta_when_enabled(): void
