@@ -221,15 +221,19 @@
         }
 
         const shouldReduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const quoteWidgetNode = document.querySelector('.hero-quote-widget');
+        const lockHeroQuoteVisible = Boolean(quoteWidgetNode);
+        const heroSliderSection = heroSwiperEl.closest('.hero-slider-section');
+        heroSliderSection?.classList.toggle('hero-slider-locked', lockHeroQuoteVisible);
         let quoteWidgetInteractionLocks = 0;
         const swiper = new Swiper('.hero-swiper', {
-            loop: true,
+            loop: !lockHeroQuoteVisible,
             effect: 'fade',
             fadeEffect: {
                 crossFade: true
             },
             speed: 1000,
-            autoplay: shouldReduceMotion ? false : {
+            autoplay: shouldReduceMotion || lockHeroQuoteVisible ? false : {
                 delay: 5000,
                 disableOnInteraction: false,
                 pauseOnMouseEnter: true,
@@ -237,7 +241,7 @@
             autoHeight: true, // Enable auto height
             pagination: {
                 el: '.swiper-pagination',
-                clickable: true,
+                clickable: !lockHeroQuoteVisible,
             },
             navigation: {
                 nextEl: '.swiper-button-next',
@@ -245,13 +249,17 @@
             },
             breakpoints: {
                 0: {
-                    allowTouchMove: true
+                    allowTouchMove: !lockHeroQuoteVisible
                 },
                 1024: {
-                    allowTouchMove: true
+                    allowTouchMove: !lockHeroQuoteVisible
                 }
             }
         });
+
+        if (lockHeroQuoteVisible && typeof swiper.slideTo === 'function') {
+            swiper.slideTo(0, 0, false);
+        }
 
         document.addEventListener('visibilitychange', function() {
             if (!swiper.autoplay) {
@@ -271,7 +279,13 @@
         };
 
         const startHeroAutoplay = () => {
-            if (!swiper.autoplay || shouldReduceMotion || document.hidden || quoteWidgetInteractionLocks > 0) {
+            if (
+                !swiper.autoplay ||
+                shouldReduceMotion ||
+                lockHeroQuoteVisible ||
+                document.hidden ||
+                quoteWidgetInteractionLocks > 0
+            ) {
                 return;
             }
 
@@ -309,6 +323,10 @@
                 }
 
                 event.preventDefault();
+                if (lockHeroQuoteVisible) {
+                    focusQuoteWidget();
+                    return;
+                }
                 if (typeof swiper.slideToLoop === 'function') {
                     swiper.slideToLoop(0, 600);
                 } else {
@@ -325,6 +343,11 @@
         width: 100%;
         min-height: 100vh; /* Force minimum height */
         position: relative;
+    }
+    .hero-slider-section.hero-slider-locked .swiper-pagination,
+    .hero-slider-section.hero-slider-locked .swiper-button-next,
+    .hero-slider-section.hero-slider-locked .swiper-button-prev {
+        display: none !important;
     }
     .hero-swiper {
         width: 100%;

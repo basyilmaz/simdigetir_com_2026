@@ -116,6 +116,17 @@ class LandingDynamicContentTest extends TestCase
         $response->assertSee('quoteWidgetInteractionLocks');
     }
 
+    public function test_home_contains_quote_widget_slider_lock_hooks(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('lockHeroQuoteVisible');
+        $response->assertSee('loop: !lockHeroQuoteVisible');
+        $response->assertSee('hero-slider-section.hero-slider-locked .swiper-pagination');
+        $response->assertSee('allowTouchMove: !lockHeroQuoteVisible');
+    }
+
     public function test_home_and_standard_pages_use_db_backed_header_b2b_cta_when_enabled(): void
     {
         $page = LandingPage::create([
