@@ -274,6 +274,12 @@
         [data-theme="light"] .footer {
             background: linear-gradient(180deg, #eef0f5 0%, #e2e5ec 100%);
         }
+
+        [data-theme="light"] .footer-trust-item {
+            background: rgba(255, 255, 255, 0.74);
+            border-color: rgba(0, 0, 0, 0.08);
+            color: #4b5563;
+        }
         
         [data-theme="light"] .offcanvas-close:hover {
             background: rgba(236, 72, 153, 0.1);
@@ -292,6 +298,7 @@
         }
         
         [data-theme="light"] .service-card:hover,
+        [data-theme="light"] .service-card:focus-within,
         [data-theme="light"] .feature-card:hover,
         [data-theme="light"] .blog-card:hover {
             box-shadow: 0 20px 50px rgba(124, 58, 237, 0.1);
@@ -1600,9 +1607,20 @@
             border: 1px solid var(--border-glass);
             border-radius: 1.5rem;
             padding: 2.5rem;
-            transition: all 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
             position: relative;
             overflow: hidden;
+            isolation: isolate;
+            transform: translate3d(0, 0, 0);
+            backface-visibility: hidden;
+            will-change: transform;
+            transition:
+                transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+                border-color 0.35s ease,
+                box-shadow 0.35s ease,
+                background-color 0.35s ease;
         }
         
         .service-card::before {
@@ -1618,11 +1636,13 @@
             transform-origin: left;
         }
         
-        .service-card:hover::before {
+        .service-card:hover::before,
+        .service-card:focus-within::before {
             transform: scaleX(1);
         }
         
-        .service-card:hover {
+        .service-card:hover,
+        .service-card:focus-within {
             transform: translateY(-10px);
             border-color: var(--primary);
             box-shadow: 0 25px 50px rgba(124, 58, 237, 0.15);
@@ -1647,11 +1667,16 @@
             justify-content: center;
             font-size: 1.75rem;
             margin-bottom: 1.5rem;
-            transition: all 0.4s ease;
+            transform-origin: center;
+            will-change: transform;
+            transition:
+                transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.35s ease;
         }
         
-        .service-card:hover .service-card-icon {
-            transform: scale(1.1) rotate(5deg);
+        .service-card:hover .service-card-icon,
+        .service-card:focus-within .service-card-icon {
+            transform: translateY(-2px) scale(1.06);
             box-shadow: 0 15px 40px rgba(124, 58, 237, 0.4);
         }
         
@@ -1867,6 +1892,57 @@
             gap: 3rem;
             margin-bottom: 3rem;
         }
+
+        .footer-trust-row {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-trust-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            padding: 0.75rem 0.9rem;
+            border-radius: 999px;
+            border: 1px solid var(--border-glass);
+            background: var(--bg-glass);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            line-height: 1.2;
+            min-width: 0;
+            text-decoration: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease, transform 0.3s ease;
+        }
+
+        .footer-trust-item i {
+            color: var(--accent);
+            font-size: 0.9rem;
+            flex: 0 0 auto;
+        }
+
+        .footer-trust-item span {
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .footer-trust-item:hover,
+        .footer-trust-item:focus-visible {
+            border-color: var(--primary-light);
+            box-shadow: 0 8px 22px rgba(124, 58, 237, 0.18);
+            color: var(--text-primary);
+            transform: translateY(-1px);
+            padding-left: 0;
+        }
+
+        .footer a.footer-trust-item:hover,
+        .footer a.footer-trust-item:focus-visible {
+            padding-left: 0;
+        }
         
         .footer-brand p {
             color: var(--text-secondary);
@@ -1934,6 +2010,18 @@
             align-items: center;
             color: var(--text-muted);
             font-size: 0.875rem;
+        }
+
+        .footer-powered-link {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .footer-bottom .footer-powered-link:hover,
+        .footer-bottom .footer-powered-link:focus-visible {
+            color: var(--accent);
+            padding-left: 0;
+            text-decoration: underline;
         }
         
         /* WhatsApp Float */
@@ -2058,6 +2146,10 @@
             .footer-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
+
+            .footer-trust-row {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
             
             .process-grid {
                 grid-template-columns: repeat(3, 1fr);
@@ -2135,6 +2227,10 @@
             }
             
             .footer-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-trust-row {
                 grid-template-columns: 1fr;
             }
             
@@ -2678,7 +2774,9 @@
         }
 
         .service-card:hover,
+        .service-card:focus-within,
         .feature-card:hover,
+        .feature-card:focus-within,
         .blog-card:hover {
             border-color: var(--glass-stroke-hover);
             box-shadow: var(--glass-shadow-hover), var(--glass-shadow-inset);
@@ -2720,6 +2818,43 @@
             .header.scrolled {
                 -webkit-backdrop-filter: blur(12px);
                 backdrop-filter: blur(12px);
+            }
+        }
+
+        @media (hover: none), (pointer: coarse) {
+            .service-card:hover,
+            .service-card:focus-within {
+                transform: none;
+                border-color: var(--glass-stroke);
+                box-shadow: var(--glass-shadow-soft), var(--glass-shadow-inset);
+            }
+
+            .service-card:hover .service-card-icon,
+            .service-card:focus-within .service-card-icon {
+                transform: none;
+                box-shadow: none;
+            }
+
+            [data-theme="light"] .service-card:hover,
+            [data-theme="light"] .service-card:focus-within {
+                border-color: rgba(0, 0, 0, 0.06);
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .service-card,
+            .service-card-icon,
+            .service-card::before {
+                transition: none !important;
+            }
+
+            .service-card:hover,
+            .service-card:focus-within,
+            .service-card:hover .service-card-icon,
+            .service-card:focus-within .service-card-icon {
+                transform: none !important;
+                box-shadow: none !important;
             }
         }
         
@@ -3078,10 +3213,28 @@
                     </ul>
                 </div>
             </div>
+            <div class="footer-trust-row" aria-label="Guven gostergeleri">
+                <a href="/kvkk" class="footer-trust-item">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>KVKK Uyumlu</span>
+                </a>
+                <div class="footer-trust-item">
+                    <i class="fa-solid fa-lock"></i>
+                    <span>SSL Guvenli</span>
+                </div>
+                <div class="footer-trust-item">
+                    <i class="fa-solid fa-headset"></i>
+                    <span>7/24 Destek</span>
+                </div>
+                <div class="footer-trust-item">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <span>Anlik Takip</span>
+                </div>
+            </div>
             <div class="footer-bottom">
                 <p>&copy; {{ date('Y') }} SimdiGetir. Tum haklari saklidir.</p>
                 <p>
-                    Powered by <a href="https://castintech.com" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;">castintech</a>
+                    Powered by <a href="https://castintech.com" target="_blank" rel="noopener" class="footer-powered-link">castintech</a>
                     | <span style="color: var(--text-secondary);">v{{ config('app.version') }}</span>
                 </p>
             </div>

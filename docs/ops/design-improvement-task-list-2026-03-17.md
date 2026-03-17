@@ -18,8 +18,8 @@
 | A-06 | P1 | A | CTA funnel instrumentation consistency | CTA events include channel/context/label and remain analyzable | event payload probe | done |
 | B-01 | P1 | B | Design token refactor (colors/surfaces/glass) | Shared token usage on landing + checkout, no random hardcoded style drift | visual diff + code grep | done |
 | B-02 | P1 | B | Typography hierarchy unification | Display/heading/body/caption consistently applied in primary pages | snapshot/manual typography check | done |
-| B-03 | P2 | B | Service cards premium hover polish | Hover effects active without layout jitter | mobile + desktop regression | todo |
-| B-04 | P2 | B | Footer trust row + consistency polish | Footer trust and brand elements render consistently | runtime smoke + visual check | todo |
+| B-03 | P2 | B | Service cards premium hover polish | Hover effects active without layout jitter | mobile + desktop regression | done |
+| B-04 | P2 | B | Footer trust row + consistency polish | Footer trust and brand elements render consistently | runtime smoke + visual check | done |
 | C-01 | P1 | C | GSAP ScrollTrigger phased integration | Motion works in scoped sections and does not block interactions | browser E2E + reduced-motion check | todo |
 | C-02 | P1 | C | Reduced-motion accessibility fallback | `prefers-reduced-motion` disables non-critical animations | accessibility test pass | todo |
 | C-03 | P2 | C | Lottie delivery micro-animation | Lottie assets load lazily and fail gracefully | network throttle check | todo |
