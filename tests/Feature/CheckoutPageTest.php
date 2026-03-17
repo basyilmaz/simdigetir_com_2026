@@ -98,6 +98,41 @@ class CheckoutPageTest extends TestCase
         $response->assertSee('data-checkout-app', false);
     }
 
+
+    public function test_checkout_page_contains_guest_auth_mode_and_no_forced_auth_gate(): void
+    {
+        $quote = PricingQuote::query()->create([
+            'quote_no' => 'QTE-WEB-GUEST-001',
+            'request_snapshot' => [],
+            'resolved_rules' => [],
+            'subtotal_amount' => 9000,
+            'discount_amount' => 0,
+            'surge_amount' => 0,
+            'total_amount' => 9000,
+            'currency' => 'TRY',
+            'expires_at' => now()->addMinutes(15),
+        ]);
+
+        $session = CheckoutSession::query()->create([
+            'token' => 'checkout-web-token-guest-001',
+            'pricing_quote_id' => $quote->id,
+            'status' => 'draft',
+            'current_step' => 'quote',
+            'payload' => [
+                'service_type' => 'moto',
+                'pickup' => ['address' => 'Besiktas'],
+                'dropoff' => ['address' => 'Sisli'],
+            ],
+            'expires_at' => now()->addHour(),
+        ]);
+
+        $response = $this->get('/checkout/'.$session->token);
+
+        $response->assertOk();
+        $response->assertSee('value="guest"', false);
+        $response->assertSee('current_step: \'recipient\'', false);
+        $response->assertDontSee('!state.customerId && [\'recipient\', \'payment\', \'confirm\'].includes(state.currentStep) ? \'auth\'', false);
+    }
     public function test_checkout_page_shows_bound_customer_summary_when_session_has_customer(): void
     {
         $quote = PricingQuote::query()->create([
@@ -348,3 +383,4 @@ class CheckoutPageTest extends TestCase
         $response->assertDontSee('>Kart ödemesine geç<', false);
     }
 }
+

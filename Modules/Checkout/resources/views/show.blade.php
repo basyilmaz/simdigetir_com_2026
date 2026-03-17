@@ -165,7 +165,7 @@ Tahmini süre: {{ $durationText }}</p></div>
                 <section class="panel" data-step-panel="auth">
                     <h2>Kayıt veya giriş</h2>
                     <p>Phase 1 kararına göre OTP yok. Müşteri akışı telefon + şifre ile ilerler.</p>
-                    <div class="g2">
+                    <div class="g3">
                         <label class="choice">
                             <input type="radio" name="auth_mode" value="register" checked>
                             <span class="choicebox"><strong>Yeni müşteri</strong><span>Ad, telefon ve şifre ile hesap oluştur. Siparişler daha sonra "Hesabım" alanından izlenir.</span><em>Önerilen</em></span>
@@ -174,8 +174,12 @@ Tahmini süre: {{ $durationText }}</p></div>
                             <input type="radio" name="auth_mode" value="login">
                             <span class="choicebox"><strong>Var olan hesap</strong><span>Telefon ve şifre ile giriş yap. Kayıtlı müşteriysen alış bilgilerini hızlı doldurabilirsin.</span><em>Hızlı geçiş</em></span>
                         </label>
+                        <label class="choice">
+                            <input type="radio" name="auth_mode" value="guest">
+                            <span class="choicebox"><strong>Misafir devam</strong><span>Hesap acmadan siparise devam et. Siparis kaydi telefon numarasi ile olusturulur.</span><em>Hizli Checkout</em></span>
+                        </label>
                     </div>
-                    <div class="alert info" data-auth-note>Başarılı auth sonrasında customer_id checkout session'a yazılır ve sipariş bu hesapla ilişkilendirilir.</div>
+                    <div class="alert info" data-auth-note>Basarili auth sonrasinda customer_id checkout session'a yazilir ve siparis bu hesapla iliskilendirilir.</div>
                     <div class="account-strip" data-account-strip {{ !empty($customer) ? '' : 'hidden' }}>
                         <span class="badge">Bağlı hesap</span>
                         <strong data-account-name>{{ $customer['name'] ?? '-' }}</strong>
@@ -185,7 +189,7 @@ Tahmini süre: {{ $durationText }}</p></div>
                         <div class="formgrid">
                             <div class="field" data-register-only>
                                 <label for="auth-name">Ad Soyad</label>
-                                <input id="auth-name" name="name" type="text" placeholder="Örn: Ayşe Yılmaz" value="{{ $customer['name'] ?? '' }}">
+                                <input id="auth-name" name="name" type="text" placeholder="Orn: Ayse Yilmaz" value="{{ $customer['name'] ?? '' }}">
                                 <p class="err" data-field-error="auth.name"></p>
                             </div>
                             <div class="field">
@@ -198,13 +202,13 @@ Tahmini süre: {{ $durationText }}</p></div>
                                 <input id="auth-email" name="email" type="email" placeholder="ornek@alanadi.com" value="{{ $customer['email'] ?? '' }}">
                                 <p class="err" data-field-error="auth.email"></p>
                             </div>
-                            <div class="field">
-                                <label for="auth-password">Şifre</label>
+                            <div class="field" data-auth-password-group>
+                                <label for="auth-password">Sifre</label>
                                 <input id="auth-password" name="password" type="password" placeholder="En az 8 karakter">
                                 <p class="err" data-field-error="auth.password"></p>
                             </div>
                         </div>
-                        <div class="actions"><button type="submit" class="btn primary" data-auth-submit>Hesabı bağla</button><button type="button" class="btn secondary" data-step-back="quote">Geri</button></div>
+                        <div class="actions"><button type="submit" class="btn primary" data-auth-submit>Hesabi bagla</button><button type="button" class="btn secondary" data-step-back="quote">Geri</button></div>
                     </form>
                 </section>
 
@@ -434,6 +438,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const authForm = document.querySelector('[data-auth-form]');
     const authSubmit = document.querySelector('[data-auth-submit]');
     const registerOnlyNodes = [...document.querySelectorAll('[data-register-only]')];
+    const authPasswordGroups = [...document.querySelectorAll('[data-auth-password-group]')];
     const recipientForm = document.querySelector('[data-recipient-form]');
     const samePersonInput = recipientForm?.querySelector('input[name="same_person"]');
     const pickupNameInput = recipientForm?.querySelector('input[name="pickup_name"]');
@@ -699,7 +704,7 @@ document.addEventListener('DOMContentLoaded', function () {
         normalizeCustomer();
         const current = state.finalizedOrder && state.status === 'completed'
             ? 'confirm'
-            : (!state.customerId && ['recipient', 'payment', 'confirm'].includes(state.currentStep) ? 'auth' : state.currentStep);
+            : (steps.includes(state.currentStep) ? state.currentStep : 'quote');
         const activeIndex = steps.indexOf(current);
 
         stepNodes.forEach((node) => {
@@ -769,7 +774,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.querySelector('[data-action="continue-from-quote"]')?.addEventListener('click', async () => {
         try {
-            await persistSession({ current_step: state.customerId ? 'recipient' : 'auth', status: state.customerId ? 'authenticated' : state.status });
+            await persistSession({ current_step: 'recipient', status: state.customerId ? 'authenticated' : state.status });
         } catch (error) {
             showAlert(finalizeFeedback, 'error', error.message);
         }
@@ -790,8 +795,13 @@ document.addEventListener('DOMContentLoaded', function () {
         registerOnlyNodes.forEach((node) => {
             node.hidden = mode !== 'register';
         });
+        authPasswordGroups.forEach((node) => {
+            node.hidden = mode === 'guest';
+        });
         if (authSubmit) {
-            authSubmit.textContent = mode === 'register' ? 'Hesap oluştur ve devam et' : 'Giriş yap ve devam et';
+            authSubmit.textContent = mode === 'register'
+                ? 'Hesap olustur ve devam et'
+                : (mode === 'login' ? 'Giris yap ve devam et' : 'Misafir devam et');
         }
     };
 
@@ -805,6 +815,37 @@ document.addEventListener('DOMContentLoaded', function () {
         clearErrors('auth');
         const mode = authModeInputs.find((input) => input.checked)?.value || 'register';
         const formData = new FormData(authForm);
+
+        if (mode === 'guest') {
+            const guestPhone = String(formData.get('phone') || '').trim();
+            const guestName = String(formData.get('name') || '').trim();
+            if (guestPhone.length < 10) {
+                applyErrors('auth', { phone: ['Telefon zorunludur.'] });
+                showAlert(authNote, 'error', 'Misafir devam icin telefon zorunludur.');
+                return;
+            }
+
+            try {
+                const existingPickup = state.payload.pickup || {};
+                await persistSession({
+                    current_step: 'recipient',
+                    payload: {
+                        customer: {
+                            name: guestName !== '' ? guestName : (existingPickup.name || ''),
+                            phone: guestPhone,
+                            email: '',
+                            guest_checkout: true,
+                        },
+                    },
+                });
+                showAlert(authNote, 'success', 'Misafir checkout modu acildi.');
+            } catch (error) {
+                showAlert(authNote, 'error', error.message);
+            }
+
+            return;
+        }
+
         const payload = {
             phone: String(formData.get('phone') || '').trim(),
             password: String(formData.get('password') || '').trim(),
@@ -819,7 +860,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         try {
-            const { response, json } = await requestJson(mode === 'register' ? endpoints.register : endpoints.login, 'POST', payload);
+            const endpoint = mode === 'register' ? endpoints.register : endpoints.login;
+            const { response, json } = await requestJson(endpoint, 'POST', payload);
             if (!response.ok || !json || json.success !== true) {
                 if (response.status === 422) {
                     applyErrors('auth', json?.errors || {});
@@ -908,6 +950,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const existingPickup = state.payload.pickup || {};
         const existingDropoff = state.payload.dropoff || {};
+        const existingCustomer = state.customer || {};
         const packages = [{ package_type: packageType, quantity: packageQuantity, description: packageDescription || null }];
         if (!Number.isNaN(packageWeight) && packageWeight >= 0) {
             packages[0].weight_grams = packageWeight;
@@ -920,6 +963,12 @@ document.addEventListener('DOMContentLoaded', function () {
             await persistSession({
                 current_step: 'payment',
                 payload: {
+                    customer: {
+                        name: existingCustomer.name || pickupName,
+                        phone: existingCustomer.phone || pickupPhone,
+                        email: existingCustomer.email || '',
+                        guest_checkout: !state.customerId,
+                    },
                     same_person: samePerson,
                     pickup: { ...existingPickup, name: pickupName, phone: pickupPhone, address: pickupAddress },
                     dropoff: { ...existingDropoff, name: dropoffName, phone: dropoffPhone, address: dropoffAddress },
@@ -978,6 +1027,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             state.status = json.data.checkout_session.status;
             state.currentStep = json.data.checkout_session.current_step;
+            state.customerId = json.data.checkout_session.customer_id || state.customerId;
             state.payload = json.data.checkout_session.payload || state.payload;
             state.finalizedOrder = json.data.order || null;
             state.paymentUrl = '';
@@ -1009,3 +1059,6 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 @endpush
 </x-checkout::layouts.master>
+
+
+

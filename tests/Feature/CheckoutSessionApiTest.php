@@ -94,6 +94,76 @@ class CheckoutSessionApiTest extends TestCase
             ->assertJsonPath('data.payload.service_type', 'moto');
     }
 
+    public function test_guest_can_finalize_checkout_session_without_customer_id(): void
+    {
+        $quote = PricingQuote::query()->create([
+            'quote_no' => 'QTE-CHECKOUT-GUEST-001',
+            'request_snapshot' => [],
+            'resolved_rules' => [],
+            'subtotal_amount' => 11000,
+            'discount_amount' => 0,
+            'surge_amount' => 0,
+            'total_amount' => 11000,
+            'currency' => 'TRY',
+            'expires_at' => now()->addMinutes(15),
+        ]);
+
+        $createResponse = $this->postJson('/api/v1/checkout-sessions', [
+            'pricing_quote_id' => $quote->id,
+            'current_step' => 'confirm',
+            'status' => 'ready',
+            'payload' => [
+                'pickup' => [
+                    'address' => 'Besiktas Iskele',
+                    'name' => 'Misafir Gonderen',
+                    'phone' => '0551 333 22 11',
+                ],
+                'dropoff' => [
+                    'address' => 'Kadikoy Carsi',
+                    'name' => 'Misafir Alici',
+                    'phone' => '0551 444 33 22',
+                ],
+                'payment' => [
+                    'method' => 'cash',
+                    'timing' => 'delivery',
+                    'payer_role' => 'recipient',
+                ],
+                'customer' => [
+                    'name' => 'Misafir Gonderen',
+                    'phone' => '0551 333 22 11',
+                    'guest_checkout' => true,
+                ],
+            ],
+        ]);
+
+        $token = (string) $createResponse->json('data.token');
+
+        $response = $this->postJson('/api/v1/checkout-sessions/'.$token.'/finalize', []);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.order.payment_method', 'cash')
+            ->assertJsonPath('data.order.payment_timing', 'delivery')
+            ->assertJsonPath('data.order.payment_state', 'cash_on_delivery')
+            ->assertJsonPath('data.next_action', 'dispatch_ready');
+
+        $resolvedCustomerId = (int) $response->json('data.checkout_session.customer_id');
+        $this->assertGreaterThan(0, $resolvedCustomerId);
+
+        $this->assertDatabaseHas('users', [
+            'id' => $resolvedCustomerId,
+            'phone' => '905513332211',
+            'is_active' => 1,
+        ]);
+
+        $this->assertDatabaseHas('orders', [
+            'id' => (int) $response->json('data.order.id'),
+            'customer_id' => $resolvedCustomerId,
+            'payment_method' => 'cash',
+            'payment_timing' => 'delivery',
+        ]);
+    }
+
     public function test_authenticated_customer_can_finalize_card_checkout_session(): void
     {
         $quote = PricingQuote::query()->create([
