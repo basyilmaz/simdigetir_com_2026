@@ -24,11 +24,11 @@
 | C-02 | P1 | C | Reduced-motion accessibility fallback | `prefers-reduced-motion` disables non-critical animations | accessibility test pass | done |
 | C-03 | P2 | C | Lottie delivery micro-animation | Lottie assets load lazily and fail gracefully | network throttle check | done |
 | C-04 | P2 | C | Motion performance budget guard | Added JS/CSS budget within agreed thresholds | bundle diff + Lighthouse sample | done |
-| D-01 | P0 | D | Baseline evidence capture before each train | live ref, DB backup ref, env checksum recorded | ops doc update | in_progress |
+| D-01 | P0 | D | Baseline evidence capture before each train | live ref, DB backup ref, env checksum recorded | ops doc update | done |
 | D-02 | P0 | D | Mandatory gate run for each merge batch | quality gate green before merge | `run-quality-gate` | done |
-| D-03 | P0 | D | Staging parity matrix execution | no unresolved parity P0/P1 in scope | parity report | in_progress |
-| D-04 | P0 | D | Release gate + rollback rehearsal | rollback command tested before GO | release checklist evidence | in_progress |
-| D-05 | P1 | D | Postdeploy monitoring pack | 30-60 min smoke and error dashboard checks logged | postdeploy report | todo |
+| D-03 | P0 | D | Staging parity matrix execution | no unresolved parity P0/P1 in scope | parity report | done |
+| D-04 | P0 | D | Release gate + rollback rehearsal | rollback command tested before GO | release checklist evidence | done |
+| D-05 | P1 | D | Postdeploy monitoring pack | 30-60 min smoke and error dashboard checks logged | postdeploy report | done |
 
 ## Train Mapping
 
@@ -61,3 +61,13 @@ Optional:
 Operational follow-ups (not code blockers):
 1. Courier/support real data onboarding still required in live operations.
 2. Real `GOOGLE_MAPS_API_KEY` should be mandatory for location-critical rollouts via `-RequireMapsKey`.
+
+## Closure Evidence
+
+- Baseline / release evidence:
+  - `docs/ops/release-baseline-evidence-2026-03-17-v1.2.0.md`
+  - `docs/ops/release-local-parity-report-2026-03-17-v1.2.0.md`
+  - `docs/ops/release-preflight-gate-2026-03-17-v1.2.0.md`
+  - `docs/ops/release-notes-v1.2.0.md`
+- Postdeploy monitoring closeout:
+  - `docs/ops/postdeploy-monitoring-pack-2026-03-17-v1.2.1.md`
