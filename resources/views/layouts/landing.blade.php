@@ -3186,16 +3186,72 @@
                 .slice(0, 80);
         }
 
+        function resolveCtaLabel(link) {
+            if (!link) {
+                return 'unknown';
+            }
+
+            const candidates = [
+                link.dataset?.ctaLabel,
+                link.getAttribute('aria-label'),
+                link.getAttribute('title'),
+                link.textContent,
+                link.getAttribute('href'),
+            ];
+
+            for (const candidate of candidates) {
+                const normalized = normalizedLabel(candidate);
+                if (normalized !== '') {
+                    return normalized;
+                }
+            }
+
+            return 'unknown';
+        }
+
+        function resolveCtaHref(link) {
+            return normalizedLabel(link?.getAttribute('href') || '').slice(0, 255);
+        }
+
+        function inferCtaChannel(link) {
+            const href = String(link?.getAttribute('href') || '').toLowerCase();
+            if (href.startsWith('tel:')) {
+                return 'call';
+            }
+
+            if (href.includes('wa.me') || href.includes('whatsapp.com')) {
+                return 'whatsapp';
+            }
+
+            return 'web';
+        }
+
+        function buildCtaPayload(link, overrides = {}) {
+            const payload = {
+                cta_channel: link?.dataset?.ctaChannel || inferCtaChannel(link),
+                cta_context: link?.dataset?.ctaContext || resolveCtaContext(link),
+                cta_label: resolveCtaLabel(link),
+                cta_href: resolveCtaHref(link),
+                ...overrides,
+            };
+
+            payload.cta_channel = normalizedLabel(payload.cta_channel || 'web').toLowerCase();
+            payload.cta_context = normalizedLabel(payload.cta_context || 'general').toLowerCase();
+            payload.cta_label = normalizedLabel(payload.cta_label || 'unknown');
+            payload.cta_href = normalizedLabel(payload.cta_href || '');
+
+            return payload;
+        }
+
+        window.buildCtaPayload = buildCtaPayload;
+        window.resolveCtaContext = resolveCtaContext;
+        window.normalizedLabel = normalizedLabel;
+
         document.querySelectorAll('a[href^="tel:"], a[href*="wa.me"], a[href*="whatsapp.com"]').forEach(link => {
-            const href = (link.getAttribute('href') || '').toLowerCase();
-            const channel = href.startsWith('tel:') ? 'call' : 'whatsapp';
+            const channel = inferCtaChannel(link) === 'call' ? 'call' : 'whatsapp';
 
             link.addEventListener('click', () => {
-                const payload = {
-                    cta_channel: channel,
-                    cta_context: resolveCtaContext(link),
-                    cta_label: normalizedLabel(link.textContent),
-                };
+                const payload = buildCtaPayload(link, { cta_channel: channel });
 
                 trackEvent('cta_click', payload);
                 trackEvent(channel === 'call' ? 'click_call' : 'click_whatsapp', payload);
@@ -3330,4 +3386,3 @@
     @stack('scripts')
 </body>
 </html>
-

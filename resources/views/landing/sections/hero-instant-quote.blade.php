@@ -358,6 +358,36 @@
                 pickup_address: widget.querySelector('[data-field-error="pickup_address"]'),
                 dropoff_address: widget.querySelector('[data-field-error="dropoff_address"]'),
             };
+            const normalizeCtaLabel = (value) => {
+                if (typeof window.normalizedLabel === 'function') {
+                    return window.normalizedLabel(value);
+                }
+
+                return String(value || '')
+                    .replace(/\s+/g, ' ')
+                    .trim()
+                    .slice(0, 80);
+            };
+            const buildQuoteCtaPayload = (channel, label, extras = {}, sourceLink = null) => {
+                const basePayload = {
+                    cta_channel: channel,
+                    cta_context: 'hero_quote_widget',
+                    cta_label: normalizeCtaLabel(label),
+                };
+                const mergedExtras = { ...extras };
+
+                if (sourceLink && typeof window.buildCtaPayload === 'function') {
+                    return {
+                        ...window.buildCtaPayload(sourceLink, basePayload),
+                        ...mergedExtras,
+                    };
+                }
+
+                return {
+                    ...basePayload,
+                    ...mergedExtras,
+                };
+            };
 
             const dispatchHeroInteraction = (engaged) => {
                 document.dispatchEvent(new CustomEvent(
@@ -977,11 +1007,25 @@
 
                 const serviceType = serviceTypeInput.value || 'moto';
                 const selectedServiceLabel = serviceTypeInput.options?.[serviceTypeInput.selectedIndex]?.text || serviceType;
+                const baseCheckoutPayload = {
+                    service_type: serviceType,
+                    quote_no: latestQuotePayload.quote_no || null,
+                    checkout_path: 'tokenized',
+                };
                 startCheckoutButton.disabled = true;
                 startCheckoutButton.innerHTML = '<span class="typing-dots"><span></span><span></span><span></span></span> Hazırlanıyor...';
 
                 try {
                     if (preparedCheckoutToken) {
+                        if (typeof trackEvent === 'function') {
+                            const payload = buildQuoteCtaPayload(
+                                'checkout',
+                                startCheckoutButton.textContent || startCheckoutDefaultLabel,
+                                baseCheckoutPayload
+                            );
+                            trackEvent('cta_click', payload);
+                            trackEvent('quote_start_checkout_click', payload);
+                        }
                         window.location.href = `${quoteConfig.checkoutBaseUrl}/${preparedCheckoutToken}`;
                         return;
                     }
@@ -1052,10 +1096,13 @@
                     syncFallbackCheckoutLink();
 
                     if (typeof trackEvent === 'function') {
-                        trackEvent('quote_start_checkout_click', {
-                            service_type: serviceType,
-                            quote_no: latestQuotePayload.quote_no || null,
-                        });
+                        const payload = buildQuoteCtaPayload(
+                            'checkout',
+                            startCheckoutButton.textContent || startCheckoutDefaultLabel,
+                            baseCheckoutPayload
+                        );
+                        trackEvent('cta_click', payload);
+                        trackEvent('quote_start_checkout_click', payload);
                     }
 
                     window.location.href = `${quoteConfig.checkoutBaseUrl}/${body.data.token}`;
@@ -1067,16 +1114,56 @@
                 }
             });
 
+            const bindCheckoutLinkTracking = (linkNode, checkoutPath) => {
+                if (!linkNode) {
+                    return;
+                }
+
+                linkNode.addEventListener('click', () => {
+                    if (typeof trackEvent !== 'function') {
+                        return;
+                    }
+
+                    const payload = buildQuoteCtaPayload(
+                        'checkout',
+                        linkNode.textContent || 'Devam Et',
+                        {
+                            service_type: serviceTypeInput?.value || 'moto',
+                            quote_no: latestQuotePayload?.quote_no || null,
+                            checkout_path: checkoutPath,
+                        },
+                        linkNode
+                    );
+
+                    trackEvent('cta_click', payload);
+                    trackEvent('quote_start_checkout_click', payload);
+                });
+            };
+
+            bindCheckoutLinkTracking(startCheckoutDirectLink, 'direct_link');
+            bindCheckoutLinkTracking(startCheckoutFallbackLink, 'fallback_link');
+
             widget.querySelectorAll('[data-quote-cta]').forEach((ctaNode) => {
                 ctaNode.addEventListener('click', () => {
                     if (typeof trackEvent !== 'function') {
                         return;
                     }
 
-                    if (ctaNode.getAttribute('data-quote-cta') === 'whatsapp') {
-                        trackEvent('quote_cta_whatsapp_click');
+                    const ctaType = ctaNode.getAttribute('data-quote-cta') === 'whatsapp' ? 'whatsapp' : 'call';
+                    const payload = buildQuoteCtaPayload(
+                        ctaType,
+                        ctaNode.textContent || ctaType,
+                        {
+                            service_type: serviceTypeInput?.value || 'moto',
+                            quote_no: latestQuotePayload?.quote_no || null,
+                        },
+                        ctaNode
+                    );
+
+                    if (ctaType === 'whatsapp') {
+                        trackEvent('quote_cta_whatsapp_click', payload);
                     } else {
-                        trackEvent('quote_cta_call_click');
+                        trackEvent('quote_cta_call_click', payload);
                     }
                 });
             });

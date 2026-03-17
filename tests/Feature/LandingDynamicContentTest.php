@@ -154,6 +154,22 @@ class LandingDynamicContentTest extends TestCase
         $response->assertSee('data-default-label="Siparise Gec"', false);
     }
 
+    public function test_home_contains_cta_funnel_instrumentation_payload_contract(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('window.buildCtaPayload = buildCtaPayload;', false);
+        $response->assertSee('cta_channel', false);
+        $response->assertSee('cta_context', false);
+        $response->assertSee('cta_label', false);
+        $response->assertSee('cta_href', false);
+        $response->assertSee("trackEvent('cta_click', payload);", false);
+        $response->assertSee("trackEvent('quote_start_checkout_click', payload);", false);
+        $response->assertSee("trackEvent('quote_cta_whatsapp_click', payload);", false);
+        $response->assertSee("trackEvent('quote_cta_call_click', payload);", false);
+    }
+
     public function test_home_and_standard_pages_use_db_backed_header_b2b_cta_when_enabled(): void
     {
         $page = LandingPage::create([
