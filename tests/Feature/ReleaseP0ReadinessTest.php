@@ -33,7 +33,7 @@ class ReleaseP0ReadinessTest extends TestCase
         $response->assertSee('id="aracli-kurye"', false);
     }
 
-    public function test_home_uses_jpg_og_image_and_footer_branding(): void
+    public function test_home_uses_raster_og_image_and_footer_branding(): void
     {
         $response = $this->get('/');
 
@@ -43,7 +43,7 @@ class ReleaseP0ReadinessTest extends TestCase
         $this->assertSame(1, preg_match('/<meta\s+property="og:image"\s+content="([^"]+)"/i', $html, $ogImageMatch));
         $ogImage = strtolower((string) ($ogImageMatch[1] ?? ''));
 
-        $this->assertStringEndsWith('.jpg', $ogImage);
+        $this->assertStringEndsWith('.png', $ogImage);
         $this->assertStringNotContainsString('.svg', $ogImage);
         $this->assertStringContainsString('https://castintech.com', $html);
         $this->assertStringContainsString('castintech', strtolower($html));

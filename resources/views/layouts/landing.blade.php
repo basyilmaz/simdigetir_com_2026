@@ -9,6 +9,28 @@
     <meta name="robots" content="@yield('robots', 'index, follow')">
     <link rel="canonical" href="@yield('canonical_url', url()->current())">
     
+    @php
+        $brandDefaultOgImage = asset('images/og-banner.png');
+        $resolvedOgImage = trim((string) $__env->yieldContent('og_image', $brandDefaultOgImage));
+        $resolvedOgImageLower = strtolower($resolvedOgImage);
+        $legacyOgImageNeedles = [
+            'og-default.jpg',
+            'og-default.jpeg',
+            'og-default.svg',
+        ];
+
+        if ($resolvedOgImage === '') {
+            $resolvedOgImage = $brandDefaultOgImage;
+        } else {
+            foreach ($legacyOgImageNeedles as $legacyOgImageNeedle) {
+                if (str_contains($resolvedOgImageLower, $legacyOgImageNeedle)) {
+                    $resolvedOgImage = $brandDefaultOgImage;
+                    break;
+                }
+            }
+        }
+    @endphp
+
     <!-- Open Graph -->
     <meta property="og:title" content="@hasSection('og_title')@yield('og_title')@else@yield('title', 'SimdiGetir - Hizli ve Guvenilir Kurye')@endif">
     <meta property="og:description" content="@hasSection('og_description')@yield('og_description')@else@yield('meta_description', 'Hizli ve guvenilir kurye hizmeti. 7/24 teslimat.')@endif">
@@ -16,7 +38,7 @@
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:site_name" content="SimdiGetir">
     <meta property="og:locale" content="tr_TR">
-    <meta property="og:image" content="@yield('og_image', asset('images/og-banner.png'))">
+    <meta property="og:image" content="{{ $resolvedOgImage }}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     
@@ -24,7 +46,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="@hasSection('og_title')@yield('og_title')@else@yield('title', 'SimdiGetir - Hizli ve Guvenilir Kurye')@endif">
     <meta name="twitter:description" content="@hasSection('og_description')@yield('og_description')@else@yield('meta_description', 'Hizli ve guvenilir kurye hizmeti. 7/24 teslimat.')@endif">
-    <meta name="twitter:image" content="@yield('og_image', asset('images/og-banner.png'))">
+    <meta name="twitter:image" content="{{ $resolvedOgImage }}">
     
     <!-- Geo Tags (Istanbul) -->
     <meta name="geo.region" content="TR-34">

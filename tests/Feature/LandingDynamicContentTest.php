@@ -246,6 +246,25 @@ class LandingDynamicContentTest extends TestCase
         $response->assertSee('syncRuntimeFaviconsByTheme', false);
     }
 
+    public function test_home_normalizes_legacy_default_og_image_to_brand_banner(): void
+    {
+        LandingPage::create([
+            'slug' => 'home',
+            'title' => 'Home',
+            'is_active' => true,
+            'meta' => [
+                'og_image' => 'https://simdigetir.test/images/og-default.jpg',
+            ],
+        ]);
+
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('<meta property="og:image" content="'.e(asset('images/og-banner.png')).'">', false);
+        $response->assertSee('<meta name="twitter:image" content="'.e(asset('images/og-banner.png')).'">', false);
+        $response->assertDontSee('https://simdigetir.test/images/og-default.jpg', false);
+    }
+
     public function test_home_and_standard_pages_use_db_backed_header_b2b_cta_when_enabled(): void
     {
         $page = LandingPage::create([

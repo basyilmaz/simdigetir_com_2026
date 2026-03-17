@@ -8,7 +8,7 @@
 @section('canonical_url', $landingContent['canonical_url'] ?? url()->current())
 @section('og_title', $landingContent['og_title'] ?? ($landingContent['meta_title'] ?? 'SimdiGetir'))
 @section('og_description', $landingContent['og_description'] ?? ($landingContent['meta_description'] ?? 'Hızlı ve güvenilir kurye hizmeti'))
-@section('og_image', $landingContent['og_image'] ?? asset('images/og-default.jpg'))
+@section('og_image', $landingContent['og_image'] ?? asset('images/og-banner.png'))
 
 @section('structured_data')
 @php
@@ -477,5 +477,4 @@
     }
 </script>
 @endpush
-
 
