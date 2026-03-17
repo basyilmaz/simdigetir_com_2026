@@ -143,6 +143,17 @@ class LandingDynamicContentTest extends TestCase
         $response->assertSee('allowTouchMove: !lockHeroQuoteVisible');
     }
 
+    public function test_home_contains_deterministic_quote_continue_path_hooks(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('resolveDeterministicContinueUrl');
+        $response->assertSee('prepareCheckoutSessionSilently');
+        $response->assertSee('preparedCheckoutToken');
+        $response->assertSee('data-default-label="Siparise Gec"', false);
+    }
+
     public function test_home_and_standard_pages_use_db_backed_header_b2b_cta_when_enabled(): void
     {
         $page = LandingPage::create([
