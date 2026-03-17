@@ -1,0 +1,4 @@
+interface:
+  display_name: "SimdiGetir Conversion Funnel Delivery"
+  short_description: "Deliver quote to checkout conversion flow"
+  default_prompt: "Use -conversion-funnel-delivery to ship a guest-first quote-to-checkout funnel without dead-end states."

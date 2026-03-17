@@ -1,0 +1,4 @@
+interface:
+  display_name: "SimdiGetir Design System 2.0"
+  short_description: "Apply unified dark-tech UI system safely"
+  default_prompt: "Use -design-system-2-0 to implement token-based visual consistency across landing and checkout with mobile safety."

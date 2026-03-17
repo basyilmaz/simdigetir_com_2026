@@ -1,0 +1,4 @@
+interface:
+  display_name: "SimdiGetir Admin Ads Ops"
+  short_description: "Operate and validate ads admin flows"
+  default_prompt: "Use -admin-ads-ops to validate Meta connection, conversion pipeline, and admin ads usability end-to-end."
