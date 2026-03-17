@@ -16,6 +16,22 @@
     <link href="https://fonts.bunny.net/css?family=manrope:400,500,600,700,800|space-grotesk:500,700&display=swap" rel="stylesheet" />
 
     @include('components.design-tokens')
+    <style id="sg-typography-contract">
+        body {
+            font-family: var(--sg-font-body);
+            line-height: var(--sg-leading-body);
+        }
+        h1, h2, h3, h4 {
+            font-family: var(--sg-font-display);
+            line-height: var(--sg-leading-heading);
+        }
+        small,
+        label,
+        .caption {
+            font-size: var(--sg-type-caption);
+            line-height: var(--sg-leading-caption);
+        }
+    </style>
     @stack('styles')
 </head>
 <body>

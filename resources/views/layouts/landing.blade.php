@@ -163,7 +163,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -384,11 +384,24 @@
         }
         
         body {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--sg-font-body);
             background: var(--bg-dark);
             color: var(--text-primary);
-            line-height: 1.7;
+            font-size: var(--sg-type-body-md);
+            line-height: var(--sg-leading-body);
             overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--sg-font-display);
+            line-height: var(--sg-leading-heading);
+        }
+
+        small,
+        label,
+        .caption {
+            font-size: var(--sg-type-caption);
+            line-height: var(--sg-leading-caption);
         }
         
         /* Preloader */
@@ -694,7 +707,7 @@
             align-items: center;
             justify-content: center;
             margin: 0 auto 1.5rem;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--sg-font-mono);
             font-size: 1.75rem;
             font-weight: 800;
             background: var(--gradient-primary);
@@ -1234,7 +1247,7 @@
             padding: 0.9rem 2rem;
             border-radius: 50px;
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: var(--sg-type-body-sm);
             text-decoration: none;
             transition: all 0.4s ease;
             border: none;
@@ -1311,16 +1324,19 @@
             background: var(--bg-glass);
             border: 1px solid var(--border-glass);
             border-radius: 50px;
-            font-size: 0.9rem;
+            font-size: var(--sg-type-caption);
+            line-height: var(--sg-leading-caption);
+            letter-spacing: var(--sg-letter-caption);
             color: var(--accent);
             margin-bottom: 1rem;
         }
-        
+
         .section-title {
-            font-size: 3rem;
+            font-family: var(--sg-font-display);
+            font-size: var(--sg-type-display-lg);
             font-weight: 700;
             margin-bottom: 1rem;
-            line-height: 1.2;
+            line-height: var(--sg-leading-heading);
         }
         
         .gradient-text {
@@ -1331,7 +1347,7 @@
         }
         
         .section-subtitle {
-            font-size: 1.125rem;
+            font-size: var(--sg-type-body-lg);
             color: var(--text-secondary);
             max-width: 650px;
             margin: 0 auto;
@@ -1363,7 +1379,9 @@
             background: var(--bg-glass);
             border: 1px solid var(--border-glass);
             border-radius: 50px;
-            font-size: 0.875rem;
+            font-size: var(--sg-type-caption);
+            line-height: var(--sg-leading-caption);
+            letter-spacing: var(--sg-letter-caption);
             color: var(--accent);
             margin-bottom: 1.5rem;
         }
@@ -1382,14 +1400,15 @@
         }
         
         .hero h1 {
-            font-size: 3.75rem;
+            font-family: var(--sg-font-display);
+            font-size: var(--sg-type-display-xl);
             font-weight: 800;
-            line-height: 1.1;
+            line-height: var(--sg-leading-display);
             margin-bottom: 1.5rem;
         }
-        
+
         .hero p {
-            font-size: 1.25rem;
+            font-size: var(--sg-type-body-lg);
             color: var(--text-secondary);
             margin-bottom: 2rem;
             max-width: 520px;
@@ -1414,7 +1433,7 @@
         .hero-stat-value {
             font-size: 2.5rem;
             font-weight: 800;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--sg-font-mono);
             background: var(--gradient-accent);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -1509,7 +1528,7 @@
         }
         
         .hero-card-content {
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--sg-font-mono);
             font-size: 0.9rem;
             color: var(--text-secondary);
             line-height: 2;
@@ -1599,7 +1618,7 @@
             position: absolute;
             top: 2rem;
             right: 2rem;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--sg-font-mono);
             font-size: 0.875rem;
             color: var(--text-muted);
         }
@@ -1711,7 +1730,7 @@
         .funfact-value {
             font-size: 3rem;
             font-weight: 800;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--sg-font-mono);
             margin-bottom: 0.5rem;
         }
         
@@ -2338,7 +2357,7 @@
             align-items: center;
             justify-content: center;
             margin: 0 auto 1.5rem;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--sg-font-mono);
             font-size: 1.75rem;
             font-weight: 800;
             background: var(--gradient-primary);

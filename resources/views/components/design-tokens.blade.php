@@ -16,6 +16,27 @@
         --sg-accent-warm-glow: rgba(249, 115, 22, 0.24);
         --sg-accent-cool-glow: rgba(14, 165, 233, 0.18);
 
+        /* Shared typography tokens */
+        --sg-font-display: "Space Grotesk", sans-serif;
+        --sg-font-body: "Manrope", "Space Grotesk", sans-serif;
+        --sg-font-mono: "JetBrains Mono", monospace;
+        --sg-leading-display: 1.1;
+        --sg-leading-heading: 1.25;
+        --sg-leading-body: 1.65;
+        --sg-leading-caption: 1.4;
+        --sg-type-display-xl: clamp(2.4rem, 5vw, 3.75rem);
+        --sg-type-display-lg: clamp(1.9rem, 4vw, 2.8rem);
+        --sg-type-display-md: clamp(1.7rem, 3.5vw, 2.4rem);
+        --sg-type-heading-lg: clamp(1.45rem, 2.6vw, 2rem);
+        --sg-type-heading-md: 1.25rem;
+        --sg-type-heading-sm: 1.1rem;
+        --sg-type-body-lg: 1.125rem;
+        --sg-type-body-md: 1rem;
+        --sg-type-body-sm: 0.95rem;
+        --sg-type-caption: 0.875rem;
+        --sg-type-caption-sm: 0.8rem;
+        --sg-letter-caption: 0.04em;
+
         /* Shared surface tokens */
         --sg-surface-page-light: linear-gradient(180deg, #fff7ed, #f3ede5);
         --sg-surface-page-dark: linear-gradient(180deg, #0b1220, #0f172a);

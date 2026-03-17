@@ -16,6 +16,11 @@ class DesignTokenContractTest extends TestCase
         $response->assertSee('id="sg-design-tokens"', false);
         $response->assertSee('--sg-brand-primary', false);
         $response->assertSee('--sg-glass-surface-strong', false);
+        $response->assertSee('--sg-font-display', false);
+        $response->assertSee('--sg-type-display-xl', false);
+        $response->assertSee('font-family: var(--sg-font-body);', false);
+        $response->assertSee('font-size: var(--sg-type-display-xl);', false);
+        $response->assertSee('font-size: var(--sg-type-caption);', false);
     }
 
     public function test_checkout_pages_use_shared_design_tokens_for_surfaces(): void
@@ -54,5 +59,8 @@ class DesignTokenContractTest extends TestCase
         $wizardResponse->assertOk();
         $wizardResponse->assertSee('var(--sg-surface-page-dark)', false);
         $wizardResponse->assertSee('var(--sg-card-dark)', false);
+        $wizardResponse->assertSee('var(--sg-font-body)', false);
+        $wizardResponse->assertSee('var(--sg-type-display-lg)', false);
+        $wizardResponse->assertSee('var(--sg-type-caption)', false);
     }
 }
