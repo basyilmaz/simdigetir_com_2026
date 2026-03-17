@@ -176,10 +176,10 @@ Tahmini süre: {{ $durationText }}</p></div>
                         </label>
                         <label class="choice">
                             <input type="radio" name="auth_mode" value="guest">
-                            <span class="choicebox"><strong>Misafir devam</strong><span>Hesap acmadan siparise devam et. Siparis kaydi telefon numarasi ile olusturulur.</span><em>Hizli Checkout</em></span>
+                            <span class="choicebox"><strong>Misafir devam</strong><span>Hesap açmadan siparişe devam et. Sipariş kaydı telefon numarası ile oluşturulur.</span><em>Hızlı Checkout</em></span>
                         </label>
                     </div>
-                    <div class="alert info" data-auth-note>Basarili auth sonrasinda customer_id checkout session'a yazilir ve siparis bu hesapla iliskilendirilir.</div>
+                    <div class="alert info" data-auth-note>Başarılı doğrulama sonrasında customer_id checkout session'a yazılır ve sipariş bu hesapla ilişkilendirilir.</div>
                     <div class="account-strip" data-account-strip {{ !empty($customer) ? '' : 'hidden' }}>
                         <span class="badge">Bağlı hesap</span>
                         <strong data-account-name>{{ $customer['name'] ?? '-' }}</strong>
@@ -189,7 +189,7 @@ Tahmini süre: {{ $durationText }}</p></div>
                         <div class="formgrid">
                             <div class="field" data-register-only>
                                 <label for="auth-name">Ad Soyad</label>
-                                <input id="auth-name" name="name" type="text" placeholder="Orn: Ayse Yilmaz" value="{{ $customer['name'] ?? '' }}">
+                                <input id="auth-name" name="name" type="text" placeholder="Örn: Ayşe Yılmaz" value="{{ $customer['name'] ?? '' }}">
                                 <p class="err" data-field-error="auth.name"></p>
                             </div>
                             <div class="field">
@@ -203,12 +203,12 @@ Tahmini süre: {{ $durationText }}</p></div>
                                 <p class="err" data-field-error="auth.email"></p>
                             </div>
                             <div class="field" data-auth-password-group>
-                                <label for="auth-password">Sifre</label>
+                                <label for="auth-password">Şifre</label>
                                 <input id="auth-password" name="password" type="password" placeholder="En az 8 karakter">
                                 <p class="err" data-field-error="auth.password"></p>
                             </div>
                         </div>
-                        <div class="actions"><button type="submit" class="btn primary" data-auth-submit>Hesabi bagla</button><button type="button" class="btn secondary" data-step-back="quote">Geri</button></div>
+                        <div class="actions"><button type="submit" class="btn primary" data-auth-submit>Hesabı Bağla</button><button type="button" class="btn secondary" data-step-back="quote">Geri</button></div>
                     </form>
                 </section>
 
@@ -800,8 +800,8 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         if (authSubmit) {
             authSubmit.textContent = mode === 'register'
-                ? 'Hesap olustur ve devam et'
-                : (mode === 'login' ? 'Giris yap ve devam et' : 'Misafir devam et');
+                ? 'Hesap oluştur ve devam et'
+                : (mode === 'login' ? 'Giriş yap ve devam et' : 'Misafir devam et');
         }
     };
 
@@ -821,7 +821,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const guestName = String(formData.get('name') || '').trim();
             if (guestPhone.length < 10) {
                 applyErrors('auth', { phone: ['Telefon zorunludur.'] });
-                showAlert(authNote, 'error', 'Misafir devam icin telefon zorunludur.');
+                showAlert(authNote, 'error', 'Misafir devam için telefon zorunludur.');
                 return;
             }
 
@@ -838,7 +838,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         },
                     },
                 });
-                showAlert(authNote, 'success', 'Misafir checkout modu acildi.');
+                showAlert(authNote, 'success', 'Misafir checkout modu açıldı.');
             } catch (error) {
                 showAlert(authNote, 'error', error.message);
             }
@@ -1059,6 +1059,5 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 @endpush
 </x-checkout::layouts.master>
-
 
 

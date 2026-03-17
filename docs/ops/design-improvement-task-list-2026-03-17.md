@@ -14,7 +14,7 @@
 | A-02 | P0 | A | Address autocomplete integration with fallback | Address suggestion works; fallback entry still allows order if provider unavailable | API fail simulation + manual UI test | done |
 | A-03 | P0 | A | Real-time quote preview without dead-end | User sees price/eta and at least one deterministic continue path | Quote E2E scenario | done |
 | A-04 | P0 | A | Guest-first one-page checkout continuity | Guest can complete quote -> checkout -> order without forced register | Checkout feature tests + live smoke | done |
-| A-05 | P1 | A | Checkout copy/encoding normalization | No mojibake strings in checkout and contact flow | UTF-8 hygiene + page assertions | todo |
+| A-05 | P1 | A | Checkout copy/encoding normalization | No mojibake strings in checkout and contact flow | UTF-8 hygiene + page assertions | done |
 | A-06 | P1 | A | CTA funnel instrumentation consistency | CTA events include channel/context/label and remain analyzable | event payload probe | todo |
 | B-01 | P1 | B | Design token refactor (colors/surfaces/glass) | Shared token usage on landing + checkout, no random hardcoded style drift | visual diff + code grep | todo |
 | B-02 | P1 | B | Typography hierarchy unification | Display/heading/body/caption consistently applied in primary pages | snapshot/manual typography check | todo |
