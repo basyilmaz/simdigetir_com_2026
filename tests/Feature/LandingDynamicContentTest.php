@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use Modules\Landing\Models\LandingPage;
 use Modules\Landing\Models\LandingPageSection;
 use Modules\Landing\Models\LandingSectionItem;
+use Modules\Settings\Models\Setting;
 use Tests\TestCase;
 
 class LandingDynamicContentTest extends TestCase
@@ -12,15 +13,31 @@ class LandingDynamicContentTest extends TestCase
     public function test_home_renders_hero_quote_widget_when_enabled(): void
     {
         config()->set('landing.quote_widget_enabled', true);
+        config()->set('services_integrations.maps.google_maps_api_key', '');
 
         $response = $this->get('/');
 
         $response->assertStatus(200);
         $response->assertSee('data-quote-widget', false);
+        $response->assertSee('data-quote-autocomplete-provider="manual"', false);
         $response->assertSee('Fiyat Hesapla');
         $response->assertSee('data-quote-start-checkout', false);
         $response->assertSee('data-quote-start-checkout-fallback', false);
         $response->assertSee('Devam Et');
+    }
+
+    public function test_home_exposes_google_places_autocomplete_when_maps_key_present(): void
+    {
+        config()->set('landing.quote_widget_enabled', true);
+        config()->set('services_integrations.maps.google_maps_api_key', 'test-maps-api-key');
+
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('data-quote-autocomplete-provider="google_places"', false);
+        $response->assertSee('data-google-maps-api-key="test-maps-api-key"', false);
+        $response->assertSee('loadGoogleMapsPlaces');
+        $response->assertSee('quote_autocomplete_fallback');
     }
 
     public function test_home_hides_hero_quote_widget_when_disabled(): void
@@ -114,6 +131,138 @@ class LandingDynamicContentTest extends TestCase
         $response->assertSee('landing:hero-quote-engage');
         $response->assertSee('landing:hero-quote-release');
         $response->assertSee('quoteWidgetInteractionLocks');
+    }
+
+    public function test_home_contains_quote_widget_slider_lock_hooks(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('lockHeroQuoteVisible');
+        $response->assertSee('loop: !lockHeroQuoteVisible');
+        $response->assertSee('hero-slider-section.hero-slider-locked .swiper-pagination');
+        $response->assertSee('allowTouchMove: !lockHeroQuoteVisible');
+    }
+
+    public function test_home_contains_deterministic_quote_continue_path_hooks(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('resolveDeterministicContinueUrl');
+        $response->assertSee('prepareCheckoutSessionSilently');
+        $response->assertSee('preparedCheckoutToken');
+        $response->assertSee('data-default-label="Siparise Gec"', false);
+    }
+
+    public function test_home_contains_cta_funnel_instrumentation_payload_contract(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('window.buildCtaPayload = buildCtaPayload;', false);
+        $response->assertSee('cta_channel', false);
+        $response->assertSee('cta_context', false);
+        $response->assertSee('cta_label', false);
+        $response->assertSee('cta_href', false);
+        $response->assertSee("trackEvent('cta_click', payload);", false);
+        $response->assertSee("trackEvent('quote_start_checkout_click', payload);", false);
+        $response->assertSee("trackEvent('quote_cta_whatsapp_click', payload);", false);
+        $response->assertSee("trackEvent('quote_cta_call_click', payload);", false);
+    }
+
+    public function test_home_contains_gsap_scrolltrigger_phased_motion_contract(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js', false);
+        $response->assertSee('https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js', false);
+        $response->assertSee('initPhasedScrollMotion', false);
+        $response->assertSee('phaseOneSelectors', false);
+        $response->assertSee('phaseTwoSelectors', false);
+        $response->assertSee("document.documentElement.dataset.motionMode = 'gsap-scrolltrigger';", false);
+        $response->assertSee("document.documentElement.dataset.motionMode = 'reduced';", false);
+        $response->assertSee('window.ScrollTrigger.batch', false);
+    }
+
+    public function test_home_contains_reduced_motion_accessibility_fallback_contract(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee("document.documentElement.dataset.reducedMotion = reducedMotionEnabled ? 'true' : 'false';", false);
+        $response->assertSee('animation-duration: 0.01ms !important;', false);
+        $response->assertSee('.marquee-wrapper', false);
+        $response->assertSee("window.scrollTo({ top: 0, behavior: reducedMotionEnabled ? 'auto' : 'smooth' });", false);
+        $response->assertSee("quoteInput.scrollIntoView({ behavior: shouldReduceMotion ? 'auto' : 'smooth', block: 'center' });", false);
+        $response->assertSee('if (!shouldReduceMotion && totalSlides > 1)', false);
+    }
+
+    public function test_home_contains_lottie_micro_animation_lazy_and_fallback_contract(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('data-delivery-lottie', false);
+        $response->assertSee('delivery-rider.json', false);
+        $response->assertSee('data-lottie-state="idle"', false);
+        $response->assertSee('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js', false);
+        $response->assertSee("if (typeof IntersectionObserver === 'undefined')", false);
+        $response->assertSee("rootMargin: '240px 0px'", false);
+        $response->assertSee("showFallback('library-failed');", false);
+        $response->assertSee("showFallback('asset-failed');", false);
+    }
+
+    public function test_home_includes_google_ads_tag_by_default(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('https://www.googletagmanager.com/gtag/js?id=AW-17989545006', false);
+        $response->assertSee("gtag('config', 'AW-17989545006');", false);
+    }
+
+    public function test_home_uses_admin_overridden_google_ads_id_when_configured(): void
+    {
+        Setting::setValue('seo.gads_id', 'AW-11111111111', 'seo');
+
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('https://www.googletagmanager.com/gtag/js?id=AW-11111111111', false);
+        $response->assertSee("gtag('config', 'AW-11111111111');", false);
+    }
+
+    public function test_home_contains_theme_aware_logo_and_favicon_contract(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('simdigetir-logo-image-light', false);
+        $response->assertSee('simdigetir-logo-image-dark', false);
+        $response->assertSee('site-favicon-runtime-32', false);
+        $response->assertSee('site-favicon-runtime-16', false);
+        $response->assertSee('syncRuntimeFaviconsByTheme', false);
+    }
+
+    public function test_home_normalizes_legacy_default_og_image_to_brand_banner(): void
+    {
+        LandingPage::create([
+            'slug' => 'home',
+            'title' => 'Home',
+            'is_active' => true,
+            'meta' => [
+                'og_image' => 'https://simdigetir.test/images/og-default.jpg',
+            ],
+        ]);
+
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('<meta property="og:image" content="'.e(asset('images/og-banner.png')).'">', false);
+        $response->assertSee('<meta name="twitter:image" content="'.e(asset('images/og-banner.png')).'">', false);
+        $response->assertDontSee('https://simdigetir.test/images/og-default.jpg', false);
     }
 
     public function test_home_and_standard_pages_use_db_backed_header_b2b_cta_when_enabled(): void

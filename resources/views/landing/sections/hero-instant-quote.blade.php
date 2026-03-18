@@ -14,6 +14,9 @@
     $submitLabel = (string) ($landingContent['quote_widget_submit_label_text'] ?? 'Fiyat Hesapla');
     $whatsappLabel = (string) ($landingContent['quote_widget_whatsapp_label_text'] ?? 'WhatsApp ile Devam Et');
     $callLabel = (string) ($landingContent['quote_widget_call_label_text'] ?? 'Beni Arayin');
+    $googleMapsApiKey = trim((string) config('services_integrations.maps.google_maps_api_key', ''));
+    $autocompleteProvider = $googleMapsApiKey !== '' ? 'google_places' : 'manual';
+    $autocompleteCountry = strtolower((string) ($landingContent['quote_widget_autocomplete_country'] ?? 'tr'));
 
     $serviceOptions = collect((array) ($landingContent['quote_widget_service_options'] ?? []))
         ->map(function ($option) {
@@ -59,7 +62,13 @@
 @endphp
 
 @if($quoteWidgetEnabled)
-    <section class="hero-quote-widget glass" data-quote-widget>
+    <section
+        class="hero-quote-widget glass"
+        data-quote-widget
+        data-quote-autocomplete-provider="{{ $autocompleteProvider }}"
+        data-quote-autocomplete-country="{{ $autocompleteCountry }}"
+        @if($googleMapsApiKey !== '') data-google-maps-api-key="{{ $googleMapsApiKey }}" @endif
+    >
         <h3>{{ $quoteWidgetTitle }}</h3>
         <p>{{ $quoteWidgetSubtitle }}</p>
 
@@ -75,6 +84,8 @@
                     required
                     placeholder="{{ $pickupPlaceholder }}"
                 >
+                <input type="hidden" name="pickup_lat" data-quote-pickup-lat>
+                <input type="hidden" name="pickup_lng" data-quote-pickup-lng>
                 <p class="hero-quote-input-hint" data-field-error="pickup_address"></p>
             </div>
 
@@ -89,6 +100,8 @@
                     required
                     placeholder="{{ $dropoffPlaceholder }}"
                 >
+                <input type="hidden" name="dropoff_lat" data-quote-dropoff-lat>
+                <input type="hidden" name="dropoff_lng" data-quote-dropoff-lng>
                 <p class="hero-quote-input-hint" data-field-error="dropoff_address"></p>
             </div>
 
@@ -120,7 +133,7 @@
             <p class="hero-quote-detail" data-quote-distance></p>
             <p class="hero-quote-fallback" data-quote-fallback hidden></p>
             <div class="hero-quote-ctas">
-                <button type="button" class="btn btn-primary" data-quote-start-checkout hidden>
+                <button type="button" class="btn btn-primary" data-quote-start-checkout data-default-label="Siparise Gec" hidden>
                     <i class="fa-solid fa-arrow-right"></i> Siparişe Geç
                 </button>
                 <a href="{{ route('checkout.index') }}" class="btn btn-outline" data-quote-start-checkout-fallback>
@@ -324,15 +337,56 @@
             const distance = widget.querySelector('[data-quote-distance]');
             const fallback = widget.querySelector('[data-quote-fallback]');
             const startCheckoutButton = widget.querySelector('[data-quote-start-checkout]');
+            const startCheckoutDefaultLabel = startCheckoutButton?.dataset.defaultLabel || 'Siparise Gec';
+            const startCheckoutDefaultHtml = `<i class="fa-solid fa-arrow-right"></i> ${startCheckoutDefaultLabel}`;
             const startCheckoutFallbackLink = widget.querySelector('[data-quote-start-checkout-fallback]');
             const startCheckoutDirectLink = widget.querySelector('[data-quote-start-checkout-direct]');
             const pickupInput = widget.querySelector('#quote-pickup-address');
             const dropoffInput = widget.querySelector('#quote-dropoff-address');
+            const pickupLatInput = widget.querySelector('[data-quote-pickup-lat]');
+            const pickupLngInput = widget.querySelector('[data-quote-pickup-lng]');
+            const dropoffLatInput = widget.querySelector('[data-quote-dropoff-lat]');
+            const dropoffLngInput = widget.querySelector('[data-quote-dropoff-lng]');
             const serviceTypeInput = widget.querySelector('#quote-service-type');
+            const autocompleteProvider = String(widget.dataset.quoteAutocompleteProvider || 'manual');
+            const autocompleteCountry = String(widget.dataset.quoteAutocompleteCountry || 'tr').trim().toLowerCase();
+            const googleMapsApiKey = String(widget.dataset.googleMapsApiKey || '').trim();
             let latestQuotePayload = null;
+            let preparedCheckoutToken = null;
+            let creatingCheckoutSessionPromise = null;
             const fieldErrors = {
                 pickup_address: widget.querySelector('[data-field-error="pickup_address"]'),
                 dropoff_address: widget.querySelector('[data-field-error="dropoff_address"]'),
+            };
+            const normalizeCtaLabel = (value) => {
+                if (typeof window.normalizedLabel === 'function') {
+                    return window.normalizedLabel(value);
+                }
+
+                return String(value || '')
+                    .replace(/\s+/g, ' ')
+                    .trim()
+                    .slice(0, 80);
+            };
+            const buildQuoteCtaPayload = (channel, label, extras = {}, sourceLink = null) => {
+                const basePayload = {
+                    cta_channel: channel,
+                    cta_context: 'hero_quote_widget',
+                    cta_label: normalizeCtaLabel(label),
+                };
+                const mergedExtras = { ...extras };
+
+                if (sourceLink && typeof window.buildCtaPayload === 'function') {
+                    return {
+                        ...window.buildCtaPayload(sourceLink, basePayload),
+                        ...mergedExtras,
+                    };
+                }
+
+                return {
+                    ...basePayload,
+                    ...mergedExtras,
+                };
             };
 
             const dispatchHeroInteraction = (engaged) => {
@@ -358,6 +412,134 @@
             };
 
             const normalizeText = (value) => String(value || '').trim().toLocaleLowerCase('tr-TR');
+            const parseCoordinate = (value) => {
+                const parsed = Number(value);
+
+                return Number.isFinite(parsed) ? parsed : null;
+            };
+            const writeCoordinates = (target, lat, lng) => {
+                if (target === 'pickup') {
+                    if (pickupLatInput) {
+                        pickupLatInput.value = lat === null ? '' : String(lat);
+                    }
+                    if (pickupLngInput) {
+                        pickupLngInput.value = lng === null ? '' : String(lng);
+                    }
+
+                    return;
+                }
+
+                if (dropoffLatInput) {
+                    dropoffLatInput.value = lat === null ? '' : String(lat);
+                }
+                if (dropoffLngInput) {
+                    dropoffLngInput.value = lng === null ? '' : String(lng);
+                }
+            };
+            const readCoordinates = (target) => {
+                if (target === 'pickup') {
+                    return {
+                        lat: parseCoordinate(pickupLatInput?.value),
+                        lng: parseCoordinate(pickupLngInput?.value),
+                    };
+                }
+
+                return {
+                    lat: parseCoordinate(dropoffLatInput?.value),
+                    lng: parseCoordinate(dropoffLngInput?.value),
+                };
+            };
+            const coordinatesToPayload = (target) => {
+                const coordinates = readCoordinates(target);
+                const payload = {};
+
+                if (coordinates.lat !== null) {
+                    payload.lat = coordinates.lat;
+                }
+
+                if (coordinates.lng !== null) {
+                    payload.lng = coordinates.lng;
+                }
+
+                return payload;
+            };
+
+            const loadGoogleMapsPlaces = () => {
+                if (!googleMapsApiKey) {
+                    return Promise.reject(new Error('maps_api_key_missing'));
+                }
+
+                if (window.google?.maps?.places?.Autocomplete) {
+                    return Promise.resolve(window.google.maps.places);
+                }
+
+                if (window.__simdiGoogleMapsPlacesLoaderPromise) {
+                    return window.__simdiGoogleMapsPlacesLoaderPromise;
+                }
+
+                window.__simdiGoogleMapsPlacesLoaderPromise = new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    const params = new URLSearchParams({
+                        key: googleMapsApiKey,
+                        libraries: 'places',
+                        language: 'tr',
+                        region: 'TR',
+                        loading: 'async',
+                    });
+
+                    script.src = `https://maps.googleapis.com/maps/api/js?${params.toString()}`;
+                    script.async = true;
+                    script.defer = true;
+                    script.onload = () => {
+                        if (window.google?.maps?.places?.Autocomplete) {
+                            resolve(window.google.maps.places);
+                            return;
+                        }
+
+                        reject(new Error('maps_places_not_ready'));
+                    };
+                    script.onerror = () => reject(new Error('maps_script_load_failed'));
+                    document.head.appendChild(script);
+                });
+
+                return window.__simdiGoogleMapsPlacesLoaderPromise;
+            };
+
+            const bindAutocomplete = (inputNode, target) => {
+                if (!inputNode || !window.google?.maps?.places?.Autocomplete) {
+                    return;
+                }
+
+                const autocomplete = new window.google.maps.places.Autocomplete(inputNode, {
+                    fields: ['formatted_address', 'geometry.location', 'name'],
+                    types: ['geocode'],
+                    componentRestrictions: autocompleteCountry ? { country: autocompleteCountry } : undefined,
+                });
+
+                autocomplete.addListener('place_changed', () => {
+                    const place = autocomplete.getPlace();
+                    const lat = place?.geometry?.location?.lat?.();
+                    const lng = place?.geometry?.location?.lng?.();
+
+                    if (typeof lat === 'number' && typeof lng === 'number') {
+                        writeCoordinates(target, lat, lng);
+                    } else {
+                        writeCoordinates(target, null, null);
+                    }
+
+                    const resolvedAddress = String(place?.formatted_address || place?.name || '').trim();
+                    if (resolvedAddress !== '') {
+                        inputNode.value = resolvedAddress;
+                    }
+
+                    syncFallbackCheckoutLink();
+                });
+            };
+
+            const clearPreparedCheckoutSession = () => {
+                preparedCheckoutToken = null;
+                creatingCheckoutSessionPromise = null;
+            };
 
             const buildFallbackCheckoutUrl = () => {
                 const params = new URLSearchParams();
@@ -385,8 +567,16 @@
                     : quoteConfig.checkoutBaseUrl;
             };
 
+            const resolveDeterministicContinueUrl = () => {
+                if (preparedCheckoutToken) {
+                    return `${quoteConfig.checkoutBaseUrl}/${preparedCheckoutToken}`;
+                }
+
+                return buildFallbackCheckoutUrl();
+            };
+
             const syncFallbackCheckoutLink = () => {
-                const fallbackUrl = buildFallbackCheckoutUrl();
+                const fallbackUrl = resolveDeterministicContinueUrl();
 
                 if (startCheckoutFallbackLink) {
                     startCheckoutFallbackLink.href = fallbackUrl;
@@ -398,10 +588,56 @@
                 }
             };
 
+            const resetQuoteResultState = () => {
+                latestQuotePayload = null;
+                clearPreparedCheckoutSession();
+                result.hidden = true;
+                fallback.hidden = true;
+                fallback.textContent = '';
+
+                if (startCheckoutButton) {
+                    startCheckoutButton.hidden = true;
+                    startCheckoutButton.disabled = false;
+                    startCheckoutButton.innerHTML = startCheckoutDefaultHtml;
+                }
+            };
+
             syncFallbackCheckoutLink();
-            pickupInput?.addEventListener('input', syncFallbackCheckoutLink);
-            dropoffInput?.addEventListener('input', syncFallbackCheckoutLink);
-            serviceTypeInput?.addEventListener('change', syncFallbackCheckoutLink);
+            pickupInput?.addEventListener('input', () => {
+                writeCoordinates('pickup', null, null);
+                resetQuoteResultState();
+                syncFallbackCheckoutLink();
+            });
+            dropoffInput?.addEventListener('input', () => {
+                writeCoordinates('dropoff', null, null);
+                resetQuoteResultState();
+                syncFallbackCheckoutLink();
+            });
+            serviceTypeInput?.addEventListener('change', () => {
+                resetQuoteResultState();
+                syncFallbackCheckoutLink();
+            });
+
+            if (autocompleteProvider === 'google_places') {
+                loadGoogleMapsPlaces()
+                    .then(() => {
+                        bindAutocomplete(pickupInput, 'pickup');
+                        bindAutocomplete(dropoffInput, 'dropoff');
+
+                        if (typeof trackEvent === 'function') {
+                            trackEvent('quote_autocomplete_ready', {
+                                provider: autocompleteProvider,
+                            });
+                        }
+                    })
+                    .catch(() => {
+                        if (typeof trackEvent === 'function') {
+                            trackEvent('quote_autocomplete_fallback', {
+                                provider: 'manual',
+                            });
+                        }
+                    });
+            }
 
             const setFeedback = (message, level) => {
                 if (!message) {
@@ -488,6 +724,7 @@
 
             const showResult = (payload) => {
                 latestQuotePayload = payload;
+                clearPreparedCheckoutSession();
                 const totalAmount = Math.max(0, Number(payload?.total_amount || 0));
                 const priceMin = Math.round(totalAmount * 0.95);
                 const priceMax = Math.round(totalAmount * 1.08);
@@ -516,7 +753,7 @@
                 if (startCheckoutButton) {
                     startCheckoutButton.hidden = false;
                     startCheckoutButton.disabled = false;
-                    startCheckoutButton.innerHTML = '<i class="fa-solid fa-arrow-right"></i> Siparişe Geç';
+                    startCheckoutButton.innerHTML = startCheckoutDefaultHtml;
                 }
                 syncFallbackCheckoutLink();
 
@@ -526,11 +763,7 @@
             };
 
             const handleQuoteError = (status, body) => {
-                result.hidden = true;
-                latestQuotePayload = null;
-                if (startCheckoutButton) {
-                    startCheckoutButton.hidden = true;
-                }
+                resetQuoteResultState();
                 syncFallbackCheckoutLink();
 
                 if (status === 422) {
@@ -580,6 +813,100 @@
                 }
             };
 
+            const buildCheckoutSessionPayload = () => {
+                if (!latestQuotePayload?.id) {
+                    return null;
+                }
+
+                const serviceType = serviceTypeInput?.value || 'moto';
+                const selectedServiceLabel = serviceTypeInput?.options?.[serviceTypeInput.selectedIndex]?.text || serviceType;
+
+                return {
+                    pricing_quote_id: latestQuotePayload.id,
+                    current_step: 'quote',
+                    payload: {
+                        service_type: serviceType,
+                        service_label: selectedServiceLabel,
+                        pickup: {
+                            address: pickupInput?.value?.trim() || '',
+                            ...coordinatesToPayload('pickup'),
+                        },
+                        dropoff: {
+                            address: dropoffInput?.value?.trim() || '',
+                            ...coordinatesToPayload('dropoff'),
+                        },
+                        quote_preview: {
+                            quote_no: latestQuotePayload?.quote_no || null,
+                            total_amount: latestQuotePayload?.total_amount || null,
+                            currency: latestQuotePayload?.currency || 'TRY',
+                        },
+                    },
+                };
+            };
+
+            const createCheckoutSession = async (payload) => {
+                const response = await fetch(quoteConfig.checkoutSessionEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                let body = null;
+                try {
+                    body = await response.json();
+                } catch (error) {
+                    body = null;
+                }
+
+                if (!response.ok || !body?.success || !body?.data?.token) {
+                    throw new Error(body?.message || 'checkout_session_create_failed');
+                }
+
+                return body.data.token;
+            };
+
+            const ensureCheckoutSessionToken = async () => {
+                if (preparedCheckoutToken) {
+                    return preparedCheckoutToken;
+                }
+
+                if (creatingCheckoutSessionPromise) {
+                    return creatingCheckoutSessionPromise;
+                }
+
+                const sessionPayload = buildCheckoutSessionPayload();
+                if (!sessionPayload) {
+                    throw new Error('quote_payload_missing');
+                }
+
+                creatingCheckoutSessionPromise = createCheckoutSession(sessionPayload)
+                    .then((token) => {
+                        preparedCheckoutToken = token;
+                        return token;
+                    })
+                    .finally(() => {
+                        creatingCheckoutSessionPromise = null;
+                        syncFallbackCheckoutLink();
+                    });
+
+                return creatingCheckoutSessionPromise;
+            };
+
+            const prepareCheckoutSessionSilently = async () => {
+                if (!latestQuotePayload?.id) {
+                    return;
+                }
+
+                try {
+                    await ensureCheckoutSessionToken();
+                } catch (error) {
+                    syncFallbackCheckoutLink();
+                }
+            };
+
             form.addEventListener('submit', async function (event) {
                 event.preventDefault();
                 clearFieldErrors();
@@ -605,9 +932,11 @@
                     currency: 'TRY',
                     pickup: {
                         address: validation.pickupAddress,
+                        ...coordinatesToPayload('pickup'),
                     },
                     dropoff: {
                         address: validation.dropoffAddress,
+                        ...coordinatesToPayload('dropoff'),
                     },
                     context: {
                         channel: 'landing_hero_quote_widget',
@@ -640,6 +969,7 @@
                     }
 
                     showResult(body.data || {});
+                    void prepareCheckoutSessionSilently();
 
                     if (typeof trackEvent === 'function') {
                         trackEvent('quote_success', {
@@ -649,11 +979,7 @@
                     }
                 } catch (error) {
                     const isTimeoutError = error && error.name === 'AbortError';
-                    result.hidden = true;
-                    latestQuotePayload = null;
-                    if (startCheckoutButton) {
-                        startCheckoutButton.hidden = true;
-                    }
+                    resetQuoteResultState();
                     syncFallbackCheckoutLink();
                     setFeedback(
                         isTimeoutError
@@ -681,10 +1007,29 @@
 
                 const serviceType = serviceTypeInput.value || 'moto';
                 const selectedServiceLabel = serviceTypeInput.options?.[serviceTypeInput.selectedIndex]?.text || serviceType;
+                const baseCheckoutPayload = {
+                    service_type: serviceType,
+                    quote_no: latestQuotePayload.quote_no || null,
+                    checkout_path: 'tokenized',
+                };
                 startCheckoutButton.disabled = true;
                 startCheckoutButton.innerHTML = '<span class="typing-dots"><span></span><span></span><span></span></span> Hazırlanıyor...';
 
                 try {
+                    if (preparedCheckoutToken) {
+                        if (typeof trackEvent === 'function') {
+                            const payload = buildQuoteCtaPayload(
+                                'checkout',
+                                startCheckoutButton.textContent || startCheckoutDefaultLabel,
+                                baseCheckoutPayload
+                            );
+                            trackEvent('cta_click', payload);
+                            trackEvent('quote_start_checkout_click', payload);
+                        }
+                        window.location.href = `${quoteConfig.checkoutBaseUrl}/${preparedCheckoutToken}`;
+                        return;
+                    }
+
                     const response = await fetch(quoteConfig.checkoutSessionEndpoint, {
                         method: 'POST',
                         headers: {
@@ -699,9 +1044,33 @@
                                 service_label: selectedServiceLabel,
                                 pickup: {
                                     address: pickupInput.value.trim(),
+                                    ...(() => {
+                                        const coords = readCoordinates('pickup');
+                                        const payloadCoordinates = {};
+                                        if (coords.lat !== null) {
+                                            payloadCoordinates.lat = coords.lat;
+                                        }
+                                        if (coords.lng !== null) {
+                                            payloadCoordinates.lng = coords.lng;
+                                        }
+
+                                        return payloadCoordinates;
+                                    })(),
                                 },
                                 dropoff: {
                                     address: dropoffInput.value.trim(),
+                                    ...(() => {
+                                        const coords = readCoordinates('dropoff');
+                                        const payloadCoordinates = {};
+                                        if (coords.lat !== null) {
+                                            payloadCoordinates.lat = coords.lat;
+                                        }
+                                        if (coords.lng !== null) {
+                                            payloadCoordinates.lng = coords.lng;
+                                        }
+
+                                        return payloadCoordinates;
+                                    })(),
                                 },
                                 quote_preview: {
                                     quote_no: latestQuotePayload.quote_no || null,
@@ -723,21 +1092,56 @@
                         throw new Error(body?.message || 'Checkout oturumu başlatılamadı.');
                     }
 
+                    preparedCheckoutToken = body.data.token;
+                    syncFallbackCheckoutLink();
+
                     if (typeof trackEvent === 'function') {
-                        trackEvent('quote_start_checkout_click', {
-                            service_type: serviceType,
-                            quote_no: latestQuotePayload.quote_no || null,
-                        });
+                        const payload = buildQuoteCtaPayload(
+                            'checkout',
+                            startCheckoutButton.textContent || startCheckoutDefaultLabel,
+                            baseCheckoutPayload
+                        );
+                        trackEvent('cta_click', payload);
+                        trackEvent('quote_start_checkout_click', payload);
                     }
 
                     window.location.href = `${quoteConfig.checkoutBaseUrl}/${body.data.token}`;
                 } catch (error) {
                     setFeedback('Checkout oturumu otomatik açılamadı. Yedek akışa yönlendiriliyorsunuz.', 'info');
                     startCheckoutButton.disabled = false;
-                    startCheckoutButton.innerHTML = '<i class="fa-solid fa-arrow-right"></i> Siparişe Geç';
+                    startCheckoutButton.innerHTML = startCheckoutDefaultHtml;
                     window.location.href = buildFallbackCheckoutUrl();
                 }
             });
+
+            const bindCheckoutLinkTracking = (linkNode, checkoutPath) => {
+                if (!linkNode) {
+                    return;
+                }
+
+                linkNode.addEventListener('click', () => {
+                    if (typeof trackEvent !== 'function') {
+                        return;
+                    }
+
+                    const payload = buildQuoteCtaPayload(
+                        'checkout',
+                        linkNode.textContent || 'Devam Et',
+                        {
+                            service_type: serviceTypeInput?.value || 'moto',
+                            quote_no: latestQuotePayload?.quote_no || null,
+                            checkout_path: checkoutPath,
+                        },
+                        linkNode
+                    );
+
+                    trackEvent('cta_click', payload);
+                    trackEvent('quote_start_checkout_click', payload);
+                });
+            };
+
+            bindCheckoutLinkTracking(startCheckoutDirectLink, 'direct_link');
+            bindCheckoutLinkTracking(startCheckoutFallbackLink, 'fallback_link');
 
             widget.querySelectorAll('[data-quote-cta]').forEach((ctaNode) => {
                 ctaNode.addEventListener('click', () => {
@@ -745,10 +1149,21 @@
                         return;
                     }
 
-                    if (ctaNode.getAttribute('data-quote-cta') === 'whatsapp') {
-                        trackEvent('quote_cta_whatsapp_click');
+                    const ctaType = ctaNode.getAttribute('data-quote-cta') === 'whatsapp' ? 'whatsapp' : 'call';
+                    const payload = buildQuoteCtaPayload(
+                        ctaType,
+                        ctaNode.textContent || ctaType,
+                        {
+                            service_type: serviceTypeInput?.value || 'moto',
+                            quote_no: latestQuotePayload?.quote_no || null,
+                        },
+                        ctaNode
+                    );
+
+                    if (ctaType === 'whatsapp') {
+                        trackEvent('quote_cta_whatsapp_click', payload);
                     } else {
-                        trackEvent('quote_cta_call_click');
+                        trackEvent('quote_cta_call_click', payload);
                     }
                 });
             });

@@ -1,0 +1,4 @@
+interface:
+  display_name: "SimdiGetir Frontend Backend Parity"
+  short_description: "Run UI to backend parity gap analysis"
+  default_prompt: "Use -frontend-backend-parity to produce a code-backed GO/NOGO parity matrix for this release scope."

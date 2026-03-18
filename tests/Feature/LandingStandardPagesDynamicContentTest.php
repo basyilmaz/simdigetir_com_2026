@@ -116,6 +116,17 @@ class LandingStandardPagesDynamicContentTest extends TestCase
         $response->assertSee('0551 356 72 92');
         $response->assertSee('"telephone":"+905513567292"', false);
         $response->assertSee('Test Kanalı');
+        $this->assertNoMojibake($response->getContent());
+    }
+
+    public function test_contact_page_does_not_render_mojibake_markers(): void
+    {
+        $response = $this->get('/iletisim');
+
+        $response->assertStatus(200);
+        $response->assertSee('İletişim Kanalları');
+        $response->assertSee('Mesaj Gönderin');
+        $this->assertNoMojibake($response->getContent());
     }
 
     public function test_faq_page_renders_db_backed_faq_items()
@@ -219,5 +230,25 @@ class LandingStandardPagesDynamicContentTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('"name":"Custom Corporate Service"', false);
+    }
+
+    private function assertNoMojibake(string $content): void
+    {
+        $markers = [
+            ['label' => 'U+00C3', 'value' => json_decode('"\u00C3"', true)],
+            ['label' => 'U+00C5', 'value' => json_decode('"\u00C5"', true)],
+            ['label' => 'U+00C4', 'value' => json_decode('"\u00C4"', true)],
+            ['label' => 'U+00C2', 'value' => json_decode('"\u00C2"', true)],
+            ['label' => 'U+00E2U+20AC', 'value' => json_decode('"\u00E2\u20AC"', true)],
+            ['label' => 'U+FFFD', 'value' => json_decode('"\uFFFD"', true)],
+        ];
+
+        foreach ($markers as $marker) {
+            $this->assertStringNotContainsString(
+                (string) ($marker['value'] ?? ''),
+                $content,
+                'Mojibake marker found in landing response: '.($marker['label'] ?? 'unknown')
+            );
+        }
     }
 }

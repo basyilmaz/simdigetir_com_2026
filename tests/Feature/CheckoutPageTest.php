@@ -20,6 +20,7 @@ class CheckoutPageTest extends TestCase
         $response->assertSee('Ana Sayfada Fiyat Hesapla');
         $response->assertSee('Hesap Oluştur');
         $response->assertSee(route('checkout.customer.register'));
+        $this->assertNoMojibake($response->getContent());
     }
 
     public function test_checkout_entry_with_prefilled_query_redirects_to_tokenized_checkout_session(): void
@@ -96,8 +97,45 @@ class CheckoutPageTest extends TestCase
         $response->assertSee('Ödeme yöntemi');
         $response->assertSee('Gönderi Şekli');
         $response->assertSee('data-checkout-app', false);
+        $this->assertNoMojibake($response->getContent());
     }
 
+
+    public function test_checkout_page_contains_guest_auth_mode_and_no_forced_auth_gate(): void
+    {
+        $quote = PricingQuote::query()->create([
+            'quote_no' => 'QTE-WEB-GUEST-001',
+            'request_snapshot' => [],
+            'resolved_rules' => [],
+            'subtotal_amount' => 9000,
+            'discount_amount' => 0,
+            'surge_amount' => 0,
+            'total_amount' => 9000,
+            'currency' => 'TRY',
+            'expires_at' => now()->addMinutes(15),
+        ]);
+
+        $session = CheckoutSession::query()->create([
+            'token' => 'checkout-web-token-guest-001',
+            'pricing_quote_id' => $quote->id,
+            'status' => 'draft',
+            'current_step' => 'quote',
+            'payload' => [
+                'service_type' => 'moto',
+                'pickup' => ['address' => 'Besiktas'],
+                'dropoff' => ['address' => 'Sisli'],
+            ],
+            'expires_at' => now()->addHour(),
+        ]);
+
+        $response = $this->get('/checkout/'.$session->token);
+
+        $response->assertOk();
+        $response->assertSee('value="guest"', false);
+        $response->assertSee('current_step: \'recipient\'', false);
+        $response->assertDontSee('!state.customerId && [\'recipient\', \'payment\', \'confirm\'].includes(state.currentStep) ? \'auth\'', false);
+        $this->assertNoMojibake($response->getContent());
+    }
     public function test_checkout_page_shows_bound_customer_summary_when_session_has_customer(): void
     {
         $quote = PricingQuote::query()->create([
@@ -346,5 +384,25 @@ class CheckoutPageTest extends TestCase
         $response->assertOk();
         $response->assertSee('Siparişi takip et');
         $response->assertDontSee('>Kart ödemesine geç<', false);
+    }
+
+    private function assertNoMojibake(string $content): void
+    {
+        $markers = [
+            ['label' => 'U+00C3', 'value' => json_decode('"\u00C3"', true)],
+            ['label' => 'U+00C5', 'value' => json_decode('"\u00C5"', true)],
+            ['label' => 'U+00C4', 'value' => json_decode('"\u00C4"', true)],
+            ['label' => 'U+00C2', 'value' => json_decode('"\u00C2"', true)],
+            ['label' => 'U+00E2U+20AC', 'value' => json_decode('"\u00E2\u20AC"', true)],
+            ['label' => 'U+FFFD', 'value' => json_decode('"\uFFFD"', true)],
+        ];
+
+        foreach ($markers as $marker) {
+            $this->assertStringNotContainsString(
+                (string) ($marker['value'] ?? ''),
+                $content,
+                'Mojibake marker found in checkout response: '.($marker['label'] ?? 'unknown')
+            );
+        }
     }
 }

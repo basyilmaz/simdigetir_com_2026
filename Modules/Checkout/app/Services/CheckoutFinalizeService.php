@@ -9,6 +9,7 @@ use App\Models\OrderPackage;
 use App\Models\OrderStateLog;
 use App\Models\PaymentTransaction;
 use App\Models\PricingQuote;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Modules\Checkout\Models\CheckoutSession;
@@ -33,7 +34,17 @@ class CheckoutFinalizeService
         $resolvedCustomerId = $customerId ?? $checkoutSession->customer_id;
 
         if (! $resolvedCustomerId) {
-            throw new RuntimeException('Musteri kimligi zorunludur.');
+            $guestCustomer = $this->resolveGuestCustomerFromPayload($payload);
+            $resolvedCustomerId = $guestCustomer->id;
+            $payload = array_replace_recursive($payload, [
+                'customer' => [
+                    'id' => $guestCustomer->id,
+                    'name' => $guestCustomer->name,
+                    'phone' => $guestCustomer->phone,
+                    'email' => $guestCustomer->email,
+                    'guest_checkout' => true,
+                ],
+            ]);
         }
 
         $pickup = (array) ($payload['pickup'] ?? []);
@@ -211,5 +222,95 @@ class CheckoutFinalizeService
     private function nextOrderNo(): string
     {
         return 'ORD'.now()->format('YmdHis').Str::upper(Str::random(5));
+    }
+
+    private function resolveGuestCustomerFromPayload(array $payload): User
+    {
+        $customer = (array) ($payload['customer'] ?? []);
+        $pickup = (array) ($payload['pickup'] ?? []);
+        $dropoff = (array) ($payload['dropoff'] ?? []);
+
+        $phone = $this->normalizePhone((string) ($customer['phone'] ?? $pickup['phone'] ?? $dropoff['phone'] ?? ''));
+        if ($phone === '') {
+            throw new RuntimeException('Musteri telefonu zorunludur.');
+        }
+
+        $existing = $this->findUserByComparablePhone($phone);
+        if ($existing) {
+            return $existing;
+        }
+
+        $name = trim((string) ($customer['name'] ?? $pickup['name'] ?? $dropoff['name'] ?? ''));
+        if ($name === '') {
+            $name = 'Misafir Musteri';
+        }
+
+        return User::query()->create([
+            'name' => $name,
+            'email' => $this->nextGuestEmail($phone),
+            'phone' => $phone,
+            'password' => Str::random(40),
+            'is_active' => true,
+        ]);
+    }
+
+    private function normalizePhone(string $phone): string
+    {
+        $digits = preg_replace('/\D+/', '', trim($phone)) ?? '';
+        if ($digits === '') {
+            return '';
+        }
+
+        if (strlen($digits) === 10) {
+            return '90'.$digits;
+        }
+
+        if (strlen($digits) === 11 && Str::startsWith($digits, '0')) {
+            return '9'.$digits;
+        }
+
+        return $digits;
+    }
+
+    private function comparablePhone(string $phone): string
+    {
+        $normalized = $this->normalizePhone($phone);
+        if ($normalized === '') {
+            return '';
+        }
+
+        return strlen($normalized) >= 10
+            ? substr($normalized, -10)
+            : $normalized;
+    }
+
+    private function findUserByComparablePhone(string $phone): ?User
+    {
+        $comparable = $this->comparablePhone($phone);
+        if ($comparable === '') {
+            return null;
+        }
+
+        /** @var User|null $matched */
+        $matched = User::query()
+            ->whereNotNull('phone')
+            ->get()
+            ->first(fn (User $candidate) => $this->comparablePhone((string) $candidate->phone) === $comparable);
+
+        return $matched;
+    }
+
+    private function nextGuestEmail(string $phone): string
+    {
+        $base = 'guest+'.$phone.'@simdigetir.local';
+        if (! User::query()->where('email', $base)->exists()) {
+            return $base;
+        }
+
+        do {
+            $candidate = 'guest+'.$phone.'+'.Str::lower(Str::random(6)).'@simdigetir.local';
+        } while (User::query()->where('email', $candidate)->exists());
+
+        return $candidate;
     }
 }

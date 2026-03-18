@@ -1,0 +1,4 @@
+interface:
+  display_name: "SimdiGetir Delivery Governor"
+  short_description: "Enforce deploy-last delivery governance"
+  default_prompt: "Use -delivery-governor to run this scope with strict deploy-last governance and evidence logging."

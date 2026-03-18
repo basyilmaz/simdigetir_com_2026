@@ -1,0 +1,4 @@
+interface:
+  display_name: "SimdiGetir Motion Performance Governor"
+  short_description: "Roll out premium motion under perf guardrails"
+  default_prompt: "Use -motion-performance-governor to add motion effects with reduced-motion fallback and strict performance budgets."

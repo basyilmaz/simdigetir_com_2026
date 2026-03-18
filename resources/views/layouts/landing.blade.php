@@ -9,6 +9,28 @@
     <meta name="robots" content="@yield('robots', 'index, follow')">
     <link rel="canonical" href="@yield('canonical_url', url()->current())">
     
+    @php
+        $brandDefaultOgImage = asset('images/og-banner.png');
+        $resolvedOgImage = trim((string) $__env->yieldContent('og_image', $brandDefaultOgImage));
+        $resolvedOgImageLower = strtolower($resolvedOgImage);
+        $legacyOgImageNeedles = [
+            'og-default.jpg',
+            'og-default.jpeg',
+            'og-default.svg',
+        ];
+
+        if ($resolvedOgImage === '') {
+            $resolvedOgImage = $brandDefaultOgImage;
+        } else {
+            foreach ($legacyOgImageNeedles as $legacyOgImageNeedle) {
+                if (str_contains($resolvedOgImageLower, $legacyOgImageNeedle)) {
+                    $resolvedOgImage = $brandDefaultOgImage;
+                    break;
+                }
+            }
+        }
+    @endphp
+
     <!-- Open Graph -->
     <meta property="og:title" content="@hasSection('og_title')@yield('og_title')@else@yield('title', 'SimdiGetir - Hizli ve Guvenilir Kurye')@endif">
     <meta property="og:description" content="@hasSection('og_description')@yield('og_description')@else@yield('meta_description', 'Hizli ve guvenilir kurye hizmeti. 7/24 teslimat.')@endif">
@@ -16,15 +38,15 @@
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:site_name" content="SimdiGetir">
     <meta property="og:locale" content="tr_TR">
-    <meta property="og:image" content="@yield('og_image', asset('images/og-default.jpg'))">
-    <meta property="og:image:width" content="1024">
-    <meta property="og:image:height" content="434">
+    <meta property="og:image" content="{{ $resolvedOgImage }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="@hasSection('og_title')@yield('og_title')@else@yield('title', 'SimdiGetir - Hizli ve Guvenilir Kurye')@endif">
     <meta name="twitter:description" content="@hasSection('og_description')@yield('og_description')@else@yield('meta_description', 'Hizli ve guvenilir kurye hizmeti. 7/24 teslimat.')@endif">
-    <meta name="twitter:image" content="@yield('og_image', asset('images/og-default.jpg'))">
+    <meta name="twitter:image" content="{{ $resolvedOgImage }}">
     
     <!-- Geo Tags (Istanbul) -->
     <meta name="geo.region" content="TR-34">
@@ -35,33 +57,67 @@
     <title>@yield('title', 'SimdiGetir - Hizli ve Guvenilir Kurye')</title>
     
     <!-- Favicon & PWA -->
-    <link rel="icon" type="image/svg+xml" href="{{ asset('images/favicon-32x32.svg') }}">
-    <link rel="icon" type="image/svg+xml" sizes="16x16" href="{{ asset('images/favicon-16x16.svg') }}">
-    <link rel="apple-touch-icon" href="{{ asset('images/apple-touch-icon.svg') }}">
+    @php
+        $brandDefaultFavicon32 = asset('images/favicon-32x32.png');
+        $brandDefaultFavicon16 = asset('images/favicon-16x16.png');
+        $brandDefaultAppleTouch = asset('images/apple-touch-app.png');
+        $brandFavicon32Light = trim((string) \Modules\Settings\Models\Setting::getValue('brand.favicon_32_light_url', $brandDefaultFavicon32));
+        $brandFavicon32Dark = trim((string) \Modules\Settings\Models\Setting::getValue('brand.favicon_32_dark_url', $brandFavicon32Light !== '' ? $brandFavicon32Light : $brandDefaultFavicon32));
+        $brandFavicon16Light = trim((string) \Modules\Settings\Models\Setting::getValue('brand.favicon_16_light_url', $brandDefaultFavicon16));
+        $brandFavicon16Dark = trim((string) \Modules\Settings\Models\Setting::getValue('brand.favicon_16_dark_url', $brandFavicon16Light !== '' ? $brandFavicon16Light : $brandDefaultFavicon16));
+        $brandAppleTouchIcon = trim((string) \Modules\Settings\Models\Setting::getValue('brand.apple_touch_icon_url', $brandDefaultAppleTouch));
+        $brandFavicon32Light = $brandFavicon32Light !== '' ? $brandFavicon32Light : $brandDefaultFavicon32;
+        $brandFavicon32Dark = $brandFavicon32Dark !== '' ? $brandFavicon32Dark : $brandFavicon32Light;
+        $brandFavicon16Light = $brandFavicon16Light !== '' ? $brandFavicon16Light : $brandDefaultFavicon16;
+        $brandFavicon16Dark = $brandFavicon16Dark !== '' ? $brandFavicon16Dark : $brandFavicon16Light;
+        $brandAppleTouchIcon = $brandAppleTouchIcon !== '' ? $brandAppleTouchIcon : $brandDefaultAppleTouch;
+    @endphp
+    <link rel="icon" sizes="32x32" href="{{ $brandFavicon32Light }}" media="(prefers-color-scheme: light)">
+    <link rel="icon" sizes="32x32" href="{{ $brandFavicon32Dark }}" media="(prefers-color-scheme: dark)">
+    <link rel="icon" sizes="16x16" href="{{ $brandFavicon16Light }}" media="(prefers-color-scheme: light)">
+    <link rel="icon" sizes="16x16" href="{{ $brandFavicon16Dark }}" media="(prefers-color-scheme: dark)">
+    <link id="site-favicon-runtime-32" rel="icon" sizes="32x32" href="{{ $brandFavicon32Light }}">
+    <link id="site-favicon-runtime-16" rel="icon" sizes="16x16" href="{{ $brandFavicon16Light }}">
+    <link rel="apple-touch-icon" href="{{ $brandAppleTouchIcon }}">
     <link rel="manifest" href="{{ asset('manifest.json') }}">
-    <meta name="theme-color" content="#FF6B35">
+    <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0b1020" media="(prefers-color-scheme: dark)">
 
     <!-- JSON-LD Structured Data -->
     @yield('structured_data')
     
     <!-- Google Ads & Analytics -->
     @php
-        $gtagId = \Modules\Settings\Models\Setting::getValue('seo.gtag_id', 'G-XYCY1D28EF');
+        $defaultGtagId = (string) env('GOOGLE_TAG_ID', 'G-XYCY1D28EF');
+        $defaultAdsId = (string) env('GOOGLE_ADS_ID', 'AW-17989545006');
+        $gtagIdRaw = (string) \Modules\Settings\Models\Setting::getValue('seo.gtag_id', $defaultGtagId);
+        $adsIdRaw = (string) \Modules\Settings\Models\Setting::getValue('seo.gads_id', $defaultAdsId);
+        $gtagId = trim($gtagIdRaw) !== '' ? trim($gtagIdRaw) : $defaultGtagId;
+        $adsId = trim($adsIdRaw) !== '' ? trim($adsIdRaw) : $defaultAdsId;
+        // Prefer Ads tag as loader so manual snippet parity stays deterministic.
+        $primaryGoogleTagId = $adsId ?: $gtagId;
     @endphp
-    @if($gtagId)
-    <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gtagId }}"></script>
+    @if($primaryGoogleTagId)
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ $primaryGoogleTagId }}"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
+        @if($gtagId)
         gtag('config', '{{ $gtagId }}');
-        @php $adsId = \Modules\Settings\Models\Setting::getValue('seo.gads_id', ''); @endphp
+        @endif
         @if($adsId)
         gtag('config', '{{ $adsId }}');
         @endif
         
         // Google Ads Conversion Tracking Helper
         function trackConversion(label, url) {
+            if (!'{{ $adsId }}') {
+                if (url) {
+                    window.location = url;
+                }
+                return false;
+            }
             gtag('event', 'conversion', {
                 'send_to': '{{ $adsId }}/' + label,
                 'event_callback': function() {
@@ -163,7 +219,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -173,46 +229,47 @@
     
     <!-- Swiper CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-    
+
+    @include('components.design-tokens')
     <style>
         :root {
-            /* AI/Tech Color Palette - Inspired by AIForge */
-            --primary: #7c3aed;
-            --primary-light: #a78bfa;
-            --primary-dark: #5b21b6;
-            --secondary: #6366f1;
-            --accent: #22d3ee;
-            --accent-2: #f472b6;
+            /* Landing aliases mapped to shared tokens */
+            --primary: var(--sg-brand-primary);
+            --primary-light: var(--sg-brand-primary-light);
+            --primary-dark: var(--sg-brand-primary-dark);
+            --secondary: var(--sg-brand-secondary);
+            --accent: var(--sg-brand-accent);
+            --accent-2: var(--sg-brand-accent-2);
             --success: #10b981;
             --warning: #f59e0b;
             
             /* Dark Theme */
-            --bg-dark: #0c0118;
-            --bg-darker: #06000d;
-            --bg-card: rgba(124, 58, 237, 0.08);
-            --bg-glass: rgba(255, 255, 255, 0.03);
-            --border-glass: rgba(255, 255, 255, 0.08);
-            --border-glow: rgba(124, 58, 237, 0.3);
+            --bg-dark: var(--sg-surface-landing-dark);
+            --bg-darker: var(--sg-surface-landing-darker);
+            --bg-card: var(--sg-card-brand-soft);
+            --bg-glass: var(--sg-card-light-overlay);
+            --border-glass: var(--sg-border-glass-dark);
+            --border-glow: var(--sg-border-glow-dark);
             
             --text-primary: #ffffff;
             --text-secondary: rgba(255, 255, 255, 0.7);
             --text-muted: rgba(255, 255, 255, 0.5);
             
             /* Gradients */
-            --gradient-primary: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
-            --gradient-accent: linear-gradient(135deg, #22d3ee 0%, #7c3aed 100%);
-            --gradient-purple: linear-gradient(135deg, #7c3aed 0%, #6366f1 50%, #22d3ee 100%);
-            --gradient-glow: radial-gradient(ellipse at center, rgba(124, 58, 237, 0.15) 0%, transparent 70%);
+            --gradient-primary: var(--sg-gradient-primary);
+            --gradient-accent: var(--sg-gradient-accent);
+            --gradient-purple: var(--sg-gradient-purple);
+            --gradient-glow: var(--sg-gradient-glow);
         }
         
         /* ===== LIGHT MODE ===== */
         [data-theme="light"] {
-            --bg-dark: #f8f9fc;
-            --bg-darker: #eef0f5;
-            --bg-card: rgba(124, 58, 237, 0.06);
+            --bg-dark: var(--sg-surface-landing-light);
+            --bg-darker: var(--sg-surface-landing-light-alt);
+            --bg-card: var(--sg-card-brand-soft-light);
             --bg-glass: rgba(0, 0, 0, 0.03);
-            --border-glass: rgba(0, 0, 0, 0.1);
-            --border-glow: rgba(124, 58, 237, 0.2);
+            --border-glass: var(--sg-border-glass-light);
+            --border-glow: var(--sg-border-glow-light);
             --text-primary: #1a1a2e;
             --text-secondary: rgba(26, 26, 46, 0.7);
             --text-muted: rgba(26, 26, 46, 0.5);
@@ -259,6 +316,12 @@
         [data-theme="light"] .footer {
             background: linear-gradient(180deg, #eef0f5 0%, #e2e5ec 100%);
         }
+
+        [data-theme="light"] .footer-trust-item {
+            background: rgba(255, 255, 255, 0.74);
+            border-color: rgba(0, 0, 0, 0.08);
+            color: #4b5563;
+        }
         
         [data-theme="light"] .offcanvas-close:hover {
             background: rgba(236, 72, 153, 0.1);
@@ -277,6 +340,7 @@
         }
         
         [data-theme="light"] .service-card:hover,
+        [data-theme="light"] .service-card:focus-within,
         [data-theme="light"] .feature-card:hover,
         [data-theme="light"] .blog-card:hover {
             box-shadow: 0 20px 50px rgba(124, 58, 237, 0.1);
@@ -383,11 +447,24 @@
         }
         
         body {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--sg-font-body);
             background: var(--bg-dark);
             color: var(--text-primary);
-            line-height: 1.7;
+            font-size: var(--sg-type-body-md);
+            line-height: var(--sg-leading-body);
             overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--sg-font-display);
+            line-height: var(--sg-leading-heading);
+        }
+
+        small,
+        label,
+        .caption {
+            font-size: var(--sg-type-caption);
+            line-height: var(--sg-leading-caption);
         }
         
         /* Preloader */
@@ -693,7 +770,7 @@
             align-items: center;
             justify-content: center;
             margin: 0 auto 1.5rem;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--sg-font-mono);
             font-size: 1.75rem;
             font-weight: 800;
             background: var(--gradient-primary);
@@ -976,6 +1053,27 @@
             inset: 0;
             background: linear-gradient(135deg, rgba(124, 58, 237, 0.2) 0%, transparent 100%);
         }
+
+        .simdigetir-logo-media {
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .simdigetir-logo-image {
+            display: none;
+            width: auto;
+            max-width: min(320px, 56vw);
+            object-fit: contain;
+        }
+
+        html[data-theme="light"] .simdigetir-logo-image-light {
+            display: block;
+        }
+
+        html[data-theme="dark"] .simdigetir-logo-image-dark {
+            display: block;
+        }
         
         @keyframes pulse-glow {
             0%, 100% { box-shadow: 0 0 20px rgba(124, 58, 237, 0.4); }
@@ -1233,7 +1331,7 @@
             padding: 0.9rem 2rem;
             border-radius: 50px;
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: var(--sg-type-body-sm);
             text-decoration: none;
             transition: all 0.4s ease;
             border: none;
@@ -1310,16 +1408,19 @@
             background: var(--bg-glass);
             border: 1px solid var(--border-glass);
             border-radius: 50px;
-            font-size: 0.9rem;
+            font-size: var(--sg-type-caption);
+            line-height: var(--sg-leading-caption);
+            letter-spacing: var(--sg-letter-caption);
             color: var(--accent);
             margin-bottom: 1rem;
         }
-        
+
         .section-title {
-            font-size: 3rem;
+            font-family: var(--sg-font-display);
+            font-size: var(--sg-type-display-lg);
             font-weight: 700;
             margin-bottom: 1rem;
-            line-height: 1.2;
+            line-height: var(--sg-leading-heading);
         }
         
         .gradient-text {
@@ -1330,7 +1431,7 @@
         }
         
         .section-subtitle {
-            font-size: 1.125rem;
+            font-size: var(--sg-type-body-lg);
             color: var(--text-secondary);
             max-width: 650px;
             margin: 0 auto;
@@ -1362,7 +1463,9 @@
             background: var(--bg-glass);
             border: 1px solid var(--border-glass);
             border-radius: 50px;
-            font-size: 0.875rem;
+            font-size: var(--sg-type-caption);
+            line-height: var(--sg-leading-caption);
+            letter-spacing: var(--sg-letter-caption);
             color: var(--accent);
             margin-bottom: 1.5rem;
         }
@@ -1381,14 +1484,15 @@
         }
         
         .hero h1 {
-            font-size: 3.75rem;
+            font-family: var(--sg-font-display);
+            font-size: var(--sg-type-display-xl);
             font-weight: 800;
-            line-height: 1.1;
+            line-height: var(--sg-leading-display);
             margin-bottom: 1.5rem;
         }
-        
+
         .hero p {
-            font-size: 1.25rem;
+            font-size: var(--sg-type-body-lg);
             color: var(--text-secondary);
             margin-bottom: 2rem;
             max-width: 520px;
@@ -1413,7 +1517,7 @@
         .hero-stat-value {
             font-size: 2.5rem;
             font-weight: 800;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--sg-font-mono);
             background: var(--gradient-accent);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -1508,7 +1612,7 @@
         }
         
         .hero-card-content {
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--sg-font-mono);
             font-size: 0.9rem;
             color: var(--text-secondary);
             line-height: 2;
@@ -1566,9 +1670,20 @@
             border: 1px solid var(--border-glass);
             border-radius: 1.5rem;
             padding: 2.5rem;
-            transition: all 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
             position: relative;
             overflow: hidden;
+            isolation: isolate;
+            transform: translate3d(0, 0, 0);
+            backface-visibility: hidden;
+            will-change: transform;
+            transition:
+                transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+                border-color 0.35s ease,
+                box-shadow 0.35s ease,
+                background-color 0.35s ease;
         }
         
         .service-card::before {
@@ -1584,11 +1699,13 @@
             transform-origin: left;
         }
         
-        .service-card:hover::before {
+        .service-card:hover::before,
+        .service-card:focus-within::before {
             transform: scaleX(1);
         }
         
-        .service-card:hover {
+        .service-card:hover,
+        .service-card:focus-within {
             transform: translateY(-10px);
             border-color: var(--primary);
             box-shadow: 0 25px 50px rgba(124, 58, 237, 0.15);
@@ -1598,7 +1715,7 @@
             position: absolute;
             top: 2rem;
             right: 2rem;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--sg-font-mono);
             font-size: 0.875rem;
             color: var(--text-muted);
         }
@@ -1613,11 +1730,16 @@
             justify-content: center;
             font-size: 1.75rem;
             margin-bottom: 1.5rem;
-            transition: all 0.4s ease;
+            transform-origin: center;
+            will-change: transform;
+            transition:
+                transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.35s ease;
         }
         
-        .service-card:hover .service-card-icon {
-            transform: scale(1.1) rotate(5deg);
+        .service-card:hover .service-card-icon,
+        .service-card:focus-within .service-card-icon {
+            transform: translateY(-2px) scale(1.06);
             box-shadow: 0 15px 40px rgba(124, 58, 237, 0.4);
         }
         
@@ -1710,7 +1832,7 @@
         .funfact-value {
             font-size: 3rem;
             font-weight: 800;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--sg-font-mono);
             margin-bottom: 0.5rem;
         }
         
@@ -1833,6 +1955,57 @@
             gap: 3rem;
             margin-bottom: 3rem;
         }
+
+        .footer-trust-row {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-trust-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            padding: 0.75rem 0.9rem;
+            border-radius: 999px;
+            border: 1px solid var(--border-glass);
+            background: var(--bg-glass);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            line-height: 1.2;
+            min-width: 0;
+            text-decoration: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease, transform 0.3s ease;
+        }
+
+        .footer-trust-item i {
+            color: var(--accent);
+            font-size: 0.9rem;
+            flex: 0 0 auto;
+        }
+
+        .footer-trust-item span {
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .footer-trust-item:hover,
+        .footer-trust-item:focus-visible {
+            border-color: var(--primary-light);
+            box-shadow: 0 8px 22px rgba(124, 58, 237, 0.18);
+            color: var(--text-primary);
+            transform: translateY(-1px);
+            padding-left: 0;
+        }
+
+        .footer a.footer-trust-item:hover,
+        .footer a.footer-trust-item:focus-visible {
+            padding-left: 0;
+        }
         
         .footer-brand p {
             color: var(--text-secondary);
@@ -1900,6 +2073,18 @@
             align-items: center;
             color: var(--text-muted);
             font-size: 0.875rem;
+        }
+
+        .footer-powered-link {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .footer-bottom .footer-powered-link:hover,
+        .footer-bottom .footer-powered-link:focus-visible {
+            color: var(--accent);
+            padding-left: 0;
+            text-decoration: underline;
         }
         
         /* WhatsApp Float */
@@ -2024,6 +2209,10 @@
             .footer-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
+
+            .footer-trust-row {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
             
             .process-grid {
                 grid-template-columns: repeat(3, 1fr);
@@ -2101,6 +2290,10 @@
             }
             
             .footer-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-trust-row {
                 grid-template-columns: 1fr;
             }
             
@@ -2337,7 +2530,7 @@
             align-items: center;
             justify-content: center;
             margin: 0 auto 1.5rem;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--sg-font-mono);
             font-size: 1.75rem;
             font-weight: 800;
             background: var(--gradient-primary);
@@ -2598,28 +2791,28 @@
 
         /* ===== P1 GLASSMORPHISM PASS ===== */
         :root {
-            --glass-surface-strong: rgba(255, 255, 255, 0.07);
-            --glass-surface-soft: rgba(255, 255, 255, 0.02);
-            --glass-stroke: rgba(255, 255, 255, 0.14);
-            --glass-stroke-hover: rgba(124, 58, 237, 0.45);
-            --glass-highlight: rgba(34, 211, 238, 0.24);
-            --glass-blur-size: 18px;
-            --glass-shadow-soft: 0 16px 40px rgba(6, 0, 13, 0.32);
-            --glass-shadow-hover: 0 24px 52px rgba(124, 58, 237, 0.22);
-            --glass-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            --glass-form-focus: 0 0 0 3px rgba(124, 58, 237, 0.2);
+            --glass-surface-strong: var(--sg-glass-surface-strong);
+            --glass-surface-soft: var(--sg-glass-surface-soft);
+            --glass-stroke: var(--sg-glass-stroke);
+            --glass-stroke-hover: var(--sg-glass-stroke-hover);
+            --glass-highlight: var(--sg-glass-highlight);
+            --glass-blur-size: var(--sg-glass-blur-size);
+            --glass-shadow-soft: var(--sg-glass-shadow-soft);
+            --glass-shadow-hover: var(--sg-glass-shadow-hover);
+            --glass-shadow-inset: var(--sg-glass-shadow-inset);
+            --glass-form-focus: var(--sg-glass-form-focus);
         }
 
         [data-theme="light"] {
-            --glass-surface-strong: rgba(255, 255, 255, 0.86);
-            --glass-surface-soft: rgba(255, 255, 255, 0.62);
-            --glass-stroke: rgba(99, 102, 241, 0.16);
-            --glass-stroke-hover: rgba(124, 58, 237, 0.34);
-            --glass-highlight: rgba(34, 211, 238, 0.18);
-            --glass-shadow-soft: 0 12px 30px rgba(15, 23, 42, 0.08);
-            --glass-shadow-hover: 0 20px 44px rgba(99, 102, 241, 0.16);
-            --glass-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.75);
-            --glass-form-focus: 0 0 0 3px rgba(99, 102, 241, 0.14);
+            --glass-surface-strong: var(--sg-glass-surface-strong);
+            --glass-surface-soft: var(--sg-glass-surface-soft);
+            --glass-stroke: var(--sg-glass-stroke);
+            --glass-stroke-hover: var(--sg-glass-stroke-hover);
+            --glass-highlight: var(--sg-glass-highlight);
+            --glass-shadow-soft: var(--sg-glass-shadow-soft);
+            --glass-shadow-hover: var(--sg-glass-shadow-hover);
+            --glass-shadow-inset: var(--sg-glass-shadow-inset);
+            --glass-form-focus: var(--sg-glass-form-focus);
         }
 
         .header-main-bar,
@@ -2644,7 +2837,9 @@
         }
 
         .service-card:hover,
+        .service-card:focus-within,
         .feature-card:hover,
+        .feature-card:focus-within,
         .blog-card:hover {
             border-color: var(--glass-stroke-hover);
             box-shadow: var(--glass-shadow-hover), var(--glass-shadow-inset);
@@ -2686,6 +2881,76 @@
             .header.scrolled {
                 -webkit-backdrop-filter: blur(12px);
                 backdrop-filter: blur(12px);
+            }
+        }
+
+        @media (hover: none), (pointer: coarse) {
+            .service-card:hover,
+            .service-card:focus-within {
+                transform: none;
+                border-color: var(--glass-stroke);
+                box-shadow: var(--glass-shadow-soft), var(--glass-shadow-inset);
+            }
+
+            .service-card:hover .service-card-icon,
+            .service-card:focus-within .service-card-icon {
+                transform: none;
+                box-shadow: none;
+            }
+
+            [data-theme="light"] .service-card:hover,
+            [data-theme="light"] .service-card:focus-within {
+                border-color: rgba(0, 0, 0, 0.06);
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto !important;
+            }
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+
+            .cursor-outer,
+            .cursor-inner,
+            .floating-orb {
+                display: none !important;
+            }
+
+            .marquee-wrapper,
+            .hero-badge .pulse,
+            .typing-dots span,
+            .preloader-text span,
+            .ai-avatar,
+            .whatsapp-float,
+            .cta-section::before {
+                animation: none !important;
+            }
+
+            .marquee-wrapper {
+                transform: none !important;
+            }
+
+            .service-card,
+            .service-card-icon,
+            .service-card::before {
+                transition: none !important;
+            }
+
+            .service-card:hover,
+            .service-card:focus-within,
+            .service-card:hover .service-card-icon,
+            .service-card:focus-within .service-card-icon {
+                transform: none !important;
+                box-shadow: none !important;
             }
         }
         
@@ -3044,10 +3309,28 @@
                     </ul>
                 </div>
             </div>
+            <div class="footer-trust-row" aria-label="Guven gostergeleri">
+                <a href="/kvkk" class="footer-trust-item">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>KVKK Uyumlu</span>
+                </a>
+                <div class="footer-trust-item">
+                    <i class="fa-solid fa-lock"></i>
+                    <span>SSL Guvenli</span>
+                </div>
+                <div class="footer-trust-item">
+                    <i class="fa-solid fa-headset"></i>
+                    <span>7/24 Destek</span>
+                </div>
+                <div class="footer-trust-item">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <span>Anlik Takip</span>
+                </div>
+            </div>
             <div class="footer-bottom">
                 <p>&copy; {{ date('Y') }} SimdiGetir. Tum haklari saklidir.</p>
                 <p>
-                    Powered by <a href="https://castintech.com" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;">castintech</a>
+                    Powered by <a href="https://castintech.com" target="_blank" rel="noopener" class="footer-powered-link">castintech</a>
                     | <span style="color: var(--text-secondary);">v{{ config('app.version') }}</span>
                 </p>
             </div>
@@ -3056,18 +3339,50 @@
 
 
 
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
     <script>
+        const reducedMotionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+        const reducedMotionEnabled = reducedMotionMediaQuery.matches;
+        document.documentElement.dataset.reducedMotion = reducedMotionEnabled ? 'true' : 'false';
+
+        const brandThemeAssets = {
+            favicon32Light: @json($brandFavicon32Light),
+            favicon32Dark: @json($brandFavicon32Dark),
+            favicon16Light: @json($brandFavicon16Light),
+            favicon16Dark: @json($brandFavicon16Dark),
+        };
+
+        function syncRuntimeFaviconsByTheme(theme) {
+            const normalizedTheme = theme === 'dark' ? 'dark' : 'light';
+            const favicon32 = document.getElementById('site-favicon-runtime-32');
+            const favicon16 = document.getElementById('site-favicon-runtime-16');
+
+            if (favicon32) {
+                favicon32.href = normalizedTheme === 'dark'
+                    ? brandThemeAssets.favicon32Dark
+                    : brandThemeAssets.favicon32Light;
+            }
+
+            if (favicon16) {
+                favicon16.href = normalizedTheme === 'dark'
+                    ? brandThemeAssets.favicon16Dark
+                    : brandThemeAssets.favicon16Light;
+            }
+        }
+
         // Theme Toggle (run immediately to prevent flash)
         (function() {
             const savedTheme = localStorage.getItem('simdigetir-theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
+            syncRuntimeFaviconsByTheme(savedTheme);
         })();
         
         // Preloader
         window.addEventListener('load', () => {
-            const delay = sessionStorage.getItem('simdigetir-visited') ? 300 : 1500;
+            const delay = reducedMotionEnabled ? 0 : (sessionStorage.getItem('simdigetir-visited') ? 300 : 1500);
             setTimeout(() => {
-                document.getElementById('preloader').classList.add('loaded');
+                document.getElementById('preloader')?.classList.add('loaded');
                 sessionStorage.setItem('simdigetir-visited', '1');
             }, delay);
         });
@@ -3076,12 +3391,17 @@
         const cursorOuter = document.getElementById('cursor-outer');
         const cursorInner = document.getElementById('cursor-inner');
         
-        document.addEventListener('mousemove', (e) => {
-            cursorOuter.style.left = e.clientX + 'px';
-            cursorOuter.style.top = e.clientY + 'px';
-            cursorInner.style.left = e.clientX + 'px';
-            cursorInner.style.top = e.clientY + 'px';
-        });
+        if (reducedMotionEnabled) {
+            cursorOuter?.remove();
+            cursorInner?.remove();
+        } else if (cursorOuter && cursorInner) {
+            document.addEventListener('mousemove', (e) => {
+                cursorOuter.style.left = e.clientX + 'px';
+                cursorOuter.style.top = e.clientY + 'px';
+                cursorInner.style.left = e.clientX + 'px';
+                cursorInner.style.top = e.clientY + 'px';
+            });
+        }
         
         // Header scroll effect
         window.addEventListener('scroll', () => {
@@ -3186,41 +3506,247 @@
                 .slice(0, 80);
         }
 
+        function resolveCtaLabel(link) {
+            if (!link) {
+                return 'unknown';
+            }
+
+            const candidates = [
+                link.dataset?.ctaLabel,
+                link.getAttribute('aria-label'),
+                link.getAttribute('title'),
+                link.textContent,
+                link.getAttribute('href'),
+            ];
+
+            for (const candidate of candidates) {
+                const normalized = normalizedLabel(candidate);
+                if (normalized !== '') {
+                    return normalized;
+                }
+            }
+
+            return 'unknown';
+        }
+
+        function resolveCtaHref(link) {
+            return normalizedLabel(link?.getAttribute('href') || '').slice(0, 255);
+        }
+
+        function inferCtaChannel(link) {
+            const href = String(link?.getAttribute('href') || '').toLowerCase();
+            if (href.startsWith('tel:')) {
+                return 'call';
+            }
+
+            if (href.includes('wa.me') || href.includes('whatsapp.com')) {
+                return 'whatsapp';
+            }
+
+            return 'web';
+        }
+
+        function buildCtaPayload(link, overrides = {}) {
+            const payload = {
+                cta_channel: link?.dataset?.ctaChannel || inferCtaChannel(link),
+                cta_context: link?.dataset?.ctaContext || resolveCtaContext(link),
+                cta_label: resolveCtaLabel(link),
+                cta_href: resolveCtaHref(link),
+                ...overrides,
+            };
+
+            payload.cta_channel = normalizedLabel(payload.cta_channel || 'web').toLowerCase();
+            payload.cta_context = normalizedLabel(payload.cta_context || 'general').toLowerCase();
+            payload.cta_label = normalizedLabel(payload.cta_label || 'unknown');
+            payload.cta_href = normalizedLabel(payload.cta_href || '');
+
+            return payload;
+        }
+
+        window.buildCtaPayload = buildCtaPayload;
+        window.resolveCtaContext = resolveCtaContext;
+        window.normalizedLabel = normalizedLabel;
+
         document.querySelectorAll('a[href^="tel:"], a[href*="wa.me"], a[href*="whatsapp.com"]').forEach(link => {
-            const href = (link.getAttribute('href') || '').toLowerCase();
-            const channel = href.startsWith('tel:') ? 'call' : 'whatsapp';
+            const channel = inferCtaChannel(link) === 'call' ? 'call' : 'whatsapp';
 
             link.addEventListener('click', () => {
-                const payload = {
-                    cta_channel: channel,
-                    cta_context: resolveCtaContext(link),
-                    cta_label: normalizedLabel(link.textContent),
-                };
+                const payload = buildCtaPayload(link, { cta_channel: channel });
 
                 trackEvent('cta_click', payload);
                 trackEvent(channel === 'call' ? 'click_call' : 'click_whatsapp', payload);
             });
         });
         
-        // Intersection Observer for animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-        
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('fadeInUp');
-                    observer.unobserve(entry.target);
-                }
+        function collectMotionTargets(selectors) {
+            const uniqueTargets = new Set();
+
+            selectors.forEach((selector) => {
+                document.querySelectorAll(selector).forEach((node) => {
+                    if (!(node instanceof HTMLElement) || uniqueTargets.has(node)) {
+                        return;
+                    }
+
+                    uniqueTargets.add(node);
+                });
             });
-        }, observerOptions);
-        
-        document.querySelectorAll('.service-card, .feature-card, .faq-item').forEach(el => {
-            el.style.opacity = '0';
-            observer.observe(el);
-        });
+
+            return Array.from(uniqueTargets);
+        }
+
+        function revealMotionTargets(targets) {
+            targets.forEach((target) => {
+                target.style.opacity = '';
+                target.style.transform = '';
+                target.style.willChange = 'auto';
+            });
+        }
+
+        function initIntersectionMotionFallback(targets) {
+            if (!targets.length) {
+                return;
+            }
+
+            if (typeof IntersectionObserver === 'undefined') {
+                revealMotionTargets(targets);
+                return;
+            }
+
+            const fallbackObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach((entry) => {
+                    if (!entry.isIntersecting) {
+                        return;
+                    }
+
+                    entry.target.classList.add('fadeInUp');
+                    entry.target.style.opacity = '';
+                    entry.target.style.transform = '';
+                    observer.unobserve(entry.target);
+                });
+            }, {
+                threshold: 0.12,
+                rootMargin: '0px 0px -45px 0px',
+            });
+
+            targets.forEach((target) => {
+                target.style.opacity = '0';
+                fallbackObserver.observe(target);
+            });
+        }
+
+        function initPhasedScrollMotion() {
+            const phaseOneSelectors = [
+                '.hero .hero-card',
+                '.hero .hero-quote-widget',
+                '.hero .hero-stat',
+            ];
+            const phaseTwoSelectors = [
+                '.services-grid .service-card',
+                '.features-grid .feature-card',
+                '.process-grid .process-card',
+                '.blog-grid .blog-card',
+                '.testimonial-card',
+                '.faq-item',
+                '.footer-trust-item',
+            ];
+
+            const phaseOneTargets = collectMotionTargets(phaseOneSelectors);
+            const phaseTwoTargets = collectMotionTargets(phaseTwoSelectors);
+            const allTargets = Array.from(new Set([...phaseOneTargets, ...phaseTwoTargets]));
+
+            if (!allTargets.length) {
+                return;
+            }
+
+            if (reducedMotionMediaQuery.matches) {
+                document.documentElement.dataset.motionMode = 'reduced';
+                revealMotionTargets(allTargets);
+                return;
+            }
+
+            if (typeof window.gsap === 'undefined' || typeof window.ScrollTrigger === 'undefined') {
+                document.documentElement.dataset.motionMode = 'intersection-fallback';
+                initIntersectionMotionFallback(allTargets);
+                return;
+            }
+
+            window.gsap.registerPlugin(window.ScrollTrigger);
+            document.documentElement.dataset.motionMode = 'gsap-scrolltrigger';
+
+            const phases = [
+                {
+                    name: 'phase-1',
+                    targets: phaseOneTargets,
+                    start: 'top 90%',
+                    y: 22,
+                    duration: 0.48,
+                    stagger: 0.08,
+                },
+                {
+                    name: 'phase-2',
+                    targets: phaseTwoTargets,
+                    start: 'top 86%',
+                    y: 28,
+                    duration: 0.58,
+                    stagger: 0.1,
+                },
+            ];
+
+            phases.forEach((phase) => {
+                if (!phase.targets.length) {
+                    return;
+                }
+
+                phase.targets.forEach((target) => {
+                    target.dataset.motionPhase = phase.name;
+                    target.style.willChange = 'transform, opacity';
+                });
+
+                window.gsap.set(phase.targets, {
+                    autoAlpha: 0,
+                    y: phase.y,
+                    force3D: true,
+                });
+
+                window.ScrollTrigger.batch(phase.targets, {
+                    start: phase.start,
+                    once: true,
+                    onEnter: (batch) => {
+                        window.gsap.to(batch, {
+                            autoAlpha: 1,
+                            y: 0,
+                            duration: phase.duration,
+                            stagger: phase.stagger,
+                            ease: 'power2.out',
+                            overwrite: 'auto',
+                            onComplete: () => {
+                                batch.forEach((node) => {
+                                    node.style.willChange = 'auto';
+                                });
+                            },
+                        });
+                    },
+                });
+            });
+
+            const onReducedMotionEnabled = (event) => {
+                if (!event.matches) {
+                    return;
+                }
+
+                window.ScrollTrigger.getAll().forEach((trigger) => trigger.kill(true));
+                document.documentElement.dataset.motionMode = 'reduced';
+                revealMotionTargets(allTargets);
+            };
+
+            if (typeof reducedMotionMediaQuery.addEventListener === 'function') {
+                reducedMotionMediaQuery.addEventListener('change', onReducedMotionEnabled);
+            } else if (typeof reducedMotionMediaQuery.addListener === 'function') {
+                reducedMotionMediaQuery.addListener(onReducedMotionEnabled);
+            }
+        }
+
+        initPhasedScrollMotion();
         
         // Counter Animation
         document.addEventListener('DOMContentLoaded', () => {
@@ -3251,7 +3777,11 @@
                     if (entry.isIntersecting) {
                         const target = parseFloat(entry.target.getAttribute('data-count'));
                         if (!isNaN(target)) {
-                            animateCounter(entry.target, target);
+                            if (reducedMotionEnabled) {
+                                entry.target.textContent = target.toLocaleString('tr-TR');
+                            } else {
+                                animateCounter(entry.target, target);
+                            }
                         }
                         counterObserver.unobserve(entry.target);
                     }
@@ -3263,14 +3793,16 @@
         
         // Theme Toggle
         const themeToggleBtn = document.getElementById('theme-toggle');
-        
-        themeToggleBtn.addEventListener('click', () => {
-            const htmlEl = document.documentElement;
-            const current = htmlEl.getAttribute('data-theme');
-            const next = current === 'dark' ? 'light' : 'dark';
-            htmlEl.setAttribute('data-theme', next);
-            localStorage.setItem('simdigetir-theme', next);
-        });
+        if (themeToggleBtn) {
+            themeToggleBtn.addEventListener('click', () => {
+                const htmlEl = document.documentElement;
+                const current = htmlEl.getAttribute('data-theme');
+                const next = current === 'dark' ? 'light' : 'dark';
+                htmlEl.setAttribute('data-theme', next);
+                localStorage.setItem('simdigetir-theme', next);
+                syncRuntimeFaviconsByTheme(next);
+            });
+        }
     </script>
     
     @stack('scripts')
@@ -3310,14 +3842,14 @@
             }
         });
         backToTop.addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ top: 0, behavior: reducedMotionEnabled ? 'auto' : 'smooth' });
         });
         
         // Cookie Banner
         const cookieBanner = document.getElementById('cookie-banner');
         const cookieAccept = document.getElementById('cookie-accept');
         if (!localStorage.getItem('simdigetir-cookies')) {
-            setTimeout(() => cookieBanner.classList.add('visible'), 1500);
+            setTimeout(() => cookieBanner.classList.add('visible'), reducedMotionEnabled ? 0 : 1500);
         }
         cookieAccept.addEventListener('click', () => {
             localStorage.setItem('simdigetir-cookies', 'accepted');
@@ -3330,4 +3862,3 @@
     @stack('scripts')
 </body>
 </html>
-

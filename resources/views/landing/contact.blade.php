@@ -1,14 +1,14 @@
 @extends('layouts.landing')
 
 @section('title', $landingContent['meta_title'] ?? 'İletişim - SimdiGetir')
-@section('meta_description', $landingContent['meta_description'] ?? 'SimdiGetir kurye hizmeti ile iletisime gecin. 7/24 aktif musteri destegi. Telefon: 0551 356 72 92')
-@section('meta_keywords', $landingContent['meta_keywords'] ?? 'simdigetir iletisim, kurye telefon, 7/24 kurye')
+@section('meta_description', $landingContent['meta_description'] ?? 'SimdiGetir kurye hizmeti ile iletişime geçin. 7/24 aktif müşteri desteği. Telefon: 0551 356 72 92')
+@section('meta_keywords', $landingContent['meta_keywords'] ?? 'simdigetir iletişim, kurye telefon, 7/24 kurye')
 
 @section('robots', $landingContent['robots'] ?? 'index, follow')
 @section('canonical_url', $landingContent['canonical_url'] ?? url()->current())
 @section('og_title', $landingContent['og_title'] ?? ($landingContent['meta_title'] ?? 'SimdiGetir'))
-@section('og_description', $landingContent['og_description'] ?? ($landingContent['meta_description'] ?? 'Hizli ve guvenilir kurye hizmeti'))
-@section('og_image', $landingContent['og_image'] ?? asset('images/og-default.jpg'))
+@section('og_description', $landingContent['og_description'] ?? ($landingContent['meta_description'] ?? 'Hızlı ve güvenilir kurye hizmeti'))
+@section('og_image', $landingContent['og_image'] ?? asset('images/og-banner.png'))
 
 @section('structured_data')
 @php
@@ -221,7 +221,7 @@
                             <option value="Fiyat Teklifi">Fiyat Teklifi</option>
                             <option value="Kurumsal Hizmet">Kurumsal Hizmet</option>
                             <option value="Kurye Başvurusu">Kurye Başvurusu</option>
-                            <option value="Sikayet/Oneri">Sikayet/Oneri</option>
+                            <option value="Şikayet/Öneri">Şikayet/Öneri</option>
                         </select>
                     </div>
                     
@@ -477,6 +477,4 @@
     }
 </script>
 @endpush
-
-
 

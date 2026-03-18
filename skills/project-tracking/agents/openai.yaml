@@ -1,0 +1,4 @@
+interface:
+  display_name: "Project Tracking Coordinator"
+  short_description: "Track sprint progress and unblock deliveries"
+  default_prompt: "Use -project-tracking to classify done/partial/missing work, calculate completion, and produce next executable steps."

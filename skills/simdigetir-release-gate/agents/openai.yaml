@@ -1,0 +1,4 @@
+interface:
+  display_name: "SimdiGetir Release Gate"
+  short_description: "Execute GO NOGO gate with rollback checks"
+  default_prompt: "Use -release-gate to execute full GO/NOGO checks, rollback readiness, and release decision evidence."

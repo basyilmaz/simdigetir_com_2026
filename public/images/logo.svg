@@ -1,25 +1,47 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 240" fill="none" role="img" aria-labelledby="sgLogoLightTitle sgLogoLightDesc">
+  <title id="sgLogoLightTitle">SimdiGetir Logo Light</title>
+  <desc id="sgLogoLightDesc">SimdiGetir logo for light theme with SG pin and lightning icon</desc>
   <defs>
-    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" style="stop-color:#FF6B35"/>
-      <stop offset="100%" style="stop-color:#E63946"/>
+    <linearGradient id="sgPinStrokeLight" x1="34" y1="16" x2="214" y2="224" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2A67FF"/>
+      <stop offset="1" stop-color="#11D6FF"/>
     </linearGradient>
-    <linearGradient id="purple" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#7c3aed"/>
-      <stop offset="100%" style="stop-color:#a855f7"/>
+    <linearGradient id="sgPinFillLight" x1="58" y1="28" x2="190" y2="204" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#11285C"/>
+      <stop offset="1" stop-color="#061330"/>
     </linearGradient>
+    <linearGradient id="sgBoltLight" x1="100" y1="10" x2="188" y2="210" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF6A8"/>
+      <stop offset="0.5" stop-color="#FFD133"/>
+      <stop offset="1" stop-color="#FF9300"/>
+    </linearGradient>
+    <linearGradient id="sgWordmarkLight" x1="240" y1="54" x2="924" y2="176" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFE879"/>
+      <stop offset="0.5" stop-color="#FFD228"/>
+      <stop offset="1" stop-color="#FF9800"/>
+    </linearGradient>
+    <filter id="sgGlowBlueLight" x="0" y="0" width="260" height="240" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="7" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.07 0 0 0 0 0.44 0 0 0 0 1 0 0 0 0.45 0"/>
+      <feBlend in="SourceGraphic"/>
+    </filter>
+    <filter id="sgGlowGoldLight" x="66" y="0" width="914" height="214" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 1 0 0 0 0 0.77 0 0 0 0 0.16 0 0 0 0.45 0"/>
+      <feBlend in="SourceGraphic"/>
+    </filter>
   </defs>
-  
-  <!-- Icon -->
-  <circle cx="20" cy="25" r="18" fill="url(#accent)" opacity="0.15"/>
-  <path d="M12 28 L16 18 L24 14 L28 22 L26 26 L22 26 L14 28 Z" fill="url(#accent)" opacity="0.8"/>
-  <circle cx="14" cy="30" r="4" fill="none" stroke="#FF6B35" stroke-width="1.5"/>
-  <circle cx="28" cy="30" r="4" fill="none" stroke="#FF6B35" stroke-width="1.5"/>
-  <rect x="15" y="10" width="8" height="6" fill="url(#accent)" rx="1.5"/>
-  <text x="19" y="15" font-family="Inter,sans-serif" font-size="4" font-weight="800" fill="white" text-anchor="middle">SG</text>
-  
-  <!-- Text -->
-  <text x="44" y="22" font-family="Inter,sans-serif" font-size="16" font-weight="800" fill="#1a1a2e" letter-spacing="-0.5">Simdi</text>
-  <text x="94" y="22" font-family="Inter,sans-serif" font-size="16" font-weight="800" fill="url(#accent)" letter-spacing="-0.5">Getir</text>
-  <text x="44" y="36" font-family="Inter,sans-serif" font-size="7" fill="#888" letter-spacing="2">KURYE HİZMETLERİ</text>
+
+  <g filter="url(#sgGlowBlueLight)">
+    <path d="M124 18C79 18 42 55 42 100C42 147 72 179 124 224C176 179 206 147 206 100C206 55 169 18 124 18Z" fill="url(#sgPinFillLight)" stroke="url(#sgPinStrokeLight)" stroke-width="6"/>
+    <circle cx="124" cy="100" r="50" fill="#0B1E49"/>
+    <text x="84" y="118" font-family="'Segoe UI Black', 'Arial Black', Arial, sans-serif" font-size="52" font-style="italic" font-weight="900" fill="#F6FBFF">S</text>
+    <text x="118" y="118" font-family="'Segoe UI Black', 'Arial Black', Arial, sans-serif" font-size="52" font-style="italic" font-weight="900" fill="#F6FBFF">G</text>
+  </g>
+
+  <g filter="url(#sgGlowGoldLight)">
+    <path d="M136 4L94 95H143L103 228L206 88H154L194 4H136Z" fill="url(#sgBoltLight)" stroke="#FFEF9A" stroke-width="2"/>
+    <text x="236" y="152" font-family="'Segoe UI Black', 'Arial Black', Arial, sans-serif" font-size="120" font-style="italic" font-weight="900" letter-spacing="-1.4" fill="url(#sgWordmarkLight)">SimdiGetir</text>
+    <path d="M252 182C368 204 650 204 926 170" stroke="url(#sgWordmarkLight)" stroke-width="10" stroke-linecap="round"/>
+  </g>
 </svg>
