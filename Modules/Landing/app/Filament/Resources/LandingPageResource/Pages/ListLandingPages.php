@@ -10,6 +10,11 @@ class ListLandingPages extends ListRecords
 {
     protected static string $resource = LandingPageResource::class;
 
+    public function getSubheading(): ?string
+    {
+        return 'URL, SEO ve sayfa yayini bu ekrandan; section ve item detaylari ise ilgili kaynaklardan yonetilir.';
+    }
+
     protected function getHeaderActions(): array
     {
         return [

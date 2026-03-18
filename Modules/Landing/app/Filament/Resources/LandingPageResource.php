@@ -32,6 +32,7 @@ class LandingPageResource extends Resource
         return $form->schema([
             Forms\Components\Section::make('Sayfa Bilgileri')
                 ->icon('heroicon-o-document-text')
+                ->description('Temel URL, gorunen baslik ve yayin durumu bu bolumden yonetilir.')
                 ->schema([
                     Forms\Components\TextInput::make('slug')
                         ->label('URL Yolu')
@@ -49,6 +50,7 @@ class LandingPageResource extends Resource
 
             Forms\Components\Section::make('SEO Ayarları')
                 ->icon('heroicon-o-magnifying-glass')
+                ->description('Arama motoru basligi, aciklama ve indeksleme tercihlerini burada netlestirin.')
                 ->schema([
                     Forms\Components\TextInput::make('meta.meta_title')
                         ->label('Meta Başlık')
@@ -74,6 +76,7 @@ class LandingPageResource extends Resource
 
             Forms\Components\Section::make('Sosyal Medya (Open Graph)')
                 ->icon('heroicon-o-share')
+                ->description('Paylasim onizlemelerinde kullanilacak baslik, aciklama ve gorsel ayarlari.')
                 ->schema([
                     Forms\Components\TextInput::make('meta.og_title')
                         ->label('OG Başlık')
@@ -88,6 +91,7 @@ class LandingPageResource extends Resource
 
             Forms\Components\Section::make('Site Haritası')
                 ->icon('heroicon-o-map')
+                ->description('Sitemap onceligi ve guncelleme sikligi arama motoru taramasini yonlendirir.')
                 ->schema([
                     Forms\Components\Select::make('meta.sitemap_changefreq')
                         ->label('Değişim Sıklığı')
@@ -107,6 +111,7 @@ class LandingPageResource extends Resource
 
             Forms\Components\Section::make('Yapısal Veri (Schema)')
                 ->icon('heroicon-o-code-bracket')
+                ->description('Schema.org alanlarini ve ozel JSON-LD bloklarini kontrollu sekilde yonetin.')
                 ->schema([
                     Forms\Components\Repeater::make('service_schema_items_editor')
                         ->label('Hizmet Şema Öğeleri')
@@ -231,6 +236,11 @@ class LandingPageResource extends Resource
                     ->sortable(),
             ])
             ->defaultSort('id', 'desc')
+            ->emptyStateHeading(static::emptyStateHeading())
+            ->emptyStateDescription(static::emptyStateDescription())
+            ->emptyStateActions([
+                Tables\Actions\CreateAction::make()->label('Ilk sayfayi ekle'),
+            ])
             ->actions([
                 Tables\Actions\EditAction::make()->label('Düzenle'),
             ])
@@ -281,6 +291,16 @@ class LandingPageResource extends Resource
     public static function previewUrl(LandingPage $record): string
     {
         return url(static::previewPathBySlug((string) $record->slug));
+    }
+
+    public static function emptyStateHeading(): string
+    {
+        return 'Henuz landing sayfasi yok';
+    }
+
+    public static function emptyStateDescription(): string
+    {
+        return 'SEO alanlarini, temel sayfa kimligini ve icerik sablonunu yonetmek icin ilk landing sayfasini olusturun.';
     }
 
     public static function previewPathBySlug(string $slug): string

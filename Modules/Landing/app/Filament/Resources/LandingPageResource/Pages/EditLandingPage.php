@@ -10,6 +10,11 @@ class EditLandingPage extends EditRecord
 {
     protected static string $resource = LandingPageResource::class;
 
+    public function getSubheading(): ?string
+    {
+        return 'Sayfa kimligi, SEO sinyalleri ve onizleme akisini ayni yerden guncelleyebilirsiniz.';
+    }
+
     protected function mutateFormDataBeforeFill(array $data): array
     {
         return LandingPageResource::fillMetaEditorFields($data);
