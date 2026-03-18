@@ -138,6 +138,7 @@ class CheckoutPageController extends Controller
 
         return view('checkout::show', [
             'checkoutSession' => $checkoutSession,
+            'support' => $contentResolver->supportChannels(),
             'pageState' => [
                 'session' => [
                     'id' => $checkoutSession->id,

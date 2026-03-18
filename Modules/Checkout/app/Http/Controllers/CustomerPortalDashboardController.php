@@ -7,13 +7,18 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\View\View;
+use Modules\Checkout\Services\CheckoutContentResolver;
 use Modules\Checkout\Services\CustomerPortalAuthService;
 
 class CustomerPortalDashboardController extends Controller
 {
     private const ACTIVE_STATES = ['draft', 'pending_payment', 'paid', 'assigned', 'picked_up'];
 
-    public function show(Request $request, CustomerPortalAuthService $authService): View|RedirectResponse
+    public function show(
+        Request $request,
+        CustomerPortalAuthService $authService,
+        CheckoutContentResolver $contentResolver
+    ): View|RedirectResponse
     {
         $user = $authService->currentUser($request);
         if (! $user) {
@@ -76,6 +81,7 @@ class CustomerPortalDashboardController extends Controller
             'selectedState' => $selectedState,
             'searchTerm' => $search,
             'availableStateFilters' => $this->stateFilterLabels(),
+            'support' => $contentResolver->supportChannels(),
         ]);
     }
 

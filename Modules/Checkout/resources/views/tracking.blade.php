@@ -1,4 +1,4 @@
-<x-checkout::layouts.master title="Siparis Takip" description="SimdiGetir siparis takip ekrani">
+<x-checkout::layouts.public title="Siparis Takip" description="SimdiGetir siparis takip ekrani">
 @php
     $order = (array) ($tracking['order'] ?? []);
     $timeline = (array) ($tracking['timeline'] ?? []);
@@ -69,136 +69,310 @@
 
 @push('styles')
 <style>
-body{margin:0;background:var(--sg-surface-page-light);color:var(--sg-ink-light);font-family:var(--sg-font-body)}.shell{width:min(1120px,calc(100% - 32px));margin:0 auto;padding:28px 0 40px}.top{display:flex;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap}.brand{display:inline-flex;align-items:center;gap:12px;color:inherit;text-decoration:none;font-weight:800}.brand b{width:42px;height:42px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;background:var(--sg-brand-gradient);color:#fff;font-family:var(--sg-font-display)}.card{border:1px solid var(--sg-border-light);border-radius:24px;background:var(--sg-card-light);backdrop-filter:blur(14px);box-shadow:var(--sg-shadow-light)}.hero{padding:24px}.hero h1{margin:0 0 8px;font-family:var(--sg-font-display);font-size:var(--sg-type-display-lg)}.hero p,.muted,.item p,.item small,.empty,.hint{color:var(--sg-muted-light)}.form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px}.field{display:grid;gap:8px}.field label{font-size:var(--sg-type-caption);font-weight:700}.field input{width:100%;min-height:52px;padding:14px 16px;border-radius:16px;border:1px solid var(--sg-border-light);background:#fff;font:inherit;color:inherit}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 18px;border-radius:16px;border:0;background:var(--sg-action-gradient);color:#fff;font:inherit;font-weight:800;cursor:pointer;text-decoration:none}.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:20px;margin-top:20px}.panel{padding:22px}.stack{display:grid;gap:12px}.badge{display:inline-flex;padding:8px 12px;border-radius:999px;background:var(--sg-accent-warm-bg);color:var(--sg-accent-warm-text);font-size:var(--sg-type-caption);font-weight:700}.summary{display:grid;gap:10px}.row{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}.row small{display:block;min-width:96px}.timeline,.events,.proofs{display:grid;gap:12px}.item{padding:16px;border-radius:18px;border:1px solid var(--sg-border-light-soft);background:var(--sg-card-light-soft)}.item strong{display:block;margin-bottom:6px}.alert{margin-top:14px;padding:14px 16px;border-radius:18px;font-size:var(--sg-type-body-sm);line-height:1.6}.alert.error{background:var(--sg-error-bg);color:var(--sg-error-text)}.alert.info{background:var(--sg-info-bg);color:var(--sg-info-text)}.support-links{display:flex;flex-wrap:wrap;gap:8px 12px;margin-top:8px}.support-links a,.proof-link{color:inherit;font-weight:800}.proof-link{text-decoration:none}.proof-link:hover{text-decoration:underline}.eyebrow{display:inline-flex;padding:8px 12px;border-radius:999px;background:var(--sg-card-brand-soft-light);color:var(--sg-accent-warm-text);font-size:var(--sg-type-caption);font-weight:800;margin-bottom:12px}@media (max-width:980px){.form,.grid{grid-template-columns:1fr}}
+    .tracking-form {
+        margin-top: 10px;
+    }
+
+    .tracking-status-bar {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .tracking-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+    }
+
+    .tracking-grid .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 800;
+        background: rgba(124, 58, 237, 0.12);
+        border: 1px solid rgba(124, 58, 237, 0.18);
+        color: var(--accent);
+    }
+
+    .summary,
+    .timeline,
+    .events,
+    .proofs {
+        display: grid;
+        gap: 12px;
+    }
+
+    .row {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: flex-start;
+    }
+
+    .row strong {
+        max-width: 64%;
+        text-align: right;
+    }
+
+    .item,
+    .empty {
+        padding: 16px 18px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    [data-theme="light"] .item,
+    [data-theme="light"] .empty {
+        background: rgba(255, 255, 255, 0.84);
+        border-color: rgba(15, 23, 42, 0.06);
+    }
+
+    .item strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 1rem;
+    }
+
+    .proof-link {
+        color: var(--accent);
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    .proof-link:hover {
+        text-decoration: underline;
+    }
+
+    .tracking-card-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: center;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+    }
+
+    .tracking-card-header p {
+        margin: 6px 0 0;
+    }
+
+    .tracking-hero-actions {
+        display: grid;
+        gap: 10px;
+        margin-top: 8px;
+    }
+
+    .tracking-hero-actions a {
+        color: var(--text-primary);
+        text-decoration: none;
+        font-weight: 700;
+    }
+
+    .tracking-hero-actions a:hover {
+        color: var(--accent);
+    }
+
+    @media (max-width: 1080px) {
+        .tracking-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .row {
+            flex-direction: column;
+        }
+
+        .row strong {
+            max-width: none;
+            text-align: left;
+        }
+    }
 </style>
 @endpush
 
-<div class="shell">
-  <div class="top">
-    <a href="{{ route('home') }}" class="brand"><b>SG</b><span>SimdiGetir Takip</span></a>
-    <div class="muted">{{ $support['support_note'] ?? 'Destek ekibimiz telefon, WhatsApp veya e-posta uzerinden yardimci olur.' }}</div>
-  </div>
+<div class="checkout-shell checkout-shell--wide">
+    <section class="checkout-hero-grid">
+        <article class="checkout-card checkout-card--hero">
+            <div class="checkout-lead">
+                <div class="section-badge">
+                    <i class="fa-solid fa-route"></i> Acik siparisler icin
+                </div>
+                <div class="checkout-meta">
+                    <span class="checkout-chip">Telefon + siparis no ile</span>
+                    <span class="checkout-chip checkout-chip--info">Anlik durum ve kanit kayitlari</span>
+                </div>
+                <h1>Siparisinizi tek ekrandan takip edin.</h1>
+                <p>{{ $pageCopy['intro'] ?? 'Siparis numaraniz ve sipariste kullandiginiz telefon ile guncel durum bilgilerini goruntuleyin.' }}</p>
+            </div>
 
-  <section class="card hero">
-    <span class="eyebrow">Acik siparisler icin</span>
-    <h1>Siparis Takip</h1>
-    <p>{{ $pageCopy['intro'] ?? 'Siparis numaraniz ve sipariste kullandiginiz telefon ile guncel durum bilgilerini goruntuleyin.' }}</p>
+            <form method="GET" action="{{ route('checkout.tracking') }}" class="checkout-form-grid checkout-form-grid--inline tracking-form">
+                <div class="checkout-field">
+                    <label for="tracking-order-no">Siparis Numarasi</label>
+                    <input id="tracking-order-no" name="order_no" type="text" value="{{ $prefillOrderNo }}" placeholder="ORN: ORD20260314ABCDE" autocomplete="off" required>
+                </div>
+                <div class="checkout-field">
+                    <label for="tracking-phone">Telefon</label>
+                    <input id="tracking-phone" name="phone" type="tel" inputmode="tel" value="{{ $prefillPhone }}" placeholder="0551 356 72 92" autocomplete="tel" required>
+                </div>
+                <div class="checkout-actions">
+                    <button type="submit" class="btn btn-primary">Siparisi Sorgula</button>
+                </div>
+            </form>
 
-    <form method="GET" action="{{ route('checkout.tracking') }}" class="form">
-      <div class="field">
-        <label for="tracking-order-no">Siparis Numarasi</label>
-        <input id="tracking-order-no" name="order_no" type="text" value="{{ $prefillOrderNo }}" placeholder="ORN: ORD20260314ABCDE" autocomplete="off" required>
-      </div>
-      <div class="field">
-        <label for="tracking-phone">Telefon</label>
-        <input id="tracking-phone" name="phone" type="tel" inputmode="tel" value="{{ $prefillPhone }}" placeholder="0551 356 72 92" autocomplete="tel" required>
-      </div>
-      <div class="field">
-        <label>&nbsp;</label>
-        <button type="submit" class="btn">Siparisi Sorgula</button>
-      </div>
-    </form>
+            @if ($lookupError)
+                <div class="checkout-alert checkout-alert--error">
+                    <div>{{ $lookupError }}</div>
+                    <div class="checkout-note" style="margin-top:8px;">{{ $pageCopy['error_help'] ?? 'Bilgiler eslesmiyorsa destek hattimizla iletisime gecin; ekip siparis kaydini kontrol etsin.' }}</div>
+                </div>
+            @elseif (! $lookupSubmitted)
+                <div class="checkout-alert checkout-alert--info">
+                    {{ $pageCopy['help'] ?? 'Siparis numarasini SMS, e-posta veya musteri panelinizdeki siparis kartindan bulabilirsiniz.' }}
+                </div>
+            @endif
+        </article>
 
-    @if ($lookupError)
-      <div class="alert error">
-        <div>{{ $lookupError }}</div>
-        <div class="hint" style="margin-top:8px;">{{ $pageCopy['error_help'] ?? 'Bilgiler eslesmiyorsa destek hattimizla iletisime gecin; ekip siparis kaydini kontrol etsin.' }}</div>
-        <div class="support-links">
-          <a href="{{ $support['phone_href'] ?? 'tel:+905513567292' }}">{{ $support['phone_display'] ?? '+90 551 356 72 92' }}</a>
-          <a href="{{ $support['whatsapp_href'] ?? 'https://wa.me/905513567292' }}" target="_blank" rel="noopener">WhatsApp</a>
-          <a href="{{ route('contact') }}">Iletisim</a>
+        <aside class="checkout-card checkout-card--support">
+            <div class="checkout-lead" style="gap:10px;">
+                <div class="section-badge">
+                    <i class="fa-solid fa-headset"></i> Destek ve guven
+                </div>
+                <h2>Takipte zorlanirsaniz hizli destek alin.</h2>
+                <p>{{ $support['support_note'] ?? 'Destek ekibimiz telefon, WhatsApp veya e-posta uzerinden yardimci olur.' }}</p>
+            </div>
+
+            <div class="checkout-list" style="margin-top:18px;">
+                <div class="checkout-list-item">
+                    <strong>Canli destek kanallari</strong>
+                    <div class="tracking-hero-actions">
+                        <a href="{{ $support['phone_href'] ?? 'tel:+905513567292' }}">{{ $support['phone_display'] ?? '+90 551 356 72 92' }}</a>
+                        <a href="{{ $support['whatsapp_href'] ?? 'https://wa.me/905513567292' }}" target="_blank" rel="noopener">WhatsApp destegi</a>
+                        <a href="{{ $support['contact_href'] ?? route('contact') }}">Iletisim sayfasi</a>
+                    </div>
+                </div>
+                <div class="checkout-list-item">
+                    <strong>Bilmeniz gerekenler</strong>
+                    <p>Takip akisi durum gecmisi, kurye hareketleri ve alis/teslim kanitlarini ayni ekranda sunar.</p>
+                </div>
+                <div class="checkout-list-item">
+                    <strong>Yasal baglantilar</strong>
+                    <div class="tracking-hero-actions">
+                        <a href="{{ $support['privacy_href'] ?? url('/kvkk') }}">KVKK</a>
+                        <a href="{{ $support['terms_href'] ?? url('/kullanim-kosullari') }}">Kullanim kosullari</a>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </section>
+
+    @if ($tracking)
+        <section
+            class="checkout-card checkout-card--panel"
+            data-tracking-autorefresh
+            data-order-no="{{ $prefillOrderNo }}"
+            data-phone="{{ $prefillPhone }}"
+            data-endpoint="{{ route('api.v1.order-tracking.show') }}"
+        >
+            <div class="tracking-status-bar">
+                <div class="checkout-alert checkout-alert--info" style="flex:1;">
+                    Canli takip acik. Bilgiler her <strong data-tracking-countdown>30</strong> sn yenilenir.
+                </div>
+                <button type="button" class="btn btn-outline" data-tracking-toggle>Otomatik Yenilemeyi Durdur</button>
+            </div>
+        </section>
+
+        <div class="tracking-grid" data-tracking-root>
+            <section class="checkout-card checkout-card--panel">
+                <div class="tracking-card-header">
+                    <div>
+                        <h2>Siparis Ozeti</h2>
+                        <p>Aktif siparisin durum, odeme ve rota bilgisini buradan takip edin.</p>
+                    </div>
+                    <span class="badge" data-tracking-state-badge>Durum: {{ $stateLabel($order['state'] ?? null) }}</span>
+                </div>
+                <div class="summary" data-tracking-summary>
+                    <div class="row"><small>Siparis No</small><strong>{{ $order['order_no'] ?? '-' }}</strong></div>
+                    <div class="row"><small>Odeme</small><strong>{{ $paymentLabel($order['payment_state'] ?? null) }}</strong></div>
+                    <div class="row"><small>Toplam</small><strong>{{ $order['total_amount_formatted'] ?? '-' }}</strong></div>
+                    <div class="row"><small>Alis adresi</small><strong>{{ $order['pickup_address'] ?? '-' }}</strong></div>
+                    <div class="row"><small>Teslimat adresi</small><strong>{{ $order['dropoff_address'] ?? '-' }}</strong></div>
+                    <div class="row"><small>Son guncelleme</small><strong>{{ $latestTrackingEvent['note'] ?? 'Yeni durum bilgisi bekleniyor.' }}</strong></div>
+                    <div class="row"><small>Tahmini varis</small><strong>{{ $formatEta($latestTrackingEvent['eta_seconds'] ?? null) }}</strong></div>
+                </div>
+            </section>
+
+            <section class="checkout-card checkout-card--panel">
+                <div class="tracking-card-header">
+                    <div>
+                        <h2>Durum Gecmisi</h2>
+                        <p>Siparisin sistemde hangi adimlardan gectigini izleyin.</p>
+                    </div>
+                </div>
+                <div class="timeline" data-tracking-timeline>
+                    @forelse ($timeline as $item)
+                        <article class="item">
+                            <strong>{{ $stateLabel($item['to_state'] ?? null) }}</strong>
+                            <p>{{ ! empty($item['from_state']) ? 'Bir onceki asama: '.$stateLabel($item['from_state']) : 'Siparisiniz sisteme alindi.' }}</p>
+                            <small>{{ $formatDate($item['created_at'] ?? null) }}</small>
+                        </article>
+                    @empty
+                        <div class="empty">Henuz yeni bir guncelleme yok.</div>
+                    @endforelse
+                </div>
+            </section>
         </div>
-      </div>
-    @elseif (! $lookupSubmitted)
-      <div class="alert info">{{ $pageCopy['help'] ?? 'Siparis numarasini SMS, e-posta veya musteri panelinizdeki siparis kartindan bulabilirsiniz.' }}</div>
+
+        <div class="tracking-grid">
+            <section class="checkout-card checkout-card--panel">
+                <div class="tracking-card-header">
+                    <div>
+                        <h2>Kurye Hareketleri</h2>
+                        <p>Kurye tarafindan kayda gecen not ve ETA guncellemeleri.</p>
+                    </div>
+                </div>
+                <div class="events" data-tracking-events>
+                    @forelse ($trackingEvents as $item)
+                        <article class="item">
+                            <strong>{{ $eventLabel($item['event_type'] ?? null) }}</strong>
+                            <p>{{ $item['note'] ?? 'Yeni kurye notu bulunmuyor.' }}</p>
+                            <small>ETA: {{ $formatEta($item['eta_seconds'] ?? null) }} | {{ $formatDate($item['created_at'] ?? null) }}</small>
+                        </article>
+                    @empty
+                        <div class="empty">Aktif kurye hareketi henuz kaydedilmedi.</div>
+                    @endforelse
+                </div>
+            </section>
+
+            <section class="checkout-card checkout-card--panel">
+                <div class="tracking-card-header">
+                    <div>
+                        <h2>Teslimat Kanitlari</h2>
+                        <p>Alis ve teslim aninda toplanan gorsel veya imza kayitlari.</p>
+                    </div>
+                </div>
+                <div class="proofs" data-tracking-proofs>
+                    @forelse ($proofs as $item)
+                        <article class="item">
+                            <strong>{{ $proofStageLabel($item['stage'] ?? null) }} / {{ $proofTypeLabel($item['proof_type'] ?? null) }}</strong>
+                            @if (! empty($item['file_url']))
+                                <p><a class="proof-link" href="{{ $item['file_url'] }}" target="_blank" rel="noreferrer">Dosyayi ac</a></p>
+                            @else
+                                <p>Dosya baglantisi henuz eklenmedi.</p>
+                            @endif
+                            <small>{{ $formatDate($item['created_at'] ?? null) }}</small>
+                        </article>
+                    @empty
+                        <div class="empty">Alis veya teslimata ait kanit dosyasi henuz eklenmedi.</div>
+                    @endforelse
+                </div>
+            </section>
+        </div>
     @endif
-  </section>
-
-  @if ($tracking)
-    <div
-      class="alert info"
-      style="margin-top:20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;"
-      data-tracking-autorefresh
-      data-order-no="{{ $prefillOrderNo }}"
-      data-phone="{{ $prefillPhone }}"
-      data-endpoint="{{ route('api.v1.order-tracking.show') }}"
-    >
-      <span>Canli takip acik. Bilgiler her <strong data-tracking-countdown>30</strong> sn yenilenir.</span>
-      <button type="button" class="btn" style="min-height:42px;padding:0 14px;" data-tracking-toggle>Otomatik Yenilemeyi Durdur</button>
-    </div>
-
-    <div class="grid" data-tracking-root>
-      <section class="card panel">
-        <div class="stack">
-          <div>
-            <span class="badge" data-tracking-state-badge>Durum: {{ $stateLabel($order['state'] ?? null) }}</span>
-          </div>
-          <div class="summary" data-tracking-summary>
-            <div class="row"><small>Siparis No</small><strong>{{ $order['order_no'] ?? '-' }}</strong></div>
-            <div class="row"><small>Odeme</small><strong>{{ $paymentLabel($order['payment_state'] ?? null) }}</strong></div>
-            <div class="row"><small>Toplam</small><strong>{{ $order['total_amount_formatted'] ?? '-' }}</strong></div>
-            <div class="row"><small>Alis adresi</small><strong>{{ $order['pickup_address'] ?? '-' }}</strong></div>
-            <div class="row"><small>Teslimat adresi</small><strong>{{ $order['dropoff_address'] ?? '-' }}</strong></div>
-            <div class="row"><small>Son guncelleme</small><strong>{{ $latestTrackingEvent['note'] ?? 'Yeni durum bilgisi bekleniyor.' }}</strong></div>
-            <div class="row"><small>Tahmini varis</small><strong>{{ $formatEta($latestTrackingEvent['eta_seconds'] ?? null) }}</strong></div>
-          </div>
-        </div>
-      </section>
-
-      <section class="card panel">
-        <h2>Durum Gecmisi</h2>
-        <div class="timeline" data-tracking-timeline>
-          @forelse ($timeline as $item)
-            <article class="item">
-              <strong>{{ $stateLabel($item['to_state'] ?? null) }}</strong>
-              <p>
-                {{ ! empty($item['from_state']) ? 'Bir onceki asama: '.$stateLabel($item['from_state']) : 'Siparisiniz sisteme alindi.' }}
-              </p>
-              <small>{{ $formatDate($item['created_at'] ?? null) }}</small>
-            </article>
-          @empty
-            <div class="empty">Henuz yeni bir guncelleme yok.</div>
-          @endforelse
-        </div>
-      </section>
-    </div>
-
-    <div class="grid">
-      <section class="card panel">
-        <h2>Kurye Hareketleri</h2>
-        <div class="events" data-tracking-events>
-          @forelse ($trackingEvents as $item)
-            <article class="item">
-              <strong>{{ $eventLabel($item['event_type'] ?? null) }}</strong>
-              <p>{{ $item['note'] ?? 'Yeni kurye notu bulunmuyor.' }}</p>
-              <small>ETA: {{ $formatEta($item['eta_seconds'] ?? null) }} | {{ $formatDate($item['created_at'] ?? null) }}</small>
-            </article>
-          @empty
-            <div class="empty">Aktif kurye hareketi henuz kaydedilmedi.</div>
-          @endforelse
-        </div>
-      </section>
-
-      <section class="card panel">
-        <h2>Teslimat Kanitlari</h2>
-        <div class="proofs" data-tracking-proofs>
-          @forelse ($proofs as $item)
-            <article class="item">
-              <strong>{{ $proofStageLabel($item['stage'] ?? null) }} / {{ $proofTypeLabel($item['proof_type'] ?? null) }}</strong>
-              @if (! empty($item['file_url']))
-                <p><a class="proof-link" href="{{ $item['file_url'] }}" target="_blank" rel="noreferrer">Dosyayi ac</a></p>
-              @else
-                <p>Dosya baglantisi henuz eklenmedi.</p>
-              @endif
-              <small>{{ $formatDate($item['created_at'] ?? null) }}</small>
-            </article>
-          @empty
-            <div class="empty">Alis veya teslimata ait kanit dosyasi henuz eklenmedi.</div>
-          @endforelse
-        </div>
-      </section>
-    </div>
-  @endif
 </div>
 
 @if ($tracking && $lookupSubmitted && $prefillOrderNo !== '' && $prefillPhone !== '')
@@ -465,4 +639,4 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 @endpush
 @endif
-</x-checkout::layouts.master>
+</x-checkout::layouts.public>

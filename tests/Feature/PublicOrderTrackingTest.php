@@ -23,6 +23,17 @@ class PublicOrderTrackingTest extends TestCase
         $response->assertSee('Takip yardim test metni.');
     }
 
+    public function test_tracking_page_uses_landing_public_shell(): void
+    {
+        $response = $this->get('/siparis-takip');
+
+        $response->assertOk();
+        $response->assertSee('id="theme-toggle"', false);
+        $response->assertSee('id="offcanvas-sidebar"', false);
+        $response->assertSee('Powered by', false);
+        $response->assertDontSee('checkout-site-footer');
+    }
+
     public function test_guest_can_lookup_order_tracking_via_api(): void
     {
         $order = Order::query()->create([

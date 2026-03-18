@@ -41,16 +41,21 @@ class CustomerPortalOrderController extends Controller
             'customer' => $user,
             'order' => $order,
             'bankTransfer' => $contentResolver->bankTransferInstructions(),
+            'support' => $contentResolver->supportChannels(),
         ]);
     }
 
-    public function receipt(Request $request, string $orderNo, CustomerPortalAuthService $authService): View|RedirectResponse
-    {
+    public function receipt(
+        Request $request,
+        string $orderNo,
+        CustomerPortalAuthService $authService,
+        CheckoutContentResolver $contentResolver
+    ): View|RedirectResponse {
         $user = $authService->currentUser($request);
         if (! $user) {
             return redirect()
                 ->route('checkout.customer.login')
-                ->withErrors(['phone' => 'Devam etmek için giriş yapın.']);
+                ->withErrors(['phone' => 'Devam etmek icin giris yapin.']);
         }
 
         $order = Order::query()
@@ -64,6 +69,7 @@ class CustomerPortalOrderController extends Controller
         return view('checkout::customer-order-receipt', [
             'customer' => $user,
             'order' => $order,
+            'support' => $contentResolver->supportChannels(),
         ]);
     }
 }

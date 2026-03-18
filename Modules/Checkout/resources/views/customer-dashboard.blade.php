@@ -1,196 +1,457 @@
-<x-checkout::layouts.master title="Musteri Paneli" description="SimdiGetir musteri paneli">
+<x-checkout::layouts.public title="Hesabim" description="SimdiGetir musteri paneli ve siparis yonetimi">
+@php
+    $support = is_array($support ?? null) ? $support : [];
+    $stateLabel = static fn (?string $value): string => trim((string) $value) !== ''
+        ? ucfirst(str_replace('_', ' ', (string) $value))
+        : '-';
+@endphp
+
 @push('styles')
 <style>
-body{margin:0;background:var(--sg-surface-page-light);color:var(--sg-ink-light);font-family:var(--sg-font-body)}.shell{width:min(1160px,calc(100% - 32px));margin:0 auto;padding:28px 0 40px}.top{display:flex;justify-content:space-between;gap:16px;margin-bottom:20px}.brand{display:inline-flex;align-items:center;gap:12px;color:inherit;text-decoration:none;font-weight:800}.brand b{width:42px;height:42px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;background:var(--sg-brand-gradient);color:#fff;font-family:var(--sg-font-display)}.card{border:1px solid var(--sg-border-light);border-radius:24px;background:var(--sg-card-light);backdrop-filter:blur(14px);box-shadow:var(--sg-shadow-light)}.hero,.panel{padding:24px}.hero h1{margin:0 0 8px;font-family:var(--sg-font-display);font-size:var(--sg-type-display-lg)}.muted,.hero p,.meta,.detail-note,.toolbar-summary{color:var(--sg-muted-light)}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:18px}.stat{padding:18px;border-radius:18px;border:1px solid var(--sg-border-light-soft);background:var(--sg-card-light-soft)}.stat strong{display:block;font-size:1.8rem;font-family:var(--sg-font-display)}.actions{display:flex;gap:12px;flex-wrap:wrap}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border-radius:16px;border:0;background:var(--sg-action-gradient);color:#fff;font:inherit;font-weight:800;cursor:pointer;text-decoration:none}.btn.secondary{background:var(--sg-card-light-strong);color:var(--sg-ink-light);border:1px solid var(--sg-border-light)}.btn.inline{min-height:42px;padding:0 14px}.stack{display:grid;gap:16px;margin-top:20px}.order-card{padding:18px;border-radius:20px;border:1px solid var(--sg-border-light-soft);background:var(--sg-card-light-soft)}.order-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:12px}.order-head strong{font-family:var(--sg-font-display);font-size:var(--sg-type-heading-sm)}.badges{display:flex;gap:8px;flex-wrap:wrap}.badge{display:inline-flex;padding:8px 12px;border-radius:999px;background:var(--sg-accent-warm-bg);color:var(--sg-accent-warm-text);font-size:var(--sg-type-caption);font-weight:700}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.empty{padding:20px;border-radius:18px;border:1px dashed var(--sg-border-light-dashed);color:var(--sg-muted-light);text-align:center}.detail-box{margin-top:14px;padding:16px;border-radius:18px;border:1px solid var(--sg-border-light-soft);background:var(--sg-card-light-muted)}.detail-box summary{cursor:pointer;font-weight:800;list-style:none}.detail-box summary::-webkit-details-marker{display:none}.detail-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}.detail-list{display:grid;gap:10px}.detail-item{padding:12px;border-radius:14px;border:1px solid var(--sg-border-light-soft);background:var(--sg-card-light-soft)}.detail-item strong{display:block;margin-bottom:4px}.detail-empty{padding:12px;border-radius:14px;border:1px dashed var(--sg-border-light-dashed);color:var(--sg-muted-light)}.toolbar{display:grid;gap:16px;margin-top:20px}.toolbar-row{display:flex;justify-content:space-between;gap:16px;align-items:flex-end;flex-wrap:wrap}.toolbar-form{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(220px,.8fr) auto;gap:12px;flex:1 1 680px}.field{display:grid;gap:8px}.field label{font-size:var(--sg-type-caption);font-weight:800;color:var(--sg-muted-light);text-transform:uppercase;letter-spacing:.04em}.field input,.field select{min-height:50px;border-radius:16px;border:1px solid var(--sg-border-light);background:var(--sg-card-light-strong);padding:0 16px;font:inherit;color:var(--sg-ink-light)}.field input:focus,.field select:focus{outline:none;border-color:var(--sg-focus-border);box-shadow:0 0 0 4px var(--sg-accent-warm-bg)}.filter-actions{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}.chips{display:flex;gap:10px;flex-wrap:wrap}.chip{display:inline-flex;align-items:center;min-height:42px;padding:0 14px;border-radius:999px;border:1px solid var(--sg-border-light);background:var(--sg-card-light-muted);color:var(--sg-ink-light);text-decoration:none;font-weight:700}.chip.active{background:var(--sg-action-gradient);border-color:transparent;color:#fff}.toolbar-summary strong{color:var(--sg-ink-light)}.pill-note{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:14px;background:var(--sg-accent-warm-bg-soft);border:1px solid var(--sg-accent-warm-border);font-size:var(--sg-type-body-sm)}.alert{padding:14px 16px;border-radius:18px;font-size:var(--sg-type-body-sm);line-height:1.6}.alert.success{background:var(--sg-success-bg);color:var(--sg-success-text)}.order-card mark{background:var(--sg-accent-warm-bg-strong);color:inherit;padding:0 .2em;border-radius:4px}@media (max-width:980px){.stats,.grid,.detail-grid{grid-template-columns:1fr}.order-head,.toolbar-row{flex-direction:column;align-items:stretch}.toolbar-form{grid-template-columns:1fr}.filter-actions{align-items:stretch}.filter-actions .btn{width:100%}}
+    .portal-hero-actions form {
+        margin: 0;
+    }
+
+    .portal-kpi-grid,
+    .portal-order-grid,
+    .portal-detail-grid {
+        display: grid;
+        gap: 14px;
+    }
+
+    .portal-kpi-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        margin-top: 18px;
+    }
+
+    .portal-kpi,
+    .portal-order-box,
+    .portal-detail-item,
+    .portal-detail-empty,
+    .portal-detail-toggle {
+        padding: 16px 18px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    [data-theme="light"] .portal-kpi,
+    [data-theme="light"] .portal-order-box,
+    [data-theme="light"] .portal-detail-item,
+    [data-theme="light"] .portal-detail-empty,
+    [data-theme="light"] .portal-detail-toggle {
+        background: rgba(255, 255, 255, 0.82);
+        border-color: rgba(15, 23, 42, 0.06);
+    }
+
+    .portal-kpi strong,
+    .portal-order-head strong {
+        display: block;
+        font-family: var(--sg-font-display);
+        font-size: clamp(1.7rem, 3vw, 2.3rem);
+        line-height: 1;
+    }
+
+    .portal-toolbar {
+        display: grid;
+        gap: 16px;
+    }
+
+    .portal-toolbar-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: end;
+        flex-wrap: wrap;
+    }
+
+    .portal-filter-form {
+        display: grid;
+        grid-template-columns: minmax(0, 1.4fr) minmax(240px, 0.8fr) auto;
+        gap: 12px;
+        flex: 1 1 700px;
+    }
+
+    .portal-chip-row,
+    .portal-badges,
+    .portal-inline-actions,
+    .portal-hero-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .portal-chip {
+        display: inline-flex;
+        align-items: center;
+        min-height: 42px;
+        padding: 0 14px;
+        border-radius: 999px;
+        border: 1px solid var(--border-glass);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text-primary);
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    [data-theme="light"] .portal-chip {
+        background: rgba(255, 255, 255, 0.86);
+        border-color: rgba(15, 23, 42, 0.08);
+    }
+
+    .portal-chip.is-active {
+        background: linear-gradient(135deg, var(--sg-primary), var(--sg-secondary));
+        border-color: transparent;
+        color: #fff;
+    }
+
+    .portal-order-stack,
+    .portal-detail-stack {
+        display: grid;
+        gap: 14px;
+    }
+
+    .portal-order-card {
+        padding: 22px;
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        display: grid;
+        gap: 16px;
+    }
+
+    [data-theme="light"] .portal-order-card {
+        background: rgba(255, 255, 255, 0.88);
+        border-color: rgba(15, 23, 42, 0.06);
+    }
+
+    .portal-order-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: start;
+        flex-wrap: wrap;
+    }
+
+    .portal-order-head strong {
+        font-size: clamp(1.25rem, 2vw, 1.55rem);
+        margin-bottom: 6px;
+    }
+
+    .portal-order-grid,
+    .portal-detail-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .portal-detail-grid--triple {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .portal-order-box strong,
+    .portal-detail-item strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 1rem;
+    }
+
+    .portal-detail-toggle summary {
+        cursor: pointer;
+        list-style: none;
+        font-weight: 800;
+    }
+
+    .portal-detail-toggle summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .portal-detail-toggle[open] summary {
+        margin-bottom: 14px;
+    }
+
+    .portal-summary-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 14px;
+        background: rgba(249, 115, 22, 0.12);
+        border: 1px solid rgba(249, 115, 22, 0.18);
+        font-size: 0.92rem;
+    }
+
+    .portal-empty {
+        text-align: center;
+        padding: 18px;
+        border-radius: 18px;
+        border: 1px dashed rgba(255, 255, 255, 0.18);
+        color: var(--text-secondary);
+    }
+
+    [data-theme="light"] .portal-empty {
+        border-color: rgba(15, 23, 42, 0.16);
+    }
+
+    .portal-proof-link {
+        color: var(--accent);
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    .portal-proof-link:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 1080px) {
+        .portal-kpi-grid,
+        .portal-order-grid,
+        .portal-detail-grid,
+        .portal-detail-grid--triple,
+        .portal-filter-form {
+            grid-template-columns: 1fr;
+        }
+
+        .portal-toolbar-row,
+        .portal-order-head {
+            align-items: stretch;
+        }
+    }
 </style>
 @endpush
 
-<div class="shell">
-  <div class="top">
-    <a href="{{ route('home') }}" class="brand"><b>SG</b><span>SimdiGetir Hesabim</span></a>
-    <form method="POST" action="{{ route('checkout.customer.logout') }}">
-      @csrf
-      <button type="submit" class="btn secondary">Cikis Yap</button>
-    </form>
-  </div>
-
-  @if (session('status'))
-    <div class="alert success" style="margin-bottom:20px;">{{ session('status') }}</div>
-  @endif
-
-  <section class="card hero">
-    <h1>{{ $customer->name }}</h1>
-    <p>Telefon: {{ $customer->phone ?? '-' }} @if($customer->email) | E-posta: {{ $customer->email }} @endif</p>
-
-    <div class="stats">
-      <div class="stat"><strong>{{ $activeOrders }}</strong><span class="meta">Aktif Siparis</span></div>
-      <div class="stat"><strong>{{ $completedOrders }}</strong><span class="meta">Teslim Edilen</span></div>
-      <div class="stat"><strong>{{ $orders->count() }}</strong><span class="meta">Listelenen Toplam</span></div>
-    </div>
-  </section>
-
-  <section class="card panel" style="margin-top:20px;">
-    <div class="actions">
-      <a href="{{ route('home') }}" class="btn secondary">Yeni Siparis Baslat</a>
-      <a href="{{ route('checkout.tracking') }}" class="btn secondary">Genel Takip Ekrani</a>
-    </div>
-
-    <div class="toolbar">
-      <div class="toolbar-row">
-        <form method="GET" action="{{ route('checkout.customer.dashboard') }}" class="toolbar-form">
-          <div class="field">
-            <label for="portal-search">Siparis Ara</label>
-            <input
-              id="portal-search"
-              type="search"
-              name="search"
-              value="{{ $searchTerm }}"
-              placeholder="Siparis no, alinis, teslimat, kisi veya odeme tipi"
-            >
-          </div>
-          <div class="field">
-            <label for="portal-state">Durum Filtresi</label>
-            <select id="portal-state" name="state">
-              @foreach ($availableStateFilters as $value => $label)
-                <option value="{{ $value }}" @selected($selectedState === $value)>{{ $label }}</option>
-              @endforeach
-            </select>
-          </div>
-          <div class="filter-actions">
-            <button type="submit" class="btn">Filtrele</button>
-            @if ($searchTerm !== '' || $selectedState !== 'all')
-              <a href="{{ route('checkout.customer.dashboard') }}" class="btn secondary">Temizle</a>
-            @endif
-          </div>
-        </form>
-
-        <div class="toolbar-summary">
-          <div class="pill-note">
-            <strong>{{ $filteredOrdersCount }}</strong> sonuc
-            @if ($searchTerm !== '' || $selectedState !== 'all')
-              <span>/ {{ $totalOrdersCount }} toplam</span>
-            @endif
-          </div>
-        </div>
-      </div>
-
-      <div class="chips">
-        @foreach ($availableStateFilters as $value => $label)
-          <a
-            href="{{ route('checkout.customer.dashboard', array_filter(['state' => $value !== 'all' ? $value : null, 'search' => $searchTerm !== '' ? $searchTerm : null])) }}"
-            class="chip @if($selectedState === $value) active @endif"
-          >
-            {{ $label }}
-          </a>
-        @endforeach
-      </div>
-    </div>
-
-    <div class="stack">
-      @forelse ($orders as $order)
-        <article class="order-card">
-          <div class="order-head">
-            <div>
-              <strong>{{ $order->order_no }}</strong>
-              <div class="meta">{{ optional($order->created_at)->format('Y-m-d H:i') }}</div>
-            </div>
-            <div class="badges">
-              <span class="badge">{{ $order->state }}</span>
-              <span class="badge">{{ $order->payment_state }}</span>
-            </div>
-          </div>
-
-          <div class="grid">
-            <div>
-              <div class="meta">Alinis</div>
-              <div>{{ $order->pickup_address }}</div>
-            </div>
-            <div>
-              <div class="meta">Teslimat</div>
-              <div>{{ $order->dropoff_address }}</div>
-            </div>
-            <div>
-              <div class="meta">Odeme</div>
-              <div>{{ $order->payment_method ?? '-' }} / {{ $order->payment_timing ?? '-' }}</div>
-            </div>
-            <div>
-              <div class="meta">Tutar</div>
-              <div>{{ number_format(((int) $order->total_amount) / 100, 2, ',', '.') }} {{ $order->currency }}</div>
-            </div>
-          </div>
-
-          <div class="actions" style="margin-top:14px;">
-            <a href="{{ route('checkout.customer.orders.show', ['orderNo' => $order->order_no]) }}" class="btn inline secondary">Siparis Detayi</a>
-            <a href="{{ route('checkout.customer.orders.receipt', ['orderNo' => $order->order_no]) }}" class="btn inline secondary">Dekont</a>
-            <a href="{{ route('checkout.tracking', ['order_no' => $order->order_no, 'phone' => $customer->phone]) }}" class="btn inline">Takip Et</a>
-          </div>
-
-          <details class="detail-box">
-            <summary>Detaylari Goster</summary>
-            <div class="detail-grid">
-              <div>
-                <div class="detail-note">State Timeline</div>
-                <div class="detail-list">
-                  @forelse ($order->stateLogs as $item)
-                    <div class="detail-item">
-                      <strong>{{ $item->to_state }}</strong>
-                      <div class="detail-note">{{ $item->reason ?? '-' }}</div>
-                      <div class="detail-note">{{ optional($item->created_at)->format('Y-m-d H:i') }}</div>
-                    </div>
-                  @empty
-                    <div class="detail-empty">Timeline kaydi yok.</div>
-                  @endforelse
+<div class="checkout-shell checkout-shell--wide">
+    <section class="checkout-hero-grid">
+        <article class="checkout-card checkout-card--hero">
+            <div class="checkout-lead">
+                <div class="section-badge">
+                    <i class="fa-solid fa-id-card"></i> Kayitli musteri paneli
                 </div>
-              </div>
-
-              <div>
-                <div class="detail-note">Kurye Hareketleri</div>
-                <div class="detail-list">
-                  @forelse ($order->trackingEvents as $item)
-                    <div class="detail-item">
-                      <strong>{{ $item->event_type }}</strong>
-                      <div class="detail-note">{{ $item->note ?? 'Not yok.' }}</div>
-                      <div class="detail-note">{{ optional($item->created_at)->format('Y-m-d H:i') }}</div>
-                    </div>
-                  @empty
-                    <div class="detail-empty">Tracking eventi yok.</div>
-                  @endforelse
+                <div class="checkout-meta">
+                    <span class="checkout-chip">{{ $customer->name }}</span>
+                    <span class="checkout-chip checkout-chip--info">{{ $customer->phone ?? '-' }}</span>
+                    @if ($customer->email)
+                        <span class="checkout-chip">{{ $customer->email }}</span>
+                    @endif
                 </div>
-              </div>
-
-              <div>
-                <div class="detail-note">Proof Ozeti</div>
-                <div class="detail-list">
-                  @forelse ($order->orderProofs as $item)
-                    <div class="detail-item">
-                      <strong>{{ $item->stage }} / {{ $item->proof_type }}</strong>
-                      <div class="detail-note">
-                        @if ($item->file_url)
-                          <a href="{{ $item->file_url }}" target="_blank" rel="noreferrer">Dosyayi Ac</a>
-                        @else
-                          Dosya baglantisi yok.
-                        @endif
-                      </div>
-                      <div class="detail-note">{{ optional($item->created_at)->format('Y-m-d H:i') }}</div>
-                    </div>
-                  @empty
-                    <div class="detail-empty">Proof kaydi yok.</div>
-                  @endforelse
-                </div>
-              </div>
+                <h1>Siparislerinizi tek panelden takip edin.</h1>
+                <p>Aktif siparisler, onceki hareketler, dekontlar ve takip linkleri ayni hesaba bagli sekilde burada listelenir.</p>
             </div>
-          </details>
+
+            <div class="portal-kpi-grid">
+                <div class="portal-kpi">
+                    <small class="checkout-muted">Aktif siparis</small>
+                    <strong>{{ $activeOrders }}</strong>
+                </div>
+                <div class="portal-kpi">
+                    <small class="checkout-muted">Teslim edilen</small>
+                    <strong>{{ $completedOrders }}</strong>
+                </div>
+                <div class="portal-kpi">
+                    <small class="checkout-muted">Listelenen toplam</small>
+                    <strong>{{ $orders->count() }}</strong>
+                </div>
+            </div>
+
+            <div class="checkout-actions portal-hero-actions" style="margin-top:18px;">
+                <a href="{{ route('home') }}" class="btn btn-primary">Yeni siparis baslat</a>
+                <a href="{{ route('checkout.tracking') }}" class="btn btn-outline">Genel takip ekrani</a>
+                <form method="POST" action="{{ route('checkout.customer.logout') }}">
+                    @csrf
+                    <button type="submit" class="btn btn-outline">Cikis yap</button>
+                </form>
+            </div>
         </article>
-      @empty
-        <div class="empty">
-          @if ($searchTerm !== '' || $selectedState !== 'all')
-            Bu filtreye uygun siparis bulunamadi.
-          @else
-            Bu hesap icin siparis kaydi bulunamadi.
-          @endif
+
+        <aside class="checkout-card checkout-card--support">
+            <div class="checkout-lead" style="gap:10px;">
+                <div class="section-badge">
+                    <i class="fa-solid fa-headset"></i> Destek ve hizli erisim
+                </div>
+                <h2>Panel disinda da ayni destek hatlari acik.</h2>
+                <p>{{ $support['support_note'] ?? 'Destek ekibimiz telefon, WhatsApp veya e-posta uzerinden yardimci olur.' }}</p>
+            </div>
+
+            <div class="checkout-list" style="margin-top:18px;">
+                <div class="checkout-list-item">
+                    <strong>Canli destek</strong>
+                    <div class="checkout-link-list">
+                        <a href="{{ $support['phone_href'] ?? 'tel:+905513567292' }}">{{ $support['phone_display'] ?? '+90 551 356 72 92' }}</a>
+                        <a href="{{ $support['whatsapp_href'] ?? 'https://wa.me/905513567292' }}" target="_blank" rel="noopener">WhatsApp destegi</a>
+                        <a href="{{ $support['email_href'] ?? 'mailto:webgetir@simdigetir.com' }}">{{ $support['email'] ?? 'webgetir@simdigetir.com' }}</a>
+                    </div>
+                </div>
+                <div class="checkout-list-item">
+                    <strong>Filtre ozetiniz</strong>
+                    <div class="portal-summary-count">
+                        <strong>{{ $filteredOrdersCount }}</strong> sonuc
+                        @if ($searchTerm !== '' || $selectedState !== 'all')
+                            <span>/ {{ $totalOrdersCount }} toplam</span>
+                        @endif
+                    </div>
+                </div>
+                <div class="checkout-list-item">
+                    <strong>Yasal baglantilar</strong>
+                    <div class="checkout-link-list">
+                        <a href="{{ $support['privacy_href'] ?? url('/kvkk') }}">KVKK</a>
+                        <a href="{{ $support['terms_href'] ?? url('/kullanim-kosullari') }}">Kullanim kosullari</a>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </section>
+
+    <section class="checkout-card checkout-card--panel">
+        @if (session('status'))
+            <div class="checkout-alert checkout-alert--success" style="margin-bottom:16px;">{{ session('status') }}</div>
+        @endif
+
+        <div class="checkout-panel-head">
+            <div>
+                <h2>Siparis listeniz</h2>
+                <p>Arama, durum filtresi ve detay acilirlari ile aktif ve onceki siparislerinize hizli ulasin.</p>
+            </div>
         </div>
-      @endforelse
-    </div>
-  </section>
+
+        <div class="portal-toolbar">
+            <div class="portal-toolbar-row">
+                <form method="GET" action="{{ route('checkout.customer.dashboard') }}" class="portal-filter-form">
+                    <div class="checkout-field">
+                        <label for="portal-search">Siparis ara</label>
+                        <input
+                            id="portal-search"
+                            type="search"
+                            name="search"
+                            value="{{ $searchTerm }}"
+                            placeholder="Siparis no, alis, teslimat, kisi veya odeme tipi"
+                        >
+                    </div>
+                    <div class="checkout-field">
+                        <label for="portal-state">Durum filtresi</label>
+                        <select id="portal-state" name="state">
+                            @foreach ($availableStateFilters as $value => $label)
+                                <option value="{{ $value }}" @selected($selectedState === $value)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="checkout-actions">
+                        <button type="submit" class="btn btn-primary">Filtrele</button>
+                        @if ($searchTerm !== '' || $selectedState !== 'all')
+                            <a href="{{ route('checkout.customer.dashboard') }}" class="btn btn-outline">Temizle</a>
+                        @endif
+                    </div>
+                </form>
+            </div>
+
+            <div class="portal-chip-row">
+                @foreach ($availableStateFilters as $value => $label)
+                    <a
+                        href="{{ route('checkout.customer.dashboard', array_filter(['state' => $value !== 'all' ? $value : null, 'search' => $searchTerm !== '' ? $searchTerm : null])) }}"
+                        class="portal-chip @if($selectedState === $value) is-active @endif"
+                    >
+                        {{ $label }}
+                    </a>
+                @endforeach
+            </div>
+        </div>
+
+        <div class="portal-order-stack" style="margin-top:18px;">
+            @forelse ($orders as $order)
+                <article class="portal-order-card">
+                    <div class="portal-order-head">
+                        <div>
+                            <strong>{{ $order->order_no }}</strong>
+                            <div class="checkout-muted">{{ optional($order->created_at)->format('Y-m-d H:i') }}</div>
+                        </div>
+                        <div class="portal-badges">
+                            <span class="checkout-chip">{{ $stateLabel($order->state) }}</span>
+                            <span class="checkout-chip checkout-chip--info">{{ $stateLabel($order->payment_state) }}</span>
+                        </div>
+                    </div>
+
+                    <div class="portal-order-grid">
+                        <div class="portal-order-box">
+                            <strong>Alis</strong>
+                            <div>{{ $order->pickup_address }}</div>
+                        </div>
+                        <div class="portal-order-box">
+                            <strong>Teslimat</strong>
+                            <div>{{ $order->dropoff_address }}</div>
+                        </div>
+                        <div class="portal-order-box">
+                            <strong>Odeme</strong>
+                            <div>{{ $order->payment_method ?? '-' }} / {{ $order->payment_timing ?? '-' }}</div>
+                        </div>
+                        <div class="portal-order-box">
+                            <strong>Tutar</strong>
+                            <div>{{ number_format(((int) $order->total_amount) / 100, 2, ',', '.') }} {{ $order->currency }}</div>
+                        </div>
+                    </div>
+
+                    <div class="checkout-actions portal-inline-actions">
+                        <a href="{{ route('checkout.customer.orders.show', ['orderNo' => $order->order_no]) }}" class="btn btn-outline">Siparis detayi</a>
+                        <a href="{{ route('checkout.customer.orders.receipt', ['orderNo' => $order->order_no]) }}" class="btn btn-outline">Dekont</a>
+                        <a href="{{ route('checkout.tracking', ['order_no' => $order->order_no, 'phone' => $customer->phone]) }}" class="btn btn-primary">Takip et</a>
+                    </div>
+
+                    <details class="portal-detail-toggle">
+                        <summary>Detaylari goster</summary>
+                        <div class="portal-detail-grid portal-detail-grid--triple">
+                            <div class="portal-detail-stack">
+                                <div class="checkout-muted">State timeline</div>
+                                @forelse ($order->stateLogs as $item)
+                                    <div class="portal-detail-item">
+                                        <strong>{{ $stateLabel($item->to_state) }}</strong>
+                                        <div class="checkout-muted">{{ $item->reason ?? '-' }}</div>
+                                        <div class="checkout-muted">{{ optional($item->created_at)->format('Y-m-d H:i') }}</div>
+                                    </div>
+                                @empty
+                                    <div class="portal-detail-empty">Timeline kaydi yok.</div>
+                                @endforelse
+                            </div>
+
+                            <div class="portal-detail-stack">
+                                <div class="checkout-muted">Kurye hareketleri</div>
+                                @forelse ($order->trackingEvents as $item)
+                                    <div class="portal-detail-item">
+                                        <strong>{{ $stateLabel($item->event_type) }}</strong>
+                                        <div class="checkout-muted">{{ $item->note ?? 'Not yok.' }}</div>
+                                        <div class="checkout-muted">{{ optional($item->created_at)->format('Y-m-d H:i') }}</div>
+                                    </div>
+                                @empty
+                                    <div class="portal-detail-empty">Tracking eventi yok.</div>
+                                @endforelse
+                            </div>
+
+                            <div class="portal-detail-stack">
+                                <div class="checkout-muted">Proof ozeti</div>
+                                @forelse ($order->orderProofs as $item)
+                                    <div class="portal-detail-item">
+                                        <strong>{{ $stateLabel($item->stage) }} / {{ $stateLabel($item->proof_type) }}</strong>
+                                        <div class="checkout-muted">
+                                            @if ($item->file_url)
+                                                <a href="{{ $item->file_url }}" target="_blank" rel="noreferrer" class="portal-proof-link">Dosyayi ac</a>
+                                            @else
+                                                Dosya baglantisi yok.
+                                            @endif
+                                        </div>
+                                        <div class="checkout-muted">{{ optional($item->created_at)->format('Y-m-d H:i') }}</div>
+                                    </div>
+                                @empty
+                                    <div class="portal-detail-empty">Proof kaydi yok.</div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </details>
+                </article>
+            @empty
+                <div class="portal-empty">
+                    @if ($searchTerm !== '' || $selectedState !== 'all')
+                        Bu filtreye uygun siparis bulunamadi.
+                    @else
+                        Bu hesap icin siparis kaydi bulunamadi.
+                    @endif
+                </div>
+            @endforelse
+        </div>
+    </section>
 </div>
-</x-checkout::layouts.master>
+</x-checkout::layouts.public>

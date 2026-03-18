@@ -17,13 +17,17 @@ class CheckoutPageTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('Siparise Basla');
-        $response->assertSee('Ana Sayfada Fiyat Hesapla');
-        $response->assertSee('Hesap Olustur');
+        $response->assertSee('Ana sayfada fiyat hesapla');
+        $response->assertSee('Hesap olustur');
         $response->assertSee(route('checkout.customer.register'));
-        $response->assertSee('Musteri Girisi');
-        $response->assertSee('Siparis Takip');
+        $response->assertSee('Musteri girisi');
+        $response->assertSee('Siparis takip');
         $response->assertSee('KVKK');
-        $response->assertSee('<html lang="tr">', false);
+        $response->assertSee('lang="tr"', false);
+        $response->assertSee('id="theme-toggle"', false);
+        $response->assertSee('id="offcanvas-sidebar"', false);
+        $response->assertSee('Powered by', false);
+        $response->assertDontSee('checkout-site-footer');
         $response->assertDontSee('404 yerine');
         $this->assertNoMojibake($response->getContent());
     }
@@ -60,10 +64,14 @@ class CheckoutPageTest extends TestCase
 
         $this->get('/checkout/'.$session->token)
             ->assertOk()
-            ->assertSee('SimdiGetir Checkout')
+            ->assertSee('Quote to order checkout')
+            ->assertSee('Teklifi siparişe çevirin, ödemeyi seçin, operasyonu kilitleyin.')
             ->assertSee('Besiktas Meydan')
             ->assertSee('Sisli Merkez')
-            ->assertSee('Moto Kurye');
+            ->assertSee('Moto Kurye')
+            ->assertSee('id="theme-toggle"', false)
+            ->assertSee('id="offcanvas-sidebar"', false)
+            ->assertSee('Powered by', false);
     }
 
     public function test_siparis_shortcut_redirects_to_checkout_entry_page(): void
@@ -108,7 +116,8 @@ class CheckoutPageTest extends TestCase
         $response = $this->get('/checkout/'.$session->token);
 
         $response->assertOk();
-        $response->assertSee('SimdiGetir Checkout');
+        $response->assertSee('Quote to order checkout');
+        $response->assertSee('Teklifi siparişe çevirin, ödemeyi seçin, operasyonu kilitleyin.');
         $response->assertSee('Sisli Merkez');
         $response->assertSee('Kadikoy Moda');
         $response->assertSee('Kayıt veya giriş');
@@ -116,6 +125,10 @@ class CheckoutPageTest extends TestCase
         $response->assertSee('Ödeme yöntemi');
         $response->assertSee('Gönderi Şekli');
         $response->assertSee('data-checkout-app', false);
+        $response->assertSee('id="theme-toggle"', false);
+        $response->assertSee('id="offcanvas-sidebar"', false);
+        $response->assertSee('Powered by', false);
+        $response->assertDontSee('checkout-site-footer');
         $this->assertNoMojibake($response->getContent());
     }
 

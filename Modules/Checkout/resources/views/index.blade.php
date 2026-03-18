@@ -1,4 +1,4 @@
-<x-checkout::layouts.master title="Siparise Basla" description="SimdiGetir siparis baslangic ekrani">
+<x-checkout::layouts.public title="Siparise Basla" description="SimdiGetir siparis baslangic ekrani">
 @php
     $pageCopy = is_array($pageCopy ?? null) ? $pageCopy : [];
     $support = is_array($support ?? null) ? $support : [];
@@ -6,63 +6,161 @@
 
 @push('styles')
 <style>
-body{margin:0;background:var(--sg-surface-page-light);color:var(--sg-ink-light);font-family:var(--sg-font-body)}.shell{width:min(1100px,calc(100% - 32px));margin:0 auto;padding:28px 0 44px}.top{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:20px;flex-wrap:wrap}.brand{display:inline-flex;align-items:center;gap:12px;color:inherit;text-decoration:none;font-weight:800}.brand b{width:42px;height:42px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;background:var(--sg-brand-gradient);color:#fff;font-family:var(--sg-font-display)}.card{border:1px solid var(--sg-border-light);border-radius:24px;background:var(--sg-card-light);backdrop-filter:blur(14px);box-shadow:var(--sg-shadow-light)}.hero,.grid section{padding:24px}.hero h1{margin:0 0 10px;font-family:var(--sg-font-display);font-size:var(--sg-type-display-lg)}.hero p,.muted,.item p,.support-note,.support-links small{color:var(--sg-muted-light)}.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:20px;margin-top:20px}.actions,.list,.support-links{display:grid;gap:12px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 18px;border-radius:16px;border:0;background:var(--sg-action-gradient);color:#fff;font:inherit;font-weight:800;cursor:pointer;text-decoration:none}.btn.secondary{background:var(--sg-card-light-strong);color:var(--sg-ink-light);border:1px solid var(--sg-border-light)}.item{padding:16px;border-radius:18px;border:1px solid var(--sg-border-light-soft);background:var(--sg-card-light-soft)}.item strong{display:block;margin-bottom:6px}.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:var(--sg-card-brand-soft-light);color:var(--sg-accent-warm-text);font-size:var(--sg-type-caption);font-weight:800;margin-bottom:14px}.support-note{margin-top:14px;font-size:var(--sg-type-body-sm)}.support-links a{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 16px;border-radius:14px;border:1px solid var(--sg-border-light);background:#fff;color:var(--sg-link-warm);font-weight:800;text-decoration:none}.support-links small{display:block;margin-top:-4px}.trust-list{display:grid;gap:10px;margin-top:14px}.trust-pill{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;background:var(--sg-card-light-soft);border:1px solid var(--sg-border-light-soft);font-size:var(--sg-type-body-sm)}@media (max-width:980px){.grid{grid-template-columns:1fr}}
+    .checkout-entry-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+        gap: 20px;
+    }
+
+    .checkout-entry-steps,
+    .checkout-entry-links,
+    .checkout-entry-trust {
+        display: grid;
+        gap: 12px;
+    }
+
+    .checkout-entry-step,
+    .checkout-entry-trust-item {
+        padding: 16px 18px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    [data-theme="light"] .checkout-entry-step,
+    [data-theme="light"] .checkout-entry-trust-item {
+        background: rgba(255, 255, 255, 0.84);
+        border-color: rgba(15, 23, 42, 0.06);
+    }
+
+    .checkout-entry-step strong,
+    .checkout-entry-trust-item strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 1rem;
+    }
+
+    .checkout-entry-links a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        padding: 0 16px;
+        border-radius: 14px;
+        border: 1px solid var(--border-glass);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text-primary);
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    [data-theme="light"] .checkout-entry-links a {
+        background: rgba(255, 255, 255, 0.88);
+        border-color: rgba(15, 23, 42, 0.08);
+    }
+
+    .checkout-entry-links a:hover {
+        color: var(--accent);
+    }
+
+    @media (max-width: 1080px) {
+        .checkout-entry-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 @endpush
 
-<div class="shell">
-  <div class="top">
-    <a href="{{ route('home') }}" class="brand"><b>SG</b><span>SimdiGetir Siparis</span></a>
-    <div class="muted">{{ $support['support_note'] ?? 'Siparis oncesi veya sonrasinda destek almak icin iletisim kanallarimiz her zaman acik.' }}</div>
-  </div>
+<div class="checkout-shell">
+    <section class="checkout-hero-grid">
+        <article class="checkout-card checkout-card--hero">
+            <div class="checkout-lead">
+                <div class="section-badge">
+                    <i class="fa-solid fa-bolt"></i> Guvenli baslangic
+                </div>
+                <div class="checkout-meta">
+                    <span class="checkout-chip">Landing ile ayni shell</span>
+                    <span class="checkout-chip checkout-chip--info">Quote -> checkout gecisi icin hazir</span>
+                </div>
+                <h1>Siparise basla.</h1>
+                <p>{{ $pageCopy['intro'] ?? 'Adres bilgilerinizi girerek teklif alin, uygun oldugunuzda guvenli checkout akisina devam edin.' }}</p>
+            </div>
 
-  <section class="card hero">
-    <span class="eyebrow">Guvenli baslangic</span>
-    <h1>Siparise Basla</h1>
-    <p>{{ $pageCopy['intro'] ?? 'Adres bilgilerinizi girerek teklif alin, uygun oldugunuzda guvenli checkout akisina devam edin.' }}</p>
-    <div class="actions" style="margin-top:18px">
-      <a href="{{ route('home') }}" class="btn">Ana Sayfada Fiyat Hesapla</a>
-      <a href="{{ route('checkout.customer.register') }}" class="btn secondary">Hesap Olustur</a>
-    </div>
-    <p class="support-note">{{ $pageCopy['help'] ?? 'Daha once hesap olusturduysaniz mevcut siparislerinizi ve takip linklerinizi Hesabim ekranindan gorebilirsiniz.' }}</p>
-  </section>
+            <div class="checkout-actions" style="margin-top:18px;">
+                <a href="{{ route('home') }}" class="btn btn-primary">Ana sayfada fiyat hesapla</a>
+                <a href="{{ route('checkout.customer.register') }}" class="btn btn-outline">Hesap olustur</a>
+            </div>
 
-  <div class="grid">
-    <section class="card">
-      <div class="list">
-        <article class="item">
-          <strong>1. Teklifinizi alin</strong>
-          <p>Ana sayfada alis ve teslimat adresini girin, tahmini fiyat ve sureyi aninda gorun.</p>
+            <div class="checkout-alert checkout-alert--info" style="margin-top:16px;">
+                {{ $pageCopy['help'] ?? 'Daha once hesap olusturduysaniz mevcut siparislerinizi ve takip linklerinizi Hesabim ekranindan gorebilirsiniz.' }}
+            </div>
         </article>
-        <article class="item">
-          <strong>2. Hesabinizi baglayin</strong>
-          <p>Dilerseniz hesap olusturarak siparis gecmisinizi, odeme durumunu ve takip linklerini tek ekranda tutun.</p>
-        </article>
-        <article class="item">
-          <strong>3. Siparisi tamamlayin</strong>
-          <p>Gonderen ve alici bilgilerini dogrulayin, odeme yonteminizi secin ve siparisi onaylayin.</p>
-        </article>
-      </div>
+
+        <aside class="checkout-card checkout-card--support">
+            <div class="checkout-lead" style="gap:10px;">
+                <div class="section-badge">
+                    <i class="fa-solid fa-headset"></i> Destek ve hizli baglantilar
+                </div>
+                <h2>Checkout oncesi yardim kanallari</h2>
+                <p>{{ $support['support_note'] ?? 'Siparis oncesi veya sonrasinda destek almak icin iletisim kanallarimiz her zaman acik.' }}</p>
+            </div>
+
+            <div class="checkout-list" style="margin-top:18px;">
+                <div class="checkout-list-item">
+                    <strong>Hizli erisim</strong>
+                    <div class="checkout-entry-links">
+                        <a href="{{ route('checkout.customer.login') }}">Musteri girisi</a>
+                        <a href="{{ route('checkout.tracking') }}">Siparis takip</a>
+                        <a href="{{ $support['phone_href'] ?? 'tel:+905513567292' }}">{{ $support['phone_display'] ?? '+90 551 356 72 92' }}</a>
+                    </div>
+                </div>
+                <div class="checkout-list-item">
+                    <strong>Canli destek</strong>
+                    <div class="checkout-entry-links">
+                        <a href="{{ $support['whatsapp_href'] ?? 'https://wa.me/905513567292' }}" target="_blank" rel="noopener">WhatsApp</a>
+                        <a href="{{ $support['email_href'] ?? 'mailto:webgetir@simdigetir.com' }}">{{ $support['email'] ?? 'webgetir@simdigetir.com' }}</a>
+                        <a href="{{ $support['contact_href'] ?? route('contact') }}">Iletisim sayfasi</a>
+                    </div>
+                </div>
+            </div>
+        </aside>
     </section>
-    <section class="card">
-      <div class="list">
-        <article class="item">
-          <strong>Hizli erisim</strong>
-          <p>Kayitli musteriyseniz hesabiniza girin ya da acik siparisiniz varsa takip ekranina gidin.</p>
-        </article>
-        <div class="support-links">
-          <a href="{{ route('checkout.customer.login') }}">Musteri Girisi</a>
-          <a href="{{ route('checkout.tracking') }}">Siparis Takip</a>
-          <a href="{{ $support['phone_href'] ?? 'tel:+905513567292' }}">{{ $support['phone_display'] ?? '+90 551 356 72 92' }}</a>
-          <small>Telefon, WhatsApp veya e-posta ile destek alabilirsiniz.</small>
+
+    <section class="checkout-card checkout-card--panel">
+        <div class="checkout-panel-head">
+            <div>
+                <h2>Akis ozeti</h2>
+                <p>Landing quote sonucu sonrasinda kullanicinin dead-end'e dusmeden ilerleyecegi cekirdek checkout baslangici.</p>
+            </div>
         </div>
-        <div class="trust-list" aria-label="Guven gostergeleri">
-          <div class="trust-pill">Canli destek: <a href="{{ $support['whatsapp_href'] ?? 'https://wa.me/905513567292' }}" target="_blank" rel="noopener">WhatsApp</a></div>
-          <div class="trust-pill">E-posta: <a href="{{ $support['email_href'] ?? 'mailto:webgetir@simdigetir.com' }}">{{ $support['email'] ?? 'webgetir@simdigetir.com' }}</a></div>
-          <div class="trust-pill"><a href="{{ $support['privacy_href'] ?? url('/kvkk') }}">KVKK</a> ve <a href="{{ $support['terms_href'] ?? url('/kullanim-kosullari') }}">kullanim kosullari</a> baglantilari her zaman acik.</div>
+
+        <div class="checkout-entry-grid">
+            <div class="checkout-entry-steps">
+                <article class="checkout-entry-step">
+                    <strong>1. Teklifinizi alin</strong>
+                    <p>Ana sayfada alis ve teslimat adresini girin, tahmini fiyat ve sureyi aninda gorun.</p>
+                </article>
+                <article class="checkout-entry-step">
+                    <strong>2. Hesabinizi baglayin</strong>
+                    <p>Dilerseniz hesap olusturarak siparis gecmisinizi, odeme durumunu ve takip linklerini tek ekranda tutun.</p>
+                </article>
+                <article class="checkout-entry-step">
+                    <strong>3. Siparisi tamamlayin</strong>
+                    <p>Gonderen ve alici bilgilerini dogrulayin, odeme yonteminizi secin ve siparisi onaylayin.</p>
+                </article>
+            </div>
+
+            <div class="checkout-entry-trust">
+                <article class="checkout-entry-trust-item">
+                    <strong>Yasal guvence</strong>
+                    <p><a href="{{ $support['privacy_href'] ?? url('/kvkk') }}">KVKK</a> ve <a href="{{ $support['terms_href'] ?? url('/kullanim-kosullari') }}">kullanim kosullari</a> baglantilari her zaman acik.</p>
+                </article>
+                <article class="checkout-entry-trust-item">
+                    <strong>Takip ve panel</strong>
+                    <p>Kayitli musteriyseniz Hesabim ekranindan onceki siparislerinizi, acik siparisiniz varsa takip ekranindan anlik durumu gorebilirsiniz.</p>
+                </article>
+            </div>
         </div>
-      </div>
     </section>
-  </div>
 </div>
-</x-checkout::layouts.master>
+</x-checkout::layouts.public>

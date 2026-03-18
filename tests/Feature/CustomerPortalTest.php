@@ -22,6 +22,10 @@ class CustomerPortalTest extends TestCase
         $response->assertSee('KVKK');
         $response->assertSee('Siparise Basla');
         $response->assertSee(route('checkout.customer.login'));
+        $response->assertSee('id="theme-toggle"', false);
+        $response->assertSee('id="offcanvas-sidebar"', false);
+        $response->assertSee('Powered by', false);
+        $response->assertDontSee('checkout-site-footer');
     }
 
     public function test_register_alias_redirects_to_customer_register_page(): void
@@ -85,7 +89,11 @@ class CustomerPortalTest extends TestCase
         $response->assertSee('Musteri Girisi');
         $response->assertSee('Siparis Takip Ekrani');
         $response->assertSee('WhatsApp ile Yardim Al');
-        $response->assertSee('<html lang="tr">', false);
+        $response->assertSee('lang="tr"', false);
+        $response->assertSee('id="theme-toggle"', false);
+        $response->assertSee('id="offcanvas-sidebar"', false);
+        $response->assertSee('Powered by', false);
+        $response->assertDontSee('checkout-site-footer');
     }
 
     public function test_customer_can_login_with_phone_and_view_own_orders(): void
@@ -164,10 +172,14 @@ class CustomerPortalTest extends TestCase
         $response->assertDontSee('ORD-PORTAL-OTHER');
         $response->assertSee('/hesabim/siparisler/ORD-PORTAL-001');
         $response->assertSee('/siparis-takip?order_no=ORD-PORTAL-001');
-        $response->assertSee('Detaylari Goster');
+        $response->assertSee('Detaylari goster');
         $response->assertSee('checkout_finalized');
         $response->assertSee('Kurye cikis yapti');
         $response->assertSee('portal-proof.jpg');
+        $response->assertSee('id="theme-toggle"', false);
+        $response->assertSee('id="offcanvas-sidebar"', false);
+        $response->assertSee('Powered by', false);
+        $response->assertDontSee('checkout-site-footer');
     }
 
     public function test_customer_can_open_own_order_detail_page(): void
@@ -270,6 +282,10 @@ class CustomerPortalTest extends TestCase
         $response->assertSee('Musteri Havale Notu');
         $response->assertSee('Akbank');
         $response->assertSee('Aciklamaya ORD-PORTAL-DETAIL-001 yazin.');
+        $response->assertSee('id="theme-toggle"', false);
+        $response->assertSee('id="offcanvas-sidebar"', false);
+        $response->assertSee('Powered by', false);
+        $response->assertDontSee('checkout-site-footer');
     }
 
     public function test_customer_can_open_own_order_receipt_page(): void
@@ -309,10 +325,14 @@ class CustomerPortalTest extends TestCase
         $response = $this->get('/hesabim/siparisler/ORD-PORTAL-RECEIPT-001/dekont');
 
         $response->assertOk();
-        $response->assertSee('Ödeme Dekontu');
+        $response->assertSee('Odeme dekontu');
         $response->assertSee('ORD-PORTAL-RECEIPT-001');
         $response->assertSee('BNK-RECEIPT-001');
         $response->assertSee('154,00 TRY');
+        $response->assertSee('id="theme-toggle"', false);
+        $response->assertSee('id="offcanvas-sidebar"', false);
+        $response->assertSee('Powered by', false);
+        $response->assertDontSee('checkout-site-footer');
     }
 
     public function test_customer_dashboard_supports_state_filter_and_search(): void
@@ -376,6 +396,10 @@ class CustomerPortalTest extends TestCase
         $response->assertSee('<strong>1</strong> sonuc', false);
         $response->assertSee('/hesabim?state=active&amp;search=Bomonti', false);
         $response->assertSee('Temizle');
+        $response->assertSee('id="theme-toggle"', false);
+        $response->assertSee('id="offcanvas-sidebar"', false);
+        $response->assertSee('Powered by', false);
+        $response->assertDontSee('checkout-site-footer');
     }
 
     public function test_customer_cannot_open_another_customers_order_detail_page(): void
@@ -426,3 +450,5 @@ class CustomerPortalTest extends TestCase
         $response->assertSessionHasErrors('phone');
     }
 }
+
+
