@@ -40,3 +40,4 @@ Desktop.ini
 .security-key
 logs/security/
 /output/
+/crop_logo.py
