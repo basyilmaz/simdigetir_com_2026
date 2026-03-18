@@ -30,13 +30,13 @@ class StatsOverview extends BaseWidget
 
         return [
             Stat::make('Bugün Gelen Talepler', $todayLeads)
-                ->description("Bekleyen yeni talepler: {$newLeads}")
+                ->description(static::todayLeadDescription($todayLeads, $newLeads))
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->color('warning')
                 ->chart([7, 3, 4, 5, 6, $todayLeads > 0 ? $todayLeads : 1]),
 
             Stat::make('Toplam Sipariş', $totalOrders)
-                ->description("Bugün {$todayOrders} yeni sipariş")
+                ->description(static::todayOrderDescription($todayOrders))
                 ->descriptionIcon('heroicon-m-shopping-bag')
                 ->color('success'),
 
@@ -46,14 +46,41 @@ class StatsOverview extends BaseWidget
                 ->color($leadConversionRate >= 20 ? 'success' : 'warning'),
 
             Stat::make('Aktif Kuryeler', $activeCouriers)
-                ->description("{$pendingCouriers} başvuru bekliyor")
+                ->description(static::courierBacklogDescription($pendingCouriers))
                 ->descriptionIcon('heroicon-m-user-group')
                 ->color('info'),
 
             Stat::make('Açık Destek Talepleri', $openTickets)
-                ->description($openTickets > 0 ? 'İlgilenilmesi gereken talepler var' : 'Tüm talepler çözüldü')
+                ->description($openTickets > 0 ? 'Onceliklendirilecek acik talepler var' : 'Tum talepler guncel olarak kapali')
                 ->descriptionIcon($openTickets > 0 ? 'heroicon-m-exclamation-triangle' : 'heroicon-m-check-circle')
                 ->color($openTickets > 0 ? 'danger' : 'success'),
         ];
+    }
+
+    public static function todayLeadDescription(int $todayLeads, int $newLeads): string
+    {
+        if ($todayLeads === 0 && $newLeads === 0) {
+            return 'Bugun yeni talep yok, backlog temiz.';
+        }
+
+        return "Bekleyen yeni talepler: {$newLeads}";
+    }
+
+    public static function todayOrderDescription(int $todayOrders): string
+    {
+        if ($todayOrders === 0) {
+            return 'Bugun yeni siparis acilmadi';
+        }
+
+        return "Bugun {$todayOrders} yeni siparis";
+    }
+
+    public static function courierBacklogDescription(int $pendingCouriers): string
+    {
+        if ($pendingCouriers === 0) {
+            return 'Bekleyen kurye basvurusu yok';
+        }
+
+        return "{$pendingCouriers} basvuru bekliyor";
     }
 }

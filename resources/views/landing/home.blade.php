@@ -161,10 +161,10 @@
                                     Yeni Nesil Teslimat
                                 </div>
                                 
-                                <h1 class="animate__animated animate__fadeInUp animate__delay-1s">
+                                <h2 class="animate__animated animate__fadeInUp animate__delay-1s hero-secondary-title">
                                     Kuryeman: <span class="gradient-text" style="background: linear-gradient(135deg, #FF6B35 0%, #22d3ee 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Hızlı Teslimatın</span><br>
                                     Süper Gücü
-                                </h1>
+                                </h2>
                                 
                                 <p class="animate__animated animate__fadeInUp animate__delay-2s">
                                     Size özel kahraman kuryeniz yolda. 
@@ -341,7 +341,7 @@
 <style>
     .hero-slider-section {
         width: 100%;
-        min-height: 100vh; /* Force minimum height */
+        min-height: auto;
         position: relative;
     }
     .hero-slider-section.hero-slider-locked .swiper-pagination,
@@ -352,17 +352,24 @@
     .hero-swiper {
         width: 100%;
         height: 100%;
-        min-height: 100vh;
+        min-height: clamp(680px, 92vh, 920px);
     }
     .swiper-slide {
         height: auto;
     }
     .swiper-slide .hero {
-        min-height: 100vh; /* Ensure hero takes full height */
+        min-height: clamp(680px, 92vh, 920px);
         display: flex;
         align-items: center;
         padding-top: 150px; /* Account for header */
         padding-bottom: 80px;
+    }
+    .hero-secondary-title {
+        margin: 0;
+        font-size: clamp(2.4rem, 5vw, 4rem);
+        line-height: 1.1;
+        font-weight: 800;
+        font-family: var(--sg-font-display);
     }
     .swiper-pagination-bullet {
         background: rgba(255, 255, 255, 0.3);
@@ -396,6 +403,19 @@
         font-size: 1.5rem;
     }
     @media (max-width: 768px) {
+        .hero-slider-section,
+        .hero-swiper {
+            min-height: auto;
+        }
+        .swiper-slide .hero {
+            min-height: auto;
+            align-items: flex-start;
+            padding-top: 126px;
+            padding-bottom: 52px;
+        }
+        .hero-buttons {
+            gap: 0.75rem;
+        }
         .swiper-button-next,
         .swiper-button-prev {
             display: none;
@@ -562,6 +582,10 @@
                         <i class="fa-solid fa-paper-plane"></i> Teklif İste
                     </button>
                 </form>
+                <p class="form-consent-note">
+                    Formu gondererek <a href="{{ url('/kvkk') }}" target="_blank" rel="noopener">KVKK Aydinlatma Metni</a> kapsaminda iletisime gecilmesini kabul etmis olursunuz.
+                </p>
+                <div id="corporate-feedback" class="form-feedback" aria-live="polite"></div>
                 
                 <div id="corporate-success" style="display: none;" class="alert alert-success">
                     <i class="fa-solid fa-check-circle"></i> Talebiniz alındı! En kısa sürede iletişime geçeceğiz.
@@ -675,12 +699,38 @@
 
 @push('scripts')
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const corporateForm = document.getElementById('corporate-form');
+        if (!corporateForm) {
+            return;
+        }
+
+        corporateForm.querySelector('[name="company_name"]')?.setAttribute('autocomplete', 'organization');
+        corporateForm.querySelector('[name="name"]')?.setAttribute('autocomplete', 'name');
+        corporateForm.querySelector('[name="phone"]')?.setAttribute('autocomplete', 'tel');
+        corporateForm.querySelector('[name="phone"]')?.setAttribute('inputmode', 'tel');
+        corporateForm.querySelector('[name="email"]')?.setAttribute('autocomplete', 'email');
+    });
+
     async function submitLeadForm(event, type) {
         event.preventDefault();
         
         const form = event.target;
         const submitBtn = form.querySelector('button[type="submit"]');
         const successDiv = document.getElementById('corporate-success');
+        const feedbackNode = document.getElementById('corporate-feedback');
+        const defaultButtonHtml = '<i class="fa-solid fa-paper-plane"></i> Teklif Iste';
+
+        form.querySelector('[name="company_name"]')?.setAttribute('autocomplete', 'organization');
+        form.querySelector('[name="name"]')?.setAttribute('autocomplete', 'name');
+        form.querySelector('[name="phone"]')?.setAttribute('autocomplete', 'tel');
+        form.querySelector('[name="phone"]')?.setAttribute('inputmode', 'tel');
+        form.querySelector('[name="email"]')?.setAttribute('autocomplete', 'email');
+
+        window.setLandingFormFeedback(feedbackNode, '', '');
+        if (successDiv) {
+            successDiv.style.display = 'none';
+        }
         
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<span class="typing-dots"><span></span><span></span><span></span></span> Gönderiliyor...';
@@ -724,18 +774,32 @@
             const result = await response.json();
             
             if (result.success) {
-                form.style.display = 'none';
-                successDiv.style.display = 'block';
+                form.reset();
+                window.setLandingFormFeedback(
+                    feedbackNode,
+                    'Talebiniz alindi. Ekibimiz en kisa surede sizinle iletisime gececek.',
+                    'success'
+                );
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = defaultButtonHtml;
                 trackEvent('lead_submit', { lead_type: type });
             } else {
-                alert(result.message || 'Bir hata oluştu. Lütfen tekrar deneyin.');
+                window.setLandingFormFeedback(
+                    feedbackNode,
+                    result.message || 'Bir hata olustu. Lutfen tekrar deneyin.',
+                    'error'
+                );
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Teklif İste';
+                submitBtn.innerHTML = defaultButtonHtml;
             }
         } catch (error) {
-            alert('Bağlantı hatası. Lütfen tekrar deneyin.');
+            window.setLandingFormFeedback(
+                feedbackNode,
+                'Baglanti hatasi olustu. Lutfen tekrar deneyin.',
+                'error'
+            );
             submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Teklif İste';
+            submitBtn.innerHTML = defaultButtonHtml;
         }
     }
 </script>

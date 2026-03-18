@@ -129,6 +129,42 @@ class LandingStandardPagesDynamicContentTest extends TestCase
         $this->assertNoMojibake($response->getContent());
     }
 
+    public function test_contact_and_corporate_pages_use_inline_feedback_pattern(): void
+    {
+        $contactResponse = $this->get('/iletisim');
+        $contactResponse->assertStatus(200);
+        $contactResponse->assertSee('contact-feedback');
+        $contactResponse->assertSee('form-consent-note');
+        $contactResponse->assertSee('setLandingFormFeedback');
+
+        $corporateResponse = $this->get('/kurumsal');
+        $corporateResponse->assertStatus(200);
+        $corporateResponse->assertSee('corporate-feedback');
+        $corporateResponse->assertSee('form-consent-note');
+        $corporateResponse->assertSee('setLandingFormFeedback');
+        $corporateResponse->assertDontSee('İşletmenize Özel Özel Teklif');
+    }
+
+    public function test_courier_apply_page_uses_inline_feedback_pattern(): void
+    {
+        $response = $this->get('/kurye-basvuru');
+
+        $response->assertStatus(200);
+        $response->assertSee('courier-feedback');
+        $response->assertSee('setLandingFormFeedback');
+    }
+
+    public function test_landing_layout_renders_page_script_stack_once(): void
+    {
+        $contactContent = $this->get('/iletisim')->getContent();
+        $corporateContent = $this->get('/kurumsal')->getContent();
+        $courierContent = $this->get('/kurye-basvuru')->getContent();
+
+        $this->assertSame(1, substr_count($contactContent, 'async function submitContactForm(event)'));
+        $this->assertSame(1, substr_count($corporateContent, 'async function submitCorporateForm(event)'));
+        $this->assertSame(1, substr_count($courierContent, 'async function submitCourierForm(event)'));
+    }
+
     public function test_faq_page_renders_db_backed_faq_items()
     {
         $page = LandingPage::create([
@@ -164,6 +200,10 @@ class LandingStandardPagesDynamicContentTest extends TestCase
         $response->assertSee('Test soru nedir?');
         $response->assertSee('"name":"Test soru nedir?"', false);
         $response->assertSee('Bu bir test cevabıdır.');
+        $response->assertSee('data-faq-trigger');
+        $response->assertSee('aria-expanded="false"', false);
+        $response->assertSee('role="region"', false);
+        $response->assertDontSee('toggleFaq(');
     }
     public function test_about_page_uses_meta_structured_data_override_when_provided()
     {

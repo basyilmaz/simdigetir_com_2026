@@ -19,6 +19,8 @@ class CustomerPortalTest extends TestCase
         $response->assertOk();
         $response->assertSee('Musteri Kaydi');
         $response->assertSee('Hesap Olustur');
+        $response->assertSee('KVKK');
+        $response->assertSee('Siparise Basla');
         $response->assertSee(route('checkout.customer.login'));
     }
 
@@ -37,6 +39,7 @@ class CustomerPortalTest extends TestCase
             'email' => '',
             'password' => 'secret123',
             'password_confirmation' => 'secret123',
+            'legal_acceptance' => '1',
         ]);
 
         $response->assertOk();
@@ -50,11 +53,39 @@ class CustomerPortalTest extends TestCase
         ]);
     }
 
+    public function test_customer_registration_requires_legal_acceptance(): void
+    {
+        $response = $this->from('/hesabim/kayit')->post('/hesabim/kayit', [
+            'name' => 'Eksik Onay',
+            'phone' => '0551 222 33 44',
+            'email' => '',
+            'password' => 'secret123',
+            'password_confirmation' => 'secret123',
+        ]);
+
+        $response->assertRedirect('/hesabim/kayit');
+        $response->assertSessionHasErrors('legal_acceptance');
+        $this->assertDatabaseMissing('users', [
+            'phone' => '905512223344',
+        ]);
+    }
+
     public function test_guest_is_redirected_to_customer_login_when_opening_dashboard(): void
     {
         $response = $this->get('/hesabim');
 
         $response->assertRedirect(route('checkout.customer.login'));
+    }
+
+    public function test_guest_can_open_customer_login_page_with_support_actions(): void
+    {
+        $response = $this->get('/hesabim/giris');
+
+        $response->assertOk();
+        $response->assertSee('Musteri Girisi');
+        $response->assertSee('Siparis Takip Ekrani');
+        $response->assertSee('WhatsApp ile Yardim Al');
+        $response->assertSee('<html lang="tr">', false);
     }
 
     public function test_customer_can_login_with_phone_and_view_own_orders(): void

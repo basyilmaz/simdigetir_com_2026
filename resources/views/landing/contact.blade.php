@@ -234,6 +234,10 @@
                         <i class="fa-solid fa-paper-plane"></i> Mesaj Gönder
                     </button>
                 </form>
+                <p class="form-consent-note">
+                    Mesajinizi gondererek <a href="{{ url('/kvkk') }}" target="_blank" rel="noopener">KVKK Aydinlatma Metni</a> kapsaminda sizinle iletisime gecilmesini kabul etmis olursunuz.
+                </p>
+                <div id="contact-feedback" class="form-feedback" aria-live="polite"></div>
                 
                 <div id="contact-success" style="display: none;" class="alert alert-success">
                     <i class="fa-solid fa-check-circle"></i> Mesajınız alındı! En kısa sürede size dönüş yapacağız.
@@ -412,12 +416,31 @@
 
 @push('scripts')
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const contactForm = document.getElementById('contact-form');
+        if (!contactForm) {
+            return;
+        }
+
+        contactForm.querySelector('[name="name"]')?.setAttribute('autocomplete', 'name');
+        contactForm.querySelector('[name="phone"]')?.setAttribute('autocomplete', 'tel');
+        contactForm.querySelector('[name="phone"]')?.setAttribute('inputmode', 'tel');
+        contactForm.querySelector('[name="email"]')?.setAttribute('autocomplete', 'email');
+    });
+
     async function submitContactForm(event) {
         event.preventDefault();
         
         const form = event.target;
         const submitBtn = document.getElementById('contact-submit');
         const successDiv = document.getElementById('contact-success');
+        const feedbackNode = document.getElementById('contact-feedback');
+        const defaultButtonHtml = '<i class="fa-solid fa-paper-plane"></i> Mesaj Gönder';
+
+        window.setLandingFormFeedback(feedbackNode, '', '');
+        if (successDiv) {
+            successDiv.style.display = 'none';
+        }
         
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<span class="typing-dots"><span></span><span></span><span></span></span> Gönderiliyor...';
@@ -461,20 +484,33 @@
             const result = await response.json();
             
             if (result.success) {
-                form.style.display = 'none';
-                successDiv.style.display = 'block';
+                form.reset();
+                window.setLandingFormFeedback(
+                    feedbackNode,
+                    'Mesajiniz alindi. En kisa surede sizinle iletisime gececegiz.',
+                    'success'
+                );
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = defaultButtonHtml;
                 trackEvent('lead_submit', { lead_type: 'contact' });
             } else {
-                alert(result.message || 'Bir hata oluştu. Lütfen tekrar deneyin.');
+                window.setLandingFormFeedback(
+                    feedbackNode,
+                    result.message || 'Bir hata olustu. Lutfen tekrar deneyin.',
+                    'error'
+                );
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Mesaj Gönder';
+                submitBtn.innerHTML = defaultButtonHtml;
             }
         } catch (error) {
-            alert('Bağlantı hatası. Lütfen tekrar deneyin.');
+            window.setLandingFormFeedback(
+                feedbackNode,
+                'Baglanti hatasi olustu. Lutfen tekrar deneyin.',
+                'error'
+            );
             submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Mesaj Gönder';
+            submitBtn.innerHTML = defaultButtonHtml;
         }
     }
 </script>
 @endpush
-

@@ -80,4 +80,12 @@ class AdminPhase5UxEnhancementsTest extends TestCase
         $this->assertContains(MessagesRelationManager::class, SupportTicketResource::getRelations());
         $this->assertContains(CourierDocumentsRelationManager::class, CourierResource::getRelations());
     }
+
+    public function test_order_and_landing_resources_expose_operational_empty_states(): void
+    {
+        $this->assertSame('Henüz sipariş kaydı yok', OrderResource::emptyStateHeading());
+        $this->assertStringContainsString('checkout', OrderResource::emptyStateDescription());
+        $this->assertSame('Henuz landing sayfasi yok', LandingPageResource::emptyStateHeading());
+        $this->assertStringContainsString('SEO', LandingPageResource::emptyStateDescription());
+    }
 }

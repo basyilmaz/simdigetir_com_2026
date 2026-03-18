@@ -118,7 +118,7 @@
                 <i class="fa-solid fa-calculator"></i> {{ $submitLabel }}
             </button>
 
-            <a href="{{ route('checkout.index') }}" class="btn btn-outline hero-quote-direct" data-quote-start-checkout-direct>
+            <a href="{{ route('checkout.index') }}" class="btn btn-outline hero-quote-direct" data-quote-start-checkout-direct hidden>
                 <i class="fa-solid fa-cart-shopping"></i> Teklifsiz Devam Et
             </a>
         </form>
@@ -351,6 +351,7 @@
             const autocompleteProvider = String(widget.dataset.quoteAutocompleteProvider || 'manual');
             const autocompleteCountry = String(widget.dataset.quoteAutocompleteCountry || 'tr').trim().toLowerCase();
             const googleMapsApiKey = String(widget.dataset.googleMapsApiKey || '').trim();
+            let resolvedAutocompleteMode = autocompleteProvider;
             let latestQuotePayload = null;
             let preparedCheckoutToken = null;
             let creatingCheckoutSessionPromise = null;
@@ -618,27 +619,6 @@
                 syncFallbackCheckoutLink();
             });
 
-            if (autocompleteProvider === 'google_places') {
-                loadGoogleMapsPlaces()
-                    .then(() => {
-                        bindAutocomplete(pickupInput, 'pickup');
-                        bindAutocomplete(dropoffInput, 'dropoff');
-
-                        if (typeof trackEvent === 'function') {
-                            trackEvent('quote_autocomplete_ready', {
-                                provider: autocompleteProvider,
-                            });
-                        }
-                    })
-                    .catch(() => {
-                        if (typeof trackEvent === 'function') {
-                            trackEvent('quote_autocomplete_fallback', {
-                                provider: 'manual',
-                            });
-                        }
-                    });
-            }
-
             const setFeedback = (message, level) => {
                 if (!message) {
                     feedback.hidden = true;
@@ -650,6 +630,25 @@
                 feedback.hidden = false;
                 feedback.textContent = message;
                 feedback.setAttribute('data-level', level || 'error');
+            };
+
+            const fallbackToManualAutocomplete = (reason) => {
+                if (resolvedAutocompleteMode === 'manual') {
+                    return;
+                }
+
+                resolvedAutocompleteMode = 'manual';
+                widget.dataset.quoteAutocompleteProvider = 'manual';
+                writeCoordinates('pickup', null, null);
+                writeCoordinates('dropoff', null, null);
+                setFeedback('Adresinizi manuel olarak yazarak devam edebilirsiniz.', 'info');
+
+                if (typeof trackEvent === 'function') {
+                    trackEvent('quote_autocomplete_fallback', {
+                        provider: 'manual',
+                        reason: reason || 'runtime_fallback',
+                    });
+                }
             };
 
             const clearFieldErrors = () => {
@@ -761,6 +760,32 @@
                     result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }
             };
+
+            if (autocompleteProvider === 'google_places') {
+                const previousAuthFailureHandler = window.gm_authFailure;
+                window.gm_authFailure = function () {
+                    if (typeof previousAuthFailureHandler === 'function') {
+                        previousAuthFailureHandler();
+                    }
+
+                    fallbackToManualAutocomplete('auth_failure');
+                };
+
+                loadGoogleMapsPlaces()
+                    .then(() => {
+                        bindAutocomplete(pickupInput, 'pickup');
+                        bindAutocomplete(dropoffInput, 'dropoff');
+
+                        if (typeof trackEvent === 'function') {
+                            trackEvent('quote_autocomplete_ready', {
+                                provider: autocompleteProvider,
+                            });
+                        }
+                    })
+                    .catch((error) => {
+                        fallbackToManualAutocomplete(error?.message || 'loader_failed');
+                    });
+            }
 
             const handleQuoteError = (status, body) => {
                 resetQuoteResultState();

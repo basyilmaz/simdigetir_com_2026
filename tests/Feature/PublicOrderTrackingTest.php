@@ -6,10 +6,23 @@ use App\Models\Order;
 use App\Models\OrderProof;
 use App\Models\OrderStateLog;
 use App\Models\OrderTrackingEvent;
+use Modules\Settings\Models\Setting;
 use Tests\TestCase;
 
 class PublicOrderTrackingTest extends TestCase
 {
+    public function test_tracking_page_uses_admin_managed_help_copy(): void
+    {
+        Setting::setValue('checkout.tracking_intro', 'Takip intro test metni.', 'checkout');
+        Setting::setValue('checkout.tracking_help', 'Takip yardim test metni.', 'checkout');
+
+        $response = $this->get('/siparis-takip');
+
+        $response->assertOk();
+        $response->assertSee('Takip intro test metni.');
+        $response->assertSee('Takip yardim test metni.');
+    }
+
     public function test_guest_can_lookup_order_tracking_via_api(): void
     {
         $order = Order::query()->create([
@@ -104,12 +117,39 @@ class PublicOrderTrackingTest extends TestCase
             'created_at' => now()->subMinutes(3),
         ]);
 
+        OrderTrackingEvent::query()->create([
+            'order_id' => $order->id,
+            'event_type' => 'delivery_confirmed',
+            'eta_seconds' => 0,
+            'note' => 'Teslimat adimina gecildi',
+            'created_at' => now()->subMinutes(2),
+        ]);
+
+        OrderProof::query()->create([
+            'order_id' => $order->id,
+            'stage' => 'delivery',
+            'proof_type' => 'signature',
+            'file_url' => 'https://cdn.simdigetir.test/delivery-signature.jpg',
+            'created_at' => now()->subMinute(),
+        ]);
+
         $response = $this->get('/siparis-takip?order_no=ORD-TRACK-002&phone=05550000072');
 
         $response->assertOk();
         $response->assertSee('Siparis Takip');
         $response->assertSee('ORD-TRACK-002');
-        $response->assertSee('delivered');
+        $response->assertSee('Teslim edildi');
         $response->assertSee('Maslak');
+        $response->assertSee('Durum Gecmisi');
+        $response->assertSee('Kurye Hareketleri');
+        $response->assertSee('Teslimat Kanitlari');
+        $response->assertSee('Teslimat adimina gecildi');
+        $response->assertSee('Dosyayi ac');
+        $response->assertSee('data-tracking-autorefresh', false);
+        $response->assertSee('data-tracking-summary', false);
+        $response->assertSee('data-tracking-timeline', false);
+        $response->assertSee('data-tracking-events', false);
+        $response->assertSee('data-tracking-proofs', false);
+        $response->assertDontSee('courier_delivery_completed');
     }
 }

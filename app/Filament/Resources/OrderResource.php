@@ -204,6 +204,8 @@ class OrderResource extends Resource
                     ->sortable(),
             ])
             ->defaultSort('id', 'desc')
+            ->emptyStateHeading(static::emptyStateHeading())
+            ->emptyStateDescription(static::emptyStateDescription())
             ->filters([
                 Tables\Filters\SelectFilter::make('state')
                     ->label('Siparis Durumu')
@@ -455,5 +457,15 @@ class OrderResource extends Resource
     public static function getNavigationBadgeColor(): ?string
     {
         return 'info';
+    }
+
+    public static function emptyStateHeading(): string
+    {
+        return 'Henüz sipariş kaydı yok';
+    }
+
+    public static function emptyStateDescription(): string
+    {
+        return 'Siparişler checkout, müşteri paneli veya operasyon akışlarından oluşur. Liste boşsa tekliften siparişe dönüşüm ve ödeme adımlarını kontrol edin.';
     }
 }

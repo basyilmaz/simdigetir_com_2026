@@ -16,11 +16,30 @@ class CheckoutPageTest extends TestCase
         $response = $this->get('/checkout');
 
         $response->assertOk();
-        $response->assertSee('Siparişe Başla');
+        $response->assertSee('Siparise Basla');
         $response->assertSee('Ana Sayfada Fiyat Hesapla');
-        $response->assertSee('Hesap Oluştur');
+        $response->assertSee('Hesap Olustur');
         $response->assertSee(route('checkout.customer.register'));
+        $response->assertSee('Musteri Girisi');
+        $response->assertSee('Siparis Takip');
+        $response->assertSee('KVKK');
+        $response->assertSee('<html lang="tr">', false);
+        $response->assertDontSee('404 yerine');
         $this->assertNoMojibake($response->getContent());
+    }
+
+    public function test_checkout_entry_page_uses_admin_managed_copy_blocks(): void
+    {
+        Setting::setValue('checkout.support_note', 'Destek notu test icerigi.', 'checkout');
+        Setting::setValue('checkout.entry_intro', 'Admin yonetimli checkout acilis metni.', 'checkout');
+        Setting::setValue('checkout.entry_help', 'Admin yardim metni.', 'checkout');
+
+        $response = $this->get('/checkout');
+
+        $response->assertOk();
+        $response->assertSee('Destek notu test icerigi.');
+        $response->assertSee('Admin yonetimli checkout acilis metni.');
+        $response->assertSee('Admin yardim metni.');
     }
 
     public function test_checkout_entry_with_prefilled_query_redirects_to_tokenized_checkout_session(): void

@@ -22,7 +22,8 @@ class CheckoutPageController extends Controller
         Request $request,
         CheckoutSessionService $checkoutSessionService,
         PricingQuoteResolver $pricingQuoteResolver,
-        PricingServiceCatalog $pricingServiceCatalog
+        PricingServiceCatalog $pricingServiceCatalog,
+        CheckoutContentResolver $contentResolver
     ): View|RedirectResponse
     {
         $pickupAddress = trim((string) $request->query('pickup', ''));
@@ -82,7 +83,10 @@ class CheckoutPageController extends Controller
             return redirect()->route('checkout.show', ['checkoutSession' => $checkoutSession->token]);
         }
 
-        return view('checkout::index');
+        return view('checkout::index', [
+            'pageCopy' => $contentResolver->entryCopy(),
+            'support' => $contentResolver->supportChannels(),
+        ]);
     }
 
     /**

@@ -68,20 +68,36 @@
         <div style="max-width: 900px; margin: 0 auto;">
             <div class="faq-grid">
                 @foreach (($landingContent['faq_items'] ?? []) as $item)
-                    <div class="faq-item">
-                        <div class="faq-question" onclick="toggleFaq(this)">
-                            <div class="faq-icon">{{ $item['icon'] ?? '?' }}</div>
-                            <span>{{ $item['question'] ?? '' }}</span>
-                            <i class="fa-solid fa-plus faq-toggle"></i>
-                        </div>
-                        <div class="faq-answer">
-                            <p>
-                                @if (! empty($item['answer_html']))
-                                    {!! $item['answer_html'] !!}
-                                @else
-                                    {{ $item['answer_text'] ?? '' }}
-                                @endif
-                            </p>
+                    @php
+                        $faqItemId = 'faq-item-'.$loop->index;
+                        $faqButtonId = 'faq-button-'.$loop->index;
+                        $faqPanelId = 'faq-panel-'.$loop->index;
+                    @endphp
+                    <div class="faq-item" data-faq-item id="{{ $faqItemId }}">
+                        <h2 class="faq-heading">
+                            <button
+                                type="button"
+                                class="faq-question"
+                                id="{{ $faqButtonId }}"
+                                aria-expanded="false"
+                                aria-controls="{{ $faqPanelId }}"
+                                data-faq-trigger
+                            >
+                                <span class="faq-icon" aria-hidden="true">{{ $item['icon'] ?? '?' }}</span>
+                                <span>{{ $item['question'] ?? '' }}</span>
+                                <i class="fa-solid fa-plus faq-toggle" aria-hidden="true"></i>
+                            </button>
+                        </h2>
+                        <div class="faq-answer" id="{{ $faqPanelId }}" role="region" aria-labelledby="{{ $faqButtonId }}" hidden>
+                            <div class="faq-answer-content">
+                                <p>
+                                    @if (! empty($item['answer_html']))
+                                        {!! $item['answer_html'] !!}
+                                    @else
+                                        {{ $item['answer_text'] ?? '' }}
+                                    @endif
+                                </p>
+                            </div>
                         </div>
                     </div>
                 @endforeach
@@ -133,15 +149,24 @@
         border-color: var(--primary);
         box-shadow: 0 0 30px rgba(124, 58, 237, 0.15);
     }
+
+    .faq-heading {
+        margin: 0;
+    }
     
     .faq-question {
         padding: 1.5rem;
-        cursor: pointer;
         display: flex;
         align-items: center;
         gap: 1rem;
         font-weight: 500;
         transition: all 0.3s ease;
+        width: 100%;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        text-align: left;
+        cursor: pointer;
     }
     
     .faq-question span {
@@ -182,19 +207,18 @@
     }
     
     .faq-answer {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.4s ease, padding 0.4s ease;
+        padding: 0 1.5rem 1.5rem 5rem;
     }
     
-    .faq-item.active .faq-answer {
-        max-height: 500px;
-        padding: 0 1.5rem 1.5rem 5rem;
+    .faq-answer[hidden] {
+        display: none;
+        padding: 0;
     }
     
     .faq-answer p {
         color: var(--text-secondary);
         line-height: 1.8;
+        margin: 0;
     }
     
     .faq-answer strong {
@@ -205,30 +229,33 @@
 
 @push('scripts')
 <script>
-    function toggleFaq(element) {
-        const faqItem = element.parentElement;
-        const isActive = faqItem.classList.contains('active');
-        
-        // Close all
-        document.querySelectorAll('.faq-item').forEach(item => {
-            item.classList.remove('active');
-        });
-        
-        // Open clicked if wasn't active
-        if (!isActive) {
-            faqItem.classList.add('active');
-        }
-    }
-    
-    // Open first FAQ by default
     document.addEventListener('DOMContentLoaded', () => {
-        const firstFaq = document.querySelector('.faq-item');
-        if (firstFaq) firstFaq.classList.add('active');
+        const faqItems = Array.from(document.querySelectorAll('[data-faq-item]'));
+
+        const setFaqState = (faqItem, isOpen) => {
+            const trigger = faqItem.querySelector('[data-faq-trigger]');
+            const panel = faqItem.querySelector('.faq-answer');
+
+            faqItem.classList.toggle('active', isOpen);
+            trigger?.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+
+            if (panel) {
+                panel.hidden = !isOpen;
+            }
+        };
+
+        faqItems.forEach((faqItem) => {
+            setFaqState(faqItem, false);
+
+            faqItem.querySelector('[data-faq-trigger]')?.addEventListener('click', () => {
+                const shouldOpen = !faqItem.classList.contains('active');
+
+                faqItems.forEach((item) => setFaqState(item, false));
+                setFaqState(faqItem, shouldOpen);
+            });
+        });
     });
 </script>
 @endpush
-
-
-
 
 

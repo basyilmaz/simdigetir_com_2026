@@ -3049,6 +3049,60 @@
         input[type="tel"]:invalid:not(:placeholder-shown) {
             border-color: #ef4444;
         }
+
+        .form-feedback {
+            display: none;
+            margin-top: 0.85rem;
+            padding: 12px 14px;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .form-feedback[data-level] {
+            display: block;
+        }
+
+        .form-feedback[data-level="error"] {
+            background: rgba(180, 35, 24, 0.12);
+            color: #fda4af;
+            border: 1px solid rgba(248, 113, 113, 0.18);
+        }
+
+        .form-feedback[data-level="success"] {
+            background: rgba(22, 163, 74, 0.12);
+            color: #bbf7d0;
+            border: 1px solid rgba(74, 222, 128, 0.18);
+        }
+
+        .form-feedback[data-level="info"] {
+            background: rgba(33, 150, 243, 0.12);
+            color: #bfdbfe;
+            border: 1px solid rgba(96, 165, 250, 0.18);
+        }
+
+        .form-consent-note {
+            margin-top: 0.85rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .form-consent-note a {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        body.has-cookie-banner .whatsapp-float,
+        body.has-cookie-banner .back-to-top {
+            transform: translateY(-104px);
+        }
+
+        body.offcanvas-open .whatsapp-float,
+        body.offcanvas-open .back-to-top {
+            opacity: 0;
+            pointer-events: none;
+        }
     </style>
     
     @stack('styles')
@@ -3380,7 +3434,7 @@
         
         // Preloader
         window.addEventListener('load', () => {
-            const delay = reducedMotionEnabled ? 0 : (sessionStorage.getItem('simdigetir-visited') ? 300 : 1500);
+            const delay = reducedMotionEnabled ? 0 : (sessionStorage.getItem('simdigetir-visited') ? 80 : 120);
             setTimeout(() => {
                 document.getElementById('preloader')?.classList.add('loaded');
                 sessionStorage.setItem('simdigetir-visited', '1');
@@ -3418,17 +3472,23 @@
         const offcanvasSidebar = document.getElementById('offcanvas-sidebar');
         const offcanvasOverlay = document.getElementById('offcanvas-overlay');
         const offcanvasClose = document.getElementById('offcanvas-close');
+
+        function setCookieUiState(isVisible) {
+            document.body.classList.toggle('has-cookie-banner', Boolean(isVisible));
+        }
         
         function openSidebar() {
             offcanvasSidebar.classList.add('active');
             offcanvasOverlay.classList.add('active');
             document.body.style.overflow = 'hidden';
+            document.body.classList.add('offcanvas-open');
         }
         
         function closeSidebar() {
             offcanvasSidebar.classList.remove('active');
             offcanvasOverlay.classList.remove('active');
             document.body.style.overflow = '';
+            document.body.classList.remove('offcanvas-open');
         }
         
         sidebarToggle.addEventListener('click', openSidebar);
@@ -3566,6 +3626,28 @@
         window.buildCtaPayload = buildCtaPayload;
         window.resolveCtaContext = resolveCtaContext;
         window.normalizedLabel = normalizedLabel;
+        window.setLandingFormFeedback = function (node, message, level) {
+            if (!node) {
+                return;
+            }
+
+            if (!message) {
+                node.textContent = '';
+                node.removeAttribute('data-level');
+                return;
+            }
+
+            node.textContent = message;
+            node.setAttribute('data-level', level || 'info');
+        };
+        window.setLandingFormBusy = function (button, isBusy, busyHtml, defaultHtml) {
+            if (!button) {
+                return;
+            }
+
+            button.disabled = Boolean(isBusy);
+            button.innerHTML = isBusy ? busyHtml : defaultHtml;
+        };
 
         document.querySelectorAll('a[href^="tel:"], a[href*="wa.me"], a[href*="whatsapp.com"]').forEach(link => {
             const channel = inferCtaChannel(link) === 'call' ? 'call' : 'whatsapp';
@@ -3805,8 +3887,6 @@
         }
     </script>
     
-    @stack('scripts')
-    
     <!-- WhatsApp Floating Button -->
     <a href="{{ $whatsappUrl }}?text=Merhaba" class="whatsapp-float" target="_blank" rel="noopener" aria-label="WhatsApp ile iletisime gecin">
         <i class="fa-brands fa-whatsapp"></i>
@@ -3849,11 +3929,15 @@
         const cookieBanner = document.getElementById('cookie-banner');
         const cookieAccept = document.getElementById('cookie-accept');
         if (!localStorage.getItem('simdigetir-cookies')) {
-            setTimeout(() => cookieBanner.classList.add('visible'), reducedMotionEnabled ? 0 : 1500);
+            setTimeout(() => {
+                cookieBanner.classList.add('visible');
+                setCookieUiState(true);
+            }, reducedMotionEnabled ? 0 : 250);
         }
         cookieAccept.addEventListener('click', () => {
             localStorage.setItem('simdigetir-cookies', 'accepted');
             cookieBanner.classList.remove('visible');
+            setCookieUiState(false);
         });
     </script>
     <!-- Swiper JS -->

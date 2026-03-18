@@ -107,13 +107,16 @@ class Sprint2FoundationTest extends TestCase
             'slug' => 'cerez-politikasi',
             'title' => 'Cerez Politikasi',
             'summary' => 'Ilk surum',
-            'content' => '<p>v1</p>',
+            'content' => '<h2>Veri Kullanimi</h2><p>v1</p><h3>Saklama</h3><p>detay</p>',
             'is_published' => true,
         ]);
 
         $this->get('/cerez-politikasi')
             ->assertOk()
-            ->assertSee('Cerez Politikasi');
+            ->assertSee('Cerez Politikasi')
+            ->assertSee('Icerik Ozeti')
+            ->assertSee('#veri-kullanimi', false)
+            ->assertSee('#saklama', false);
 
         $document->update([
             'summary' => 'Guncel surum',
@@ -130,6 +133,19 @@ class Sprint2FoundationTest extends TestCase
             'legal_document_id' => $document->id,
             'version' => 2,
         ]);
+    }
+
+    public function test_known_legal_routes_have_static_fallback_when_record_is_missing(): void
+    {
+        $this->get('/cerez-politikasi')
+            ->assertOk()
+            ->assertSee('Cerez Politikasi')
+            ->assertSee('Cerez kullanimi');
+
+        $this->get('/kullanim-kosullari')
+            ->assertOk()
+            ->assertSee('Kullanim Kosullari')
+            ->assertSee('Hizmet kullanimi');
     }
 
     public function test_sitemap_uses_admin_overrides_and_includes_legal_pages(): void

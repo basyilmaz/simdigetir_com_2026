@@ -248,6 +248,7 @@
                         <i class="fa-solid fa-rocket"></i> Başvurumu Gönder
                     </button>
                 </form>
+                <div id="courier-feedback" class="form-feedback" aria-live="polite"></div>
                 
                 <div id="courier-success" style="display: none;" class="alert alert-success">
                     <i class="fa-solid fa-check-circle"></i> Başvurunuz alındı! En kısa sürede sizinle iletişime geçeceğiz.
@@ -412,12 +413,32 @@
 
 @push('scripts')
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const courierForm = document.getElementById('courier-form');
+        if (!courierForm) {
+            return;
+        }
+
+        courierForm.querySelector('[name="first_name"]')?.setAttribute('autocomplete', 'given-name');
+        courierForm.querySelector('[name="last_name"]')?.setAttribute('autocomplete', 'family-name');
+        courierForm.querySelector('[name="phone"]')?.setAttribute('autocomplete', 'tel');
+        courierForm.querySelector('[name="phone"]')?.setAttribute('inputmode', 'tel');
+        courierForm.querySelector('[name="email"]')?.setAttribute('autocomplete', 'email');
+    });
+
     async function submitCourierForm(event) {
         event.preventDefault();
         
         const form = event.target;
         const submitBtn = document.getElementById('courier-submit');
         const successDiv = document.getElementById('courier-success');
+        const feedbackNode = document.getElementById('courier-feedback');
+        const defaultButtonHtml = '<i class="fa-solid fa-rocket"></i> Başvurumu Gönder';
+
+        window.setLandingFormFeedback(feedbackNode, '', '');
+        if (successDiv) {
+            successDiv.style.display = 'none';
+        }
         
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<span class="typing-dots"><span></span><span></span><span></span></span> Gönderiliyor...';
@@ -452,18 +473,32 @@
             const result = await response.json();
             
             if (result.success) {
-                form.style.display = 'none';
-                successDiv.style.display = 'block';
+                form.reset();
+                window.setLandingFormFeedback(
+                    feedbackNode,
+                    'Basvurunuz alindi. Ekibimiz en kisa surede sizinle iletisime gececek.',
+                    'success'
+                );
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = defaultButtonHtml;
                 trackEvent('lead_submit', { lead_type: 'courier_application' });
             } else {
-                alert(result.message || 'Bir hata oluştu. Lütfen tekrar deneyin.');
+                window.setLandingFormFeedback(
+                    feedbackNode,
+                    result.message || 'Bir hata olustu. Lutfen tekrar deneyin.',
+                    'error'
+                );
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fa-solid fa-rocket"></i> Başvurumu Gönder';
+                submitBtn.innerHTML = defaultButtonHtml;
             }
         } catch (error) {
-            alert('Bağlantı hatası. Lütfen tekrar deneyin.');
+            window.setLandingFormFeedback(
+                feedbackNode,
+                'Baglanti hatasi olustu. Lutfen tekrar deneyin.',
+                'error'
+            );
             submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fa-solid fa-rocket"></i> Başvurumu Gönder';
+            submitBtn.innerHTML = defaultButtonHtml;
         }
     }
 </script>

@@ -7,25 +7,40 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\View\View;
 use Modules\Checkout\Services\CustomerPortalAuthService;
+use Modules\Checkout\Services\CheckoutContentResolver;
 
 class CustomerPortalSessionController extends Controller
 {
-    public function showLogin(Request $request, CustomerPortalAuthService $authService): View|RedirectResponse
+    public function showLogin(
+        Request $request,
+        CustomerPortalAuthService $authService,
+        CheckoutContentResolver $contentResolver
+    ): View|RedirectResponse
     {
         if ($authService->currentUser($request)) {
             return redirect()->route('checkout.customer.dashboard');
         }
 
-        return view('checkout::customer-login');
+        return view('checkout::customer-login', [
+            'pageCopy' => $contentResolver->loginCopy(),
+            'support' => $contentResolver->supportChannels(),
+        ]);
     }
 
-    public function showRegister(Request $request, CustomerPortalAuthService $authService): View|RedirectResponse
+    public function showRegister(
+        Request $request,
+        CustomerPortalAuthService $authService,
+        CheckoutContentResolver $contentResolver
+    ): View|RedirectResponse
     {
         if ($authService->currentUser($request)) {
             return redirect()->route('checkout.customer.dashboard');
         }
 
-        return view('checkout::customer-register');
+        return view('checkout::customer-register', [
+            'pageCopy' => $contentResolver->registerCopy(),
+            'support' => $contentResolver->supportChannels(),
+        ]);
     }
 
     public function register(Request $request, CustomerPortalAuthService $authService): RedirectResponse
@@ -35,6 +50,7 @@ class CustomerPortalSessionController extends Controller
             'phone' => ['required', 'string', 'max:30'],
             'email' => ['nullable', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'legal_acceptance' => ['accepted'],
         ]);
 
         $normalizedPhone = $authService->normalizePhone((string) $request->input('phone'));

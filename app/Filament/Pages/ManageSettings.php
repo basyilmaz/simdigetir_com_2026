@@ -67,6 +67,46 @@ class ManageSettings extends Page
                 'checkout.bank_transfer_reference_note',
                 'Aciklama alanina siparis numaranizi yazin.'
             ),
+            'checkout_support_note' => Setting::getValue(
+                'checkout.support_note',
+                'Sorunuz varsa destek ekibimiz telefon, WhatsApp veya e-posta uzerinden yardimci olur.'
+            ),
+            'checkout_entry_intro' => Setting::getValue(
+                'checkout.entry_intro',
+                'Adres bilgilerinizi girerek teklif alin, uygun oldugunuzda guvenli checkout akisina devam edin.'
+            ),
+            'checkout_entry_help' => Setting::getValue(
+                'checkout.entry_help',
+                'Daha once hesap olusturduysaniz mevcut siparislerinizi ve takip linklerinizi Hesabim ekranindan gorebilirsiniz.'
+            ),
+            'checkout_login_intro' => Setting::getValue(
+                'checkout.login_intro',
+                'Kayitli telefon numaraniz ve sifrenizle siparislerinizi, odeme durumunu ve takip linklerini goruntuleyin.'
+            ),
+            'checkout_login_help' => Setting::getValue(
+                'checkout.login_help',
+                'Sifrenizi hatirlamiyorsaniz destek ekibimiz telefon numaranizi dogrulayarak size yardimci olur.'
+            ),
+            'checkout_register_intro' => Setting::getValue(
+                'checkout.register_intro',
+                'Hizli siparis, takip linkleri ve siparis gecmisi icin bir hesap olusturun.'
+            ),
+            'checkout_register_help' => Setting::getValue(
+                'checkout.register_help',
+                'Kayit olduktan sonra ayni hesapla checkout ve Hesabim ekranlarini kullanabilirsiniz.'
+            ),
+            'checkout_tracking_intro' => Setting::getValue(
+                'checkout.tracking_intro',
+                'Siparis numaraniz ve sipariste kullandiginiz telefon ile guncel durum bilgilerini goruntuleyin.'
+            ),
+            'checkout_tracking_help' => Setting::getValue(
+                'checkout.tracking_help',
+                'Siparis numarasini SMS, e-posta veya musteri panelinizdeki siparis kartindan bulabilirsiniz.'
+            ),
+            'checkout_tracking_error_help' => Setting::getValue(
+                'checkout.tracking_error_help',
+                'Bilgiler eslesmiyorsa destek hattimizla iletisime gecin; ekip siparis kaydini kontrol etsin.'
+            ),
 
             // Social
             'social_facebook' => Setting::getValue('social.facebook', ''),
@@ -157,27 +197,76 @@ class ManageSettings extends Page
                         Forms\Components\Tabs\Tab::make('Checkout')
                             ->icon('heroicon-o-credit-card')
                             ->schema([
-                                Forms\Components\TextInput::make('checkout_bank_transfer_title')
-                                    ->label('Havale Basligi')
-                                    ->placeholder('Havale / EFT Odeme Talimati'),
-                                Forms\Components\Textarea::make('checkout_bank_transfer_body')
-                                    ->label('Havale Aciklamasi')
-                                    ->rows(4)
-                                    ->helperText('Checkout odeme adiminda ve siparis detayinda gorunur.'),
-                                Forms\Components\TextInput::make('checkout_bank_transfer_bank_name')
-                                    ->label('Banka Adi')
-                                    ->placeholder('Orn: Garanti BBVA'),
-                                Forms\Components\TextInput::make('checkout_bank_transfer_account_holder')
-                                    ->label('Hesap Sahibi')
-                                    ->placeholder('Orn: SimdiGetir Ltd. Sti.'),
-                                Forms\Components\TextInput::make('checkout_bank_transfer_iban')
-                                    ->label('IBAN')
-                                    ->placeholder('TR00 0000 0000 0000 0000 0000 00'),
-                                Forms\Components\Textarea::make('checkout_bank_transfer_reference_note')
-                                    ->label('Referans Notu')
-                                    ->rows(3)
-                                    ->helperText('Musteriye hangi aciklama/ref kodunu yazmasi gerektigini anlatin.'),
-                            ])->columns(2),
+                                Forms\Components\Section::make('Odeme Talimatlari')
+                                    ->description('Checkout odeme adiminda ve siparis detayinda gorunen banka/havale bilgileri.')
+                                    ->schema([
+                                        Forms\Components\TextInput::make('checkout_bank_transfer_title')
+                                            ->label('Havale Basligi')
+                                            ->placeholder('Havale / EFT Odeme Talimati'),
+                                        Forms\Components\Textarea::make('checkout_bank_transfer_body')
+                                            ->label('Havale Aciklamasi')
+                                            ->rows(4)
+                                            ->helperText('Musteriye odeme sonrasi ne olacagini net anlatin.'),
+                                        Forms\Components\TextInput::make('checkout_bank_transfer_bank_name')
+                                            ->label('Banka Adi')
+                                            ->placeholder('Orn: Garanti BBVA'),
+                                        Forms\Components\TextInput::make('checkout_bank_transfer_account_holder')
+                                            ->label('Hesap Sahibi')
+                                            ->placeholder('Orn: SimdiGetir Ltd. Sti.'),
+                                        Forms\Components\TextInput::make('checkout_bank_transfer_iban')
+                                            ->label('IBAN')
+                                            ->placeholder('TR00 0000 0000 0000 0000 0000 00'),
+                                        Forms\Components\Textarea::make('checkout_bank_transfer_reference_note')
+                                            ->label('Referans Notu')
+                                            ->rows(3)
+                                            ->helperText('Musteriye hangi aciklama/ref kodunu yazmasi gerektigini anlatin.'),
+                                    ])->columns(2),
+                                Forms\Components\Section::make('Musteri Yuzey Metinleri')
+                                    ->description('Checkout, hesap ve siparis takip sayfalarinda gorunen yardim ve guven metinleri.')
+                                    ->schema([
+                                        Forms\Components\Textarea::make('checkout_support_note')
+                                            ->label('Genel Destek Notu')
+                                            ->rows(2)
+                                            ->helperText('Ornek: Destek ekibimiz telefon, WhatsApp veya e-posta uzerinden yardimci olur.')
+                                            ->columnSpanFull(),
+                                        Forms\Components\Textarea::make('checkout_entry_intro')
+                                            ->label('Siparise Basla Giris Metni')
+                                            ->rows(3)
+                                            ->helperText('Checkout acilis kartinda ana mesaj olarak gorunur.'),
+                                        Forms\Components\Textarea::make('checkout_entry_help')
+                                            ->label('Siparise Basla Yardim Metni')
+                                            ->rows(3)
+                                            ->helperText('Birincil CTA altinda destekleyici aciklama olarak gorunur.'),
+                                        Forms\Components\Textarea::make('checkout_login_intro')
+                                            ->label('Giris Sayfasi Giris Metni')
+                                            ->rows(3)
+                                            ->helperText('Musteri giris ekraninda ilk aciklama blogu olarak gorunur.'),
+                                        Forms\Components\Textarea::make('checkout_login_help')
+                                            ->label('Giris Sayfasi Yardim Metni')
+                                            ->rows(3)
+                                            ->helperText('Sifre yardimi ve destek aksiyonlarinin ustunde gorunur.'),
+                                        Forms\Components\Textarea::make('checkout_register_intro')
+                                            ->label('Kayit Sayfasi Giris Metni')
+                                            ->rows(3)
+                                            ->helperText('Kayit hero alaninda hesap olusturma deger onerisi olarak kullanilir.'),
+                                        Forms\Components\Textarea::make('checkout_register_help')
+                                            ->label('Kayit Sayfasi Yardim Metni')
+                                            ->rows(3)
+                                            ->helperText('Kayit formu yanindaki guven ve kullanim notunda gorunur.'),
+                                        Forms\Components\Textarea::make('checkout_tracking_intro')
+                                            ->label('Takip Sayfasi Giris Metni')
+                                            ->rows(3)
+                                            ->helperText('Siparis takip formunun ustundeki ana yonlendirme metni.'),
+                                        Forms\Components\Textarea::make('checkout_tracking_help')
+                                            ->label('Takip Sayfasi Yardim Metni')
+                                            ->rows(3)
+                                            ->helperText('Arama yapilmadan once kullaniciya ipucu olarak gosterilir.'),
+                                        Forms\Components\Textarea::make('checkout_tracking_error_help')
+                                            ->label('Takip Sayfasi Hata Yardimi')
+                                            ->rows(3)
+                                            ->helperText('Hatali siparis no / telefon eslesmelerinde gosterilir.'),
+                                    ])->columns(2),
+                            ]),
 
                         Forms\Components\Tabs\Tab::make('Sosyal Medya')
                             ->icon('heroicon-o-share')
@@ -276,6 +365,16 @@ class ManageSettings extends Page
         Setting::setValue('checkout.bank_transfer_account_holder', $data['checkout_bank_transfer_account_holder'], 'checkout', $userId);
         Setting::setValue('checkout.bank_transfer_iban', $data['checkout_bank_transfer_iban'], 'checkout', $userId);
         Setting::setValue('checkout.bank_transfer_reference_note', $data['checkout_bank_transfer_reference_note'], 'checkout', $userId);
+        Setting::setValue('checkout.support_note', $data['checkout_support_note'], 'checkout', $userId);
+        Setting::setValue('checkout.entry_intro', $data['checkout_entry_intro'], 'checkout', $userId);
+        Setting::setValue('checkout.entry_help', $data['checkout_entry_help'], 'checkout', $userId);
+        Setting::setValue('checkout.login_intro', $data['checkout_login_intro'], 'checkout', $userId);
+        Setting::setValue('checkout.login_help', $data['checkout_login_help'], 'checkout', $userId);
+        Setting::setValue('checkout.register_intro', $data['checkout_register_intro'], 'checkout', $userId);
+        Setting::setValue('checkout.register_help', $data['checkout_register_help'], 'checkout', $userId);
+        Setting::setValue('checkout.tracking_intro', $data['checkout_tracking_intro'], 'checkout', $userId);
+        Setting::setValue('checkout.tracking_help', $data['checkout_tracking_help'], 'checkout', $userId);
+        Setting::setValue('checkout.tracking_error_help', $data['checkout_tracking_error_help'], 'checkout', $userId);
 
         // Social
         Setting::setValue('social.facebook', $data['social_facebook'], 'social', $userId);

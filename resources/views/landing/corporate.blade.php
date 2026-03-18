@@ -258,8 +258,8 @@
                     <i class="fa-solid fa-rocket"></i> Hemen Başlayın
                 </div>
                 <h2 style="font-size: 2.5rem; margin-bottom: 1.5rem;">
-                    İşletmenize Özel<br>
-                    <span class="gradient-text">Özel Teklif</span>
+                    İşletmeniz İçin<br>
+                    <span class="gradient-text">Kurumsal Teklif</span>
                 </h2>
                 <p style="color: var(--text-secondary); margin-bottom: 2rem; font-size: 1.125rem;">
                     İşletmenize özel fiyat ve çözüm hazırlayalım. 
@@ -342,6 +342,10 @@
                         <i class="fa-solid fa-rocket"></i> Teklif İste
                     </button>
                 </form>
+                <p class="form-consent-note">
+                    Formu gondererek <a href="{{ url('/kvkk') }}" target="_blank" rel="noopener">KVKK Aydinlatma Metni</a> kapsaminda sizinle iletisime gecilmesini kabul etmis olursunuz.
+                </p>
+                <div id="corporate-feedback" class="form-feedback" aria-live="polite"></div>
 
                 <div id="corporate-success" style="display: none;" class="alert alert-success">
                     <i class="fa-solid fa-check-circle"></i> Talebiniz alındı! Size özel teklif en geç 24 saat içinde gönderilecektir.
@@ -417,12 +421,32 @@
 
 @push('scripts')
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const corporateForm = document.getElementById('corporate-form');
+        if (!corporateForm) {
+            return;
+        }
+
+        corporateForm.querySelector('[name="company_name"]')?.setAttribute('autocomplete', 'organization');
+        corporateForm.querySelector('[name="name"]')?.setAttribute('autocomplete', 'name');
+        corporateForm.querySelector('[name="phone"]')?.setAttribute('autocomplete', 'tel');
+        corporateForm.querySelector('[name="phone"]')?.setAttribute('inputmode', 'tel');
+        corporateForm.querySelector('[name="email"]')?.setAttribute('autocomplete', 'email');
+    });
+
     async function submitCorporateForm(event) {
         event.preventDefault();
 
         const form = event.target;
         const submitBtn = document.getElementById('corporate-submit');
         const successDiv = document.getElementById('corporate-success');
+        const feedbackNode = document.getElementById('corporate-feedback');
+        const defaultButtonHtml = '<i class="fa-solid fa-rocket"></i> Teklif İste';
+
+        window.setLandingFormFeedback(feedbackNode, '', '');
+        if (successDiv) {
+            successDiv.style.display = 'none';
+        }
 
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<span class="typing-dots"><span></span><span></span><span></span></span> Gönderiliyor...';
@@ -466,21 +490,33 @@
             const result = await response.json();
 
             if (result.success) {
-                form.style.display = 'none';
-                successDiv.style.display = 'block';
+                form.reset();
+                window.setLandingFormFeedback(
+                    feedbackNode,
+                    'Talebiniz alindi. Size ozel teklif icin ekibimiz en gec 24 saat icinde ulasacak.',
+                    'success'
+                );
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = defaultButtonHtml;
                 trackEvent('lead_submit', { lead_type: 'corporate_quote' });
             } else {
-                alert(result.message || 'Bir hata oluştu. Lütfen tekrar deneyin.');
+                window.setLandingFormFeedback(
+                    feedbackNode,
+                    result.message || 'Bir hata olustu. Lutfen tekrar deneyin.',
+                    'error'
+                );
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fa-solid fa-rocket"></i> Teklif İste';
+                submitBtn.innerHTML = defaultButtonHtml;
             }
         } catch (error) {
-            alert('Bağlantı hatası. Lütfen tekrar deneyin.');
+            window.setLandingFormFeedback(
+                feedbackNode,
+                'Baglanti hatasi olustu. Lutfen tekrar deneyin.',
+                'error'
+            );
             submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fa-solid fa-rocket"></i> Teklif İste';
+            submitBtn.innerHTML = defaultButtonHtml;
         }
     }
 </script>
 @endpush
-
-

@@ -38,6 +38,7 @@ class LandingDynamicContentTest extends TestCase
         $response->assertSee('data-google-maps-api-key="test-maps-api-key"', false);
         $response->assertSee('loadGoogleMapsPlaces');
         $response->assertSee('quote_autocomplete_fallback');
+        $response->assertSee('window.gm_authFailure');
     }
 
     public function test_home_hides_hero_quote_widget_when_disabled(): void
@@ -144,6 +145,15 @@ class LandingDynamicContentTest extends TestCase
         $response->assertSee('allowTouchMove: !lockHeroQuoteVisible');
     }
 
+    public function test_home_uses_single_primary_h1_and_secondary_hero_heading_style(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('hero-secondary-title');
+        $this->assertSame(1, substr_count($response->getContent(), '<h1 class="animate__animated animate__fadeInUp animate__delay-1s">'));
+    }
+
     public function test_home_contains_deterministic_quote_continue_path_hooks(): void
     {
         $response = $this->get('/');
@@ -169,6 +179,18 @@ class LandingDynamicContentTest extends TestCase
         $response->assertSee("trackEvent('quote_start_checkout_click', payload);", false);
         $response->assertSee("trackEvent('quote_cta_whatsapp_click', payload);", false);
         $response->assertSee("trackEvent('quote_cta_call_click', payload);", false);
+    }
+
+    public function test_home_contains_mobile_overlay_orchestration_hooks(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('body.has-cookie-banner .whatsapp-float');
+        $response->assertSee('body.offcanvas-open .whatsapp-float');
+        $response->assertSee('setCookieUiState');
+        $response->assertSee("document.body.classList.add('offcanvas-open');", false);
+        $response->assertSee("document.body.classList.remove('offcanvas-open');", false);
     }
 
     public function test_home_contains_gsap_scrolltrigger_phased_motion_contract(): void
