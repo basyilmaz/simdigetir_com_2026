@@ -3195,7 +3195,6 @@
                     <a href="/hesabim/giris">Hesabim</a>
                     <a href="/sss">SSS</a>
                     <a href="/iletisim">Iletisim</a>
-                    <a href="/kurye-basvuru">Kurye Ol</a>
                 </nav>
                 
                 <div class="nav-right">
@@ -3246,7 +3245,6 @@
             <li><a href="/hesabim/giris">Hesabim <i class="fa-solid fa-arrow-right"></i></a></li>
             <li><a href="/sss">SSS <i class="fa-solid fa-arrow-right"></i></a></li>
             <li><a href="/iletisim">Iletisim <i class="fa-solid fa-arrow-right"></i></a></li>
-            <li><a href="/kurye-basvuru">Kurye Ol <i class="fa-solid fa-arrow-right"></i></a></li>
             @if ($headerB2BCtaEnabled && $headerB2BCtaLabel !== '' && $headerB2BCtaHref !== '')
                 <li>
                     <a
