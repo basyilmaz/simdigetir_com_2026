@@ -1,0 +1,184 @@
+name: Hostinger Deploy
+
+# Castagent Migration Faz 3 (2026-05-17) — master push otomatik Hostinger deploy.
+# Plan: plans/simdigetir-castagent-migration.md
+# Wiki: wiki/concepts/simdigetir-conv-protect-cron.md (paralel saatlik drift cron)
+#
+# Tetikleyici:
+#   - push to master (PR merge sonrası otomatik)
+#   - workflow_dispatch (manuel tetik)
+#
+# Adımlar:
+#   1. SSH setup (HOSTINGER_SSH_KEY secret → ~/.ssh/)
+#   2. Pre-deploy snapshot (önceki HEAD SHA, rollback için)
+#   3. Deploy (git fetch + reset + cache rebuild + opcache reset)
+#   4. Conv-protect verification (11 kontrol, risk-map.md baseline)
+#   5. Telegram notify (başarı veya başarısız + commit SHA + verify özet)
+#   6. Cleanup SSH
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: "Manuel tetik nedeni (örn. cache fix, rollback test)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hostinger-deploy-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to Hostinger Production
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      HOSTINGER_HOST: 76.13.34.119
+      HOSTINGER_PORT: 65002
+      HOSTINGER_USER: u473759453
+      DEPLOY_PATH: /home/u473759453/domains/simdigetir.com/current
+      SITE_URL: https://simdigetir.com
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "${{ secrets.HOSTINGER_SSH_KEY }}" > ~/.ssh/hostinger_key
+          chmod 600 ~/.ssh/hostinger_key
+          ssh-keyscan -p $HOSTINGER_PORT -H $HOSTINGER_HOST >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Pre-deploy snapshot
+        id: snapshot
+        run: |
+          PREVIOUS_SHA=$(ssh -i ~/.ssh/hostinger_key -p $HOSTINGER_PORT -o BatchMode=yes $HOSTINGER_USER@$HOSTINGER_HOST \
+            "cd $DEPLOY_PATH && git rev-parse HEAD")
+          echo "previous_sha=$PREVIOUS_SHA" >> $GITHUB_OUTPUT
+          echo "Previous HEAD: $PREVIOUS_SHA"
+
+      - name: Deploy (git fetch + reset + cache rebuild)
+        id: deploy
+        run: |
+          ssh -i ~/.ssh/hostinger_key -p $HOSTINGER_PORT -o BatchMode=yes $HOSTINGER_USER@$HOSTINGER_HOST bash -s <<'REMOTE_EOF'
+            set -euo pipefail
+            cd /home/u473759453/domains/simdigetir.com/current
+
+            echo "[1/6] Fetch origin master"
+            git fetch origin master 2>&1 | tail -2
+
+            echo "[2/6] Stash any local uncommitted (deploy script local edits)"
+            git stash push -m "auto-stash-pre-gh-actions-deploy-$(date +%s)" 2>&1 | tail -1 || echo "(no local changes)"
+
+            echo "[3/6] Reset to FETCH_HEAD"
+            git reset --hard FETCH_HEAD 2>&1 | tail -1
+
+            echo "[4/6] Pop stash if any"
+            git stash list | head -1
+            git stash pop 2>&1 | tail -1 || echo "(no stash to pop)"
+
+            echo "[5/6] Cache rebuild"
+            php artisan view:clear 2>&1 | tail -1
+            php artisan view:cache 2>&1 | tail -1
+            php artisan config:clear 2>&1 | tail -1
+            php artisan config:cache 2>&1 | tail -1
+            php artisan route:clear 2>&1 | tail -1
+            php artisan route:cache 2>&1 | tail -1
+
+            echo "[6/6] Opcache reset"
+            if [ -f scripts/release/hostinger-opcache-reset.sh ]; then
+              bash scripts/release/hostinger-opcache-reset.sh 2>&1 | tail -3
+            fi
+
+            echo "Deploy HEAD: $(git rev-parse HEAD)"
+          REMOTE_EOF
+          echo "deployed_sha=$(ssh -i ~/.ssh/hostinger_key -p $HOSTINGER_PORT -o BatchMode=yes $HOSTINGER_USER@$HOSTINGER_HOST 'cd /home/u473759453/domains/simdigetir.com/current && git rev-parse HEAD')" >> $GITHUB_OUTPUT
+
+      - name: Conv-protect verification (11 kontrol)
+        id: verify
+        run: |
+          sleep 3  # cache propagation
+          HTML=$(curl -sL --max-time 20 "$SITE_URL/?cachebust=$(date +%s)" -A "GitHubActions/CastagentDeploy")
+
+          TEL=$(echo "$HTML" | grep -c 'href="tel:+905513567292"' || true)
+          WA=$(echo "$HTML" | grep -c 'href="https://wa.me/905513567292' || true)
+          FLOAT=$(echo "$HTML" | grep -c 'whatsapp-float' || true)
+          GTM=$(echo "$HTML" | grep -c 'GTM-WDBCNZV4' || true)
+          GA4=$(echo "$HTML" | grep -c 'G-XYCY1D28EF' || true)
+          AW=$(echo "$HTML" | grep -c 'AW-17989545006' || true)
+          PIXEL=$(echo "$HTML" | grep -c '1657531168735846' || true)
+          CP=$(echo "$HTML" | grep -c 'click_phone' || true)
+          CWA=$(echo "$HTML" | grep -c 'click_whatsapp' || true)
+          FK=$(echo "$HTML" | grep -c '/kurye-basvuru' || true)
+          KVKK=$(echo "$HTML" | grep -c '/kvkk' || true)
+
+          FAIL=0
+          [ "$TEL"   -lt 9 ] && { echo "❌ tel:    $TEL/9"; FAIL=1; }   || echo "✅ tel:    $TEL"
+          [ "$WA"    -lt 5 ] && { echo "❌ wa:     $WA/5"; FAIL=1; }    || echo "✅ wa:     $WA"
+          [ "$FLOAT" -lt 1 ] && { echo "❌ float:  $FLOAT"; FAIL=1; }   || echo "✅ float:  $FLOAT"
+          [ "$GTM"   -lt 1 ] && { echo "❌ gtm:    $GTM"; FAIL=1; }     || echo "✅ gtm:    $GTM"
+          [ "$GA4"   -lt 1 ] && { echo "❌ ga4:    $GA4"; FAIL=1; }     || echo "✅ ga4:    $GA4"
+          [ "$AW"    -lt 1 ] && { echo "❌ aw:     $AW"; FAIL=1; }      || echo "✅ aw:     $AW"
+          [ "$PIXEL" -lt 1 ] && { echo "❌ pixel:  $PIXEL"; FAIL=1; }   || echo "✅ pixel:  $PIXEL"
+          [ "$CP"    -lt 1 ] && { echo "❌ cp:     $CP"; FAIL=1; }      || echo "✅ cp:     $CP"
+          [ "$CWA"   -lt 1 ] && { echo "❌ cwa:    $CWA"; FAIL=1; }     || echo "✅ cwa:    $CWA"
+          [ "$FK"    -lt 1 ] && { echo "❌ fk:     $FK"; FAIL=1; }      || echo "✅ fk:     $FK"
+          [ "$KVKK"  -lt 1 ] && { echo "❌ kvkk:   $KVKK"; FAIL=1; }    || echo "✅ kvkk:   $KVKK"
+
+          SUMMARY="tel=$TEL wa=$WA float=$FLOAT gtm=$GTM ga4=$GA4 aw=$AW pixel=$PIXEL cp=$CP cwa=$CWA fk=$FK kvkk=$KVKK"
+          echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
+          echo "verify_fail=$FAIL" >> $GITHUB_OUTPUT
+
+          if [ "$FAIL" -eq 1 ]; then
+            echo "::error::Conv-protect verification FAILED — manual rollback önerilir"
+            exit 1
+          fi
+          echo "✅ 11/11 conv-protect PASS"
+
+      - name: Telegram notify — başarı
+        if: success()
+        run: |
+          MESSAGE="✅ SimdiGetir deploy başarılı
+          Repo: ${{ github.repository }}
+          Commit: ${{ github.sha }}
+          Önceki: ${{ steps.snapshot.outputs.previous_sha }}
+          Tetik: ${{ github.event_name }}
+          Mesaj: ${{ github.event.head_commit.message }}
+          Conv-protect: ${{ steps.verify.outputs.summary }}
+          Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          curl -sS -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            --data-urlencode "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+            --data-urlencode "text=$MESSAGE" \
+            > /dev/null || true
+
+      - name: Telegram notify — başarısız
+        if: failure()
+        run: |
+          MESSAGE="🚨 SimdiGetir deploy BAŞARISIZ
+          Repo: ${{ github.repository }}
+          Commit: ${{ github.sha }}
+          Önceki: ${{ steps.snapshot.outputs.previous_sha }}
+          Tetik: ${{ github.event_name }}
+          Conv-protect: ${{ steps.verify.outputs.summary }}
+          Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+          Manuel rollback:
+          ssh simdigetir-hostinger 'cd /home/u473759453/domains/simdigetir.com/current && git reset --hard ${{ steps.snapshot.outputs.previous_sha }} && php artisan view:cache && bash scripts/release/hostinger-opcache-reset.sh'"
+          curl -sS -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            --data-urlencode "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+            --data-urlencode "text=$MESSAGE" \
+            > /dev/null || true
+
+      - name: Cleanup SSH key
+        if: always()
+        run: |
+          rm -f ~/.ssh/hostinger_key
