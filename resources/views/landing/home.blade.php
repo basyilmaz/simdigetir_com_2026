@@ -172,11 +172,11 @@
                                 </p>
                                 
                                 <div class="hero-buttons animate__animated animate__fadeInUp animate__delay-3s">
-                                    <a href="/kurye-basvuru" class="btn btn-primary" style="background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%); border: none;">
-                                        <i class="fa-solid fa-bolt"></i> Hemen Başvur
+                                    <a href="tel:+905513567292" class="btn btn-primary" style="background: linear-gradient(135deg, #FF6B35 0%, #f97316 100%); border: none;">
+                                        <i class="fa-solid fa-phone"></i> Hemen Ara
                                     </a>
-                                    <a href="{{ route('checkout.index') }}" class="btn btn-outline" data-hero-open-quote>
-                                        <i class="fa-solid fa-calculator"></i> Fiyat Hesapla
+                                    <a href="https://wa.me/905513567292?text=Merhaba" class="btn btn-outline" target="_blank" rel="noopener">
+                                        <i class="fa-brands fa-whatsapp"></i> WhatsApp
                                     </a>
                                 </div>
                             </div>
@@ -649,8 +649,8 @@
 </section>
 @endif
 
-<!-- Courier CTA Section -->
-@if(data_get($landingContent, 'sections_visible.courier_cta', true))
+<!-- Courier CTA Section — Default DISABLED (Yılmaz 2026-05-16: hizmet alanlar ile karışmaması için iş başvuru CTA ana akıştan çıkarıldı; footer link kalır SEO için) -->
+@if(data_get($landingContent, 'sections_visible.courier_cta', false))
 <section class="section">
     <div class="container">
         <div class="responsive-stack" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">

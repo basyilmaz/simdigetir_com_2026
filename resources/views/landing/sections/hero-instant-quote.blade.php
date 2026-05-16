@@ -1,6 +1,11 @@
 @php
-    $quoteWidgetEnabled = (bool) config('landing.quote_widget_enabled', true)
-        && (bool) ($landingContent['quote_widget_enabled'] ?? true);
+    // Hero Quote Widget — Default DISABLED (Yılmaz 2026-05-16):
+    // Fiyat görünürlüğü ana sayfada kaldırıldı; kullanıcı doğrudan tel/WhatsApp
+    // aramaya yönlendirilir. Admin panel'den (sections_visible / quote_widget_enabled)
+    // açılabilir. Mantık: "kurye fiyat" arayan kullanıcılar conv'a dönmüyor —
+    // direkt iletişim CTA conversion artırır.
+    $quoteWidgetEnabled = (bool) config('landing.quote_widget_enabled', false)
+        && (bool) ($landingContent['quote_widget_enabled'] ?? false);
     $requestTimeoutSeconds = (float) config('landing.quote_widget.request_timeout_seconds', 8.2);
     $whatsappHref = (string) ($landingContent['main_cta_secondary_href'] ?? 'https://wa.me/905513567292');
     $callHref = (string) ($landingContent['main_cta_phone_href'] ?? 'tel:+905513567292');
