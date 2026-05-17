@@ -3937,6 +3937,35 @@
             cookieBanner.classList.remove('visible');
             setCookieUiState(false);
         });
+
+        // Trust signal counter animation — data-count attribute -> animate from 0
+        // Önceki durum: span hep "0" kalıyordu (handler yoktu), 0K+/0% görünüyordu.
+        const counterEls = document.querySelectorAll('[data-count]');
+        if (counterEls.length && 'IntersectionObserver' in window) {
+            const animateCounter = (el) => {
+                const target = parseInt(el.getAttribute('data-count'), 10) || 0;
+                if (reducedMotionEnabled || target <= 0) { el.textContent = target; return; }
+                const duration = 1200;
+                const start = performance.now();
+                const step = (now) => {
+                    const progress = Math.min((now - start) / duration, 1);
+                    const eased = 1 - Math.pow(1 - progress, 3);
+                    el.textContent = Math.floor(target * eased);
+                    if (progress < 1) requestAnimationFrame(step);
+                    else el.textContent = target;
+                };
+                requestAnimationFrame(step);
+            };
+            const counterObserver = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        animateCounter(entry.target);
+                        counterObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.3 });
+            counterEls.forEach((el) => counterObserver.observe(el));
+        }
     </script>
     <!-- Swiper JS -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
