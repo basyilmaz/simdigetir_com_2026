@@ -158,35 +158,60 @@ jobs:
 
       - name: Telegram notify — başarı
         if: success()
+        # Bug fix (PR #8 sonrası 2026-05-17 keşfedildi): ${{ github.event.head_commit.message }}
+        # YAML literal substitution bash double-quoted MESSAGE içine girince
+        # commit body'deki backtick (`) karakteri command substitution gibi
+        # yorumlanıyor (exit code 2). Env var pattern güvenli — bash hiçbir
+        # interpolation yapmaz.
+        env:
+          REPO: ${{ github.repository }}
+          COMMIT_SHA: ${{ github.sha }}
+          PREV_SHA: ${{ steps.snapshot.outputs.previous_sha }}
+          EVENT: ${{ github.event_name }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          VERIFY_SUMMARY: ${{ steps.verify.outputs.summary }}
+          RUN_ID: ${{ github.run_id }}
+          BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           MESSAGE="✅ SimdiGetir deploy başarılı
-          Repo: ${{ github.repository }}
-          Commit: ${{ github.sha }}
-          Önceki: ${{ steps.snapshot.outputs.previous_sha }}
-          Tetik: ${{ github.event_name }}
-          Mesaj: ${{ github.event.head_commit.message }}
-          Conv-protect: ${{ steps.verify.outputs.summary }}
-          Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          curl -sS -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            --data-urlencode "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+          Repo: $REPO
+          Commit: $COMMIT_SHA
+          Önceki: $PREV_SHA
+          Tetik: $EVENT
+          Mesaj: $COMMIT_MSG
+          Conv-protect: $VERIFY_SUMMARY
+          Run: https://github.com/$REPO/actions/runs/$RUN_ID"
+          curl -sS -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${CHAT_ID}" \
             --data-urlencode "text=$MESSAGE" \
             > /dev/null || true
 
       - name: Telegram notify — başarısız
         if: failure()
+        # Env var pattern — başarı step ile aynı bash interpolation safety.
+        env:
+          REPO: ${{ github.repository }}
+          COMMIT_SHA: ${{ github.sha }}
+          PREV_SHA: ${{ steps.snapshot.outputs.previous_sha }}
+          EVENT: ${{ github.event_name }}
+          VERIFY_SUMMARY: ${{ steps.verify.outputs.summary }}
+          RUN_ID: ${{ github.run_id }}
+          BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           MESSAGE="🚨 SimdiGetir deploy BAŞARISIZ
-          Repo: ${{ github.repository }}
-          Commit: ${{ github.sha }}
-          Önceki: ${{ steps.snapshot.outputs.previous_sha }}
-          Tetik: ${{ github.event_name }}
-          Conv-protect: ${{ steps.verify.outputs.summary }}
-          Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          Repo: $REPO
+          Commit: $COMMIT_SHA
+          Önceki: $PREV_SHA
+          Tetik: $EVENT
+          Conv-protect: $VERIFY_SUMMARY
+          Run: https://github.com/$REPO/actions/runs/$RUN_ID
 
           Manuel rollback:
-          ssh simdigetir-hostinger 'cd /home/u473759453/domains/simdigetir.com/current && git reset --hard ${{ steps.snapshot.outputs.previous_sha }} && php artisan view:cache && bash scripts/release/hostinger-opcache-reset.sh'"
-          curl -sS -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            --data-urlencode "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+          ssh simdigetir-hostinger 'cd /home/u473759453/domains/simdigetir.com/current && git reset --hard $PREV_SHA && php artisan view:cache && bash scripts/release/hostinger-opcache-reset.sh'"
+          curl -sS -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${CHAT_ID}" \
             --data-urlencode "text=$MESSAGE" \
             > /dev/null || true
 
