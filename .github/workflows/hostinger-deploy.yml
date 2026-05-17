@@ -56,7 +56,19 @@ jobs:
           chmod 700 ~/.ssh
           echo "${{ secrets.HOSTINGER_SSH_KEY }}" > ~/.ssh/hostinger_key
           chmod 600 ~/.ssh/hostinger_key
-          ssh-keyscan -p $HOSTINGER_PORT -H $HOSTINGER_HOST >> ~/.ssh/known_hosts 2>/dev/null
+          # ssh-keyscan retry: GitHub runner IP'leri zaman zaman Hostinger
+          # fail2ban'a düşüp transient block alıyor (PR #7 ilk denemesi bu
+          # nedenle 5s'de exit 1 oldu, workflow_dispatch retry başarılı).
+          # 3 deneme × 10s aralık + her denemede stderr'i göster.
+          for attempt in 1 2 3; do
+            if ssh-keyscan -p $HOSTINGER_PORT -H $HOSTINGER_HOST >> ~/.ssh/known_hosts 2>&1; then
+              echo "ssh-keyscan PASS (deneme $attempt)"
+              break
+            fi
+            echo "ssh-keyscan deneme $attempt başarısız — 10s sonra tekrar"
+            [ "$attempt" -eq 3 ] && { echo "::error::ssh-keyscan 3 denemede de başarısız — Hostinger erişim sorunu"; exit 1; }
+            sleep 10
+          done
 
       - name: Pre-deploy snapshot
         id: snapshot
