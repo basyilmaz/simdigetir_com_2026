@@ -12,7 +12,7 @@ name: Hostinger Deploy
 #   1. SSH setup (HOSTINGER_SSH_KEY secret → ~/.ssh/)
 #   2. Pre-deploy snapshot (önceki HEAD SHA, rollback için)
 #   3. Deploy (git fetch + reset + cache rebuild + opcache reset)
-#   4. Conv-protect verification (11 kontrol, risk-map.md baseline)
+#   4. Conv-protect verification (13 kontrol, risk-map.md baseline)
 #   5. Telegram notify (başarı veya başarısız + commit SHA + verify özet)
 #   6. Cleanup SSH
 
@@ -115,7 +115,7 @@ jobs:
           REMOTE_EOF
           echo "deployed_sha=$(ssh -i ~/.ssh/hostinger_key -p $HOSTINGER_PORT -o BatchMode=yes $HOSTINGER_USER@$HOSTINGER_HOST 'cd /home/u473759453/domains/simdigetir.com/current && git rev-parse HEAD')" >> $GITHUB_OUTPUT
 
-      - name: Conv-protect verification (11 kontrol)
+      - name: Conv-protect verification (13 kontrol)
         id: verify
         run: |
           sleep 3  # cache propagation
@@ -132,6 +132,12 @@ jobs:
           CWA=$(echo "$HTML" | grep -c 'click_whatsapp' || true)
           FK=$(echo "$HTML" | grep -c '/kurye-basvuru' || true)
           KVKK=$(echo "$HTML" | grep -c '/kvkk' || true)
+          # Ads dönüşümü GERÇEKTEN ateşleniyor mu? (1 tanım + 2 çağrı = 3)
+          # 2026-07-26: trackConversion TANIMLIYDI ama hiçbir yerden ÇAĞRILMIYORDU →
+          # site hiç Ads dönüşümü göndermedi; eski 11 kontrol bunu göremiyordu çünkü
+          # hepsi "kod sayfada var mı"ya bakıyordu, "kod çalışıyor mu"ya değil.
+          TCALL=$(echo "$HTML" | grep -o 'trackConversion(' | wc -l || true)
+          BEACON=$(echo "$HTML" | grep -c "transport_type" || true)
 
           FAIL=0
           [ "$TEL"   -lt 9 ] && { echo "❌ tel:    $TEL/9"; FAIL=1; }   || echo "✅ tel:    $TEL"
@@ -145,8 +151,10 @@ jobs:
           [ "$CWA"   -lt 1 ] && { echo "❌ cwa:    $CWA"; FAIL=1; }     || echo "✅ cwa:    $CWA"
           [ "$FK"    -lt 1 ] && { echo "❌ fk:     $FK"; FAIL=1; }      || echo "✅ fk:     $FK"
           [ "$KVKK"  -lt 1 ] && { echo "❌ kvkk:   $KVKK"; FAIL=1; }    || echo "✅ kvkk:   $KVKK"
+          [ "$TCALL" -lt 3 ] && { echo "❌ tcall:  $TCALL/3 — trackConversion çağrılmıyor (ölü fonksiyon)"; FAIL=1; } || echo "✅ tcall:  $TCALL"
+          [ "$BEACON" -lt 1 ] && { echo "❌ beacon: $BEACON — transport_type yok, sinyal navigasyonda iptal olur"; FAIL=1; } || echo "✅ beacon: $BEACON"
 
-          SUMMARY="tel=$TEL wa=$WA float=$FLOAT gtm=$GTM ga4=$GA4 aw=$AW pixel=$PIXEL cp=$CP cwa=$CWA fk=$FK kvkk=$KVKK"
+          SUMMARY="tel=$TEL wa=$WA float=$FLOAT gtm=$GTM ga4=$GA4 aw=$AW pixel=$PIXEL cp=$CP cwa=$CWA fk=$FK kvkk=$KVKK tcall=$TCALL beacon=$BEACON"
           echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
           echo "verify_fail=$FAIL" >> $GITHUB_OUTPUT
 
@@ -154,7 +162,7 @@ jobs:
             echo "::error::Conv-protect verification FAILED — manual rollback önerilir"
             exit 1
           fi
-          echo "✅ 11/11 conv-protect PASS"
+          echo "✅ 13/13 conv-protect PASS"
 
       - name: Telegram notify — başarı
         if: success()

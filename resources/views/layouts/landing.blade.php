@@ -96,6 +96,13 @@
         $adsId = trim($adsIdRaw) !== '' ? trim($adsIdRaw) : $defaultAdsId;
         // Prefer Ads tag as loader so manual snippet parity stays deterministic.
         $primaryGoogleTagId = $adsId ?: $gtagId;
+
+        // Google Ads dönüşüm etiketleri (AW-17989545006 hesabındaki CANLI eylemler).
+        // UYARI: "Kişi (Sayfa yükleme .../iletisim)" eylemi (AqHNCJu7hIscEK7YioJD)
+        // hesapta REMOVED — o etikete gönderilen hit sessizce ÇÖPE gider. Etiket
+        // değiştirilecekse önce Google Ads'te eylemin ENABLED olduğu doğrulanmalı.
+        $adsWhatsappLabel = trim((string) \Modules\Settings\Models\Setting::getValue('seo.gads_label_whatsapp', env('GOOGLE_ADS_LABEL_WHATSAPP', '4MFTCM_IjJAcEK7YioJD')));
+        $adsPhoneLabel = trim((string) \Modules\Settings\Models\Setting::getValue('seo.gads_label_phone', env('GOOGLE_ADS_LABEL_PHONE', 'zhToCNLIjJAcEK7YioJD')));
     @endphp
     @if($primaryGoogleTagId)
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ $primaryGoogleTagId }}"></script>
@@ -111,43 +118,62 @@
         @endif
         
         // Google Ads Conversion Tracking Helper
+        //
+        // transport_type:'beacon' ZORUNLU: tel: / wa.me tıklamasında tarayıcı sayfayı
+        // anında terk eder; beacon olmadan istek yolda iptal olur ve Google'a hiç
+        // ulaşmaz ("navigasyon yarışı" — onoffgsm.com'da 30 gün boyunca 0 dönüşüme
+        // sebep oldu). event_callback yalnızca `url` verilip yönlendirmeyi BİZİM
+        // yapmamız istendiğinde devreye girer; event_timeout olmadan gtag geç/engelli
+        // dönerse kullanıcı hiç yönlendirilmez.
         function trackConversion(label, url) {
-            if (!'{{ $adsId }}') {
+            if (!'{{ $adsId }}' || !label) {
                 if (url) {
                     window.location = url;
                 }
                 return false;
             }
-            gtag('event', 'conversion', {
+            var payload = {
                 'send_to': '{{ $adsId }}/' + label,
-                'event_callback': function() {
-                    if (url) {
-                        window.location = url;
-                    }
-                }
-            });
+                'transport_type': 'beacon'
+            };
+            if (url) {
+                var navigated = false;
+                var go = function () {
+                    if (navigated) return;
+                    navigated = true;
+                    window.location = url;
+                };
+                payload.event_callback = go;
+                payload.event_timeout = 1000;
+                setTimeout(go, 1000);
+            }
+            gtag('event', 'conversion', payload);
             return false;
         }
 
         // Event Listeners for Ads
         document.addEventListener('DOMContentLoaded', function() {
-            // Phone Clicks
+            // Phone Clicks — GA4 davranış olayı + Google Ads dönüşümü ("Telefon")
             document.querySelectorAll('a[href^="tel:"]').forEach(function(el) {
                 el.addEventListener('click', function() {
                     gtag('event', 'click_phone', {
                         'event_category': 'Contact',
                         'event_label': this.href
                     });
+                    // url GEÇİLMİYOR: bağlantı kendi navigasyonunu yapsın, beacon
+                    // sinyali zaten sayfa terk edilse de gider.
+                    trackConversion('{{ $adsPhoneLabel }}');
                 });
             });
 
-            // WhatsApp Clicks
+            // WhatsApp Clicks — GA4 davranış olayı + Google Ads dönüşümü ("Whatsapp")
             document.querySelectorAll('a[href*="wa.me"], a[href*="whatsapp.com"]').forEach(function(el) {
                 el.addEventListener('click', function() {
                     gtag('event', 'click_whatsapp', {
                         'event_category': 'Contact',
                         'event_label': this.href
                     });
+                    trackConversion('{{ $adsWhatsappLabel }}');
                 });
             });
             
