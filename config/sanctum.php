@@ -51,7 +51,10 @@ return [
     |
     */
 
-    'expiration' => env('SANCTUM_TOKEN_EXPIRATION', 1440),
+    // (int) cast şart: .env'den gelen değer STRING'dir ('1440'), Sanctum ise dakika
+    // cinsinden int bekler. `?:` boş/tanımsız değeri 1440'a düşürür — düz (int) cast
+    // kullanılsaydı boş env için (int)'' = 0 olur ve token'lar anında geçersiz sayılırdı.
+    'expiration' => (int) (env('SANCTUM_TOKEN_EXPIRATION') ?: 1440),
 
     /*
     |--------------------------------------------------------------------------
