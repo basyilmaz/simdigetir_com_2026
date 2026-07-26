@@ -62,6 +62,11 @@ class PricingBackofficeIntegrationTest extends TestCase
             'is_active' => true,
         ]);
 
+        // Hero teklif widget'ı 2026-05-16'dan beri varsayılan KAPALI (ana sayfada fiyat
+        // görünürlüğü kaldırıldı). Bu test widget'ın içeriğini doğruladığı için iki bayrağı
+        // da açması gerekiyor: config + panel içeriğindeki quote_widget_enabled.
+        config()->set('landing.quote_widget_enabled', true);
+
         LandingPageSection::create([
             'page_id' => $page->id,
             'key' => 'hero',
@@ -69,6 +74,7 @@ class PricingBackofficeIntegrationTest extends TestCase
             'is_active' => true,
             'sort_order' => 1,
             'payload' => [
+                'quote_widget_enabled' => true,
                 'quote_widget_service_options' => [
                     [
                         'value' => 'legacy',

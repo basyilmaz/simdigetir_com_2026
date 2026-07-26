@@ -10,9 +10,74 @@ use Tests\TestCase;
 
 class LandingDynamicContentTest extends TestCase
 {
-    public function test_home_renders_hero_quote_widget_when_enabled(): void
+    /**
+     * Hero teklif widget'ını test için açar.
+     *
+     * Widget 2026-05-16'da bilerek VARSAYILAN KAPALI yapıldı (bkz.
+     * resources/views/landing/sections/hero-instant-quote.blade.php): ana sayfada fiyat
+     * görünürlüğü kaldırıldı, kullanıcı tel/WhatsApp'a yönlendiriliyor. Blade iki bayrağın
+     * AND'ini arıyor:
+     *
+     *   config('landing.quote_widget_enabled')  &&  $landingContent['quote_widget_enabled']
+     *
+     * İkincisi LandingContentResolver'da varsayılan false ve yalnızca panel içeriğinden
+     * (hero section payload) açılır. Testler o tarihte yalnız config'i açtığı için widget
+     * hiç render edilmedi ve Quality Gate 2026-05-16'dan beri kırmızı kaldı.
+     *
+     * Bu helper ikisini birden açar — üretim davranışı DEĞİŞMEZ, yalnızca test "açık"
+     * senaryoyu gerçekten kurar. Kapalı hâlin korunduğunu
+     * test_home_hides_hero_quote_widget_when_disabled doğruluyor.
+     */
+    private function enableQuoteWidget(array $heroPayload = []): LandingPage
     {
         config()->set('landing.quote_widget_enabled', true);
+
+        $page = LandingPage::firstOrCreate(
+            ['slug' => 'home'],
+            ['title' => 'Home', 'is_active' => true],
+        );
+
+        LandingPageSection::updateOrCreate(
+            ['page_id' => $page->id, 'key' => 'hero'],
+            [
+                'type' => 'hero',
+                'is_active' => true,
+                'sort_order' => 1,
+                'payload' => array_merge(['quote_widget_enabled' => true], $heroPayload),
+            ],
+        );
+
+        return $page;
+    }
+
+    /**
+     * Varsayılan kapalı bir landing bölümünü, panel içeriğinde aktif section kaydı
+     * oluşturarak açar. LandingContentResolver `sections_visible` değerini sayfanın
+     * AKTİF section'larından türetir.
+     */
+    private function enableLandingSection(string $key, array $payload = []): LandingPage
+    {
+        $page = LandingPage::firstOrCreate(
+            ['slug' => 'home'],
+            ['title' => 'Home', 'is_active' => true],
+        );
+
+        LandingPageSection::updateOrCreate(
+            ['page_id' => $page->id, 'key' => $key],
+            [
+                'type' => $key,
+                'is_active' => true,
+                'sort_order' => 1,
+                'payload' => $payload,
+            ],
+        );
+
+        return $page;
+    }
+
+    public function test_home_renders_hero_quote_widget_when_enabled(): void
+    {
+        $this->enableQuoteWidget();
         config()->set('services_integrations.maps.google_maps_api_key', '');
 
         $response = $this->get('/');
@@ -28,7 +93,7 @@ class LandingDynamicContentTest extends TestCase
 
     public function test_home_exposes_google_places_autocomplete_when_maps_key_present(): void
     {
-        config()->set('landing.quote_widget_enabled', true);
+        $this->enableQuoteWidget();
         config()->set('services_integrations.maps.google_maps_api_key', 'test-maps-api-key');
 
         $response = $this->get('/');
@@ -53,33 +118,20 @@ class LandingDynamicContentTest extends TestCase
 
     public function test_home_uses_db_backed_quote_widget_content_when_available(): void
     {
-        $page = LandingPage::create([
-            'slug' => 'home',
-            'title' => 'Home',
-            'is_active' => true,
-        ]);
-
-        LandingPageSection::create([
-            'page_id' => $page->id,
-            'key' => 'hero',
-            'type' => 'hero',
-            'is_active' => true,
-            'sort_order' => 1,
-            'payload' => [
-                'quote_widget_title_text' => 'Hizli Teklif Al',
-                'quote_widget_subtitle_text' => 'Panelden yonetilen teklif aciklamasi.',
-                'quote_widget_pickup_placeholder_text' => 'Orn: Besiktas',
-                'quote_widget_dropoff_placeholder_text' => 'Orn: Atasehir',
-                'quote_widget_submit_label_text' => 'Teklif Hesapla',
-                'quote_widget_whatsapp_label_text' => 'WhatsApp Destegi',
-                'quote_widget_call_label_text' => 'Telefon ile Ara',
-                'quote_widget_service_options' => [
-                    [
-                        'value' => 'vip',
-                        'label' => 'VIP Kurye',
-                        'base_amount' => 99000,
-                        'fallback_minutes' => 25,
-                    ],
+        $this->enableQuoteWidget([
+            'quote_widget_title_text' => 'Hizli Teklif Al',
+            'quote_widget_subtitle_text' => 'Panelden yonetilen teklif aciklamasi.',
+            'quote_widget_pickup_placeholder_text' => 'Orn: Besiktas',
+            'quote_widget_dropoff_placeholder_text' => 'Orn: Atasehir',
+            'quote_widget_submit_label_text' => 'Teklif Hesapla',
+            'quote_widget_whatsapp_label_text' => 'WhatsApp Destegi',
+            'quote_widget_call_label_text' => 'Telefon ile Ara',
+            'quote_widget_service_options' => [
+                [
+                    'value' => 'vip',
+                    'label' => 'VIP Kurye',
+                    'base_amount' => 99000,
+                    'fallback_minutes' => 25,
                 ],
             ],
         ]);
@@ -156,6 +208,9 @@ class LandingDynamicContentTest extends TestCase
 
     public function test_home_contains_deterministic_quote_continue_path_hooks(): void
     {
+        // Bu JS hero-instant-quote.blade.php içinde — widget kapalıyken hiç render edilmez.
+        $this->enableQuoteWidget();
+
         $response = $this->get('/');
 
         $response->assertStatus(200);
@@ -167,6 +222,9 @@ class LandingDynamicContentTest extends TestCase
 
     public function test_home_contains_cta_funnel_instrumentation_payload_contract(): void
     {
+        // buildCtaPayload'ın quote_start_checkout kısmı hero-instant-quote içinde yaşıyor.
+        $this->enableQuoteWidget();
+
         $response = $this->get('/');
 
         $response->assertStatus(200);
@@ -223,6 +281,12 @@ class LandingDynamicContentTest extends TestCase
 
     public function test_home_contains_lottie_micro_animation_lazy_and_fallback_contract(): void
     {
+        // Lottie animasyonu "Courier CTA" bölümünün içinde; o bölüm de 2026-05-16'da
+        // varsayılan kapalı yapıldı (iş başvuru CTA'sı ana akıştan çıkarıldı, footer
+        // linki SEO için kaldı). sections_visible panel içeriğindeki AKTİF section'lardan
+        // türetilir — bölümü açmak için section kaydı gerekiyor.
+        $this->enableLandingSection('courier_cta');
+
         $response = $this->get('/');
 
         $response->assertStatus(200);
