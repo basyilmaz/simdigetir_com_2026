@@ -106,9 +106,21 @@ jobs:
             php artisan route:clear 2>&1 | tail -1
             php artisan route:cache 2>&1 | tail -1
 
-            echo "[6/6] Opcache reset"
+            # Opcache reset FAIL-SOFT (2026-07-26).
+            #
+            # Hostinger'da `opcache_reset()` false donuyor ve script exit 1 veriyordu; uzak
+            # blokta `set -euo pipefail` oldugu icin bu TUM deploy adimini kirmizi yapiyor,
+            # boylece bir SONRAKI adim olan conv-protect verification HIC CALISMIYORDU.
+            # Gate 2026-05-17'den beri fiilen atlanmisti.
+            #
+            # opcache_reset=false burada zararsiz: sunucuda opcache.validate_timestamps=1,
+            # yani PHP dosya mtime'ina bakip kendi yeniliyor (2026-07-26'da kanitlandi —
+            # deploy "fail" iken canli icerik guncel geldi). Bu yuzden uyari basip devam
+            # ediyoruz; deploy'un gercek dogrulamasi conv-protect adimidir.
+            echo "[6/6] Opcache reset (fail-soft)"
             if [ -f scripts/release/hostinger-opcache-reset.sh ]; then
-              bash scripts/release/hostinger-opcache-reset.sh 2>&1 | tail -3
+              bash scripts/release/hostinger-opcache-reset.sh 2>&1 | tail -3 \
+                || echo "UYARI: opcache reset basarisiz (validate_timestamps=1 oldugu icin kritik degil) — deploy devam ediyor"
             fi
 
             echo "Deploy HEAD: $(git rev-parse HEAD)"
