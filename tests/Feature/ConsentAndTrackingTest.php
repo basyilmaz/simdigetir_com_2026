@@ -84,6 +84,13 @@ class ConsentAndTrackingTest extends TestCase
 
     public function test_clarity_loads_only_through_consent_function_when_configured(): void
     {
+        // Varsayılan proje (simdigetir.com, yoe20jr1jz) — betik düz <script src> olarak değil, yalnız onay fonksiyonuyla
+        $html = $this->get('/')->assertStatus(200)->getContent();
+        $this->assertStringContainsString('"clarity", "script", "yoe20jr1jz"', $html);
+        $this->assertDoesNotMatchRegularExpression('/<script[^>]*clarity.ms/', $html);
+
+        // Admin ayarı varsayılanı ezer; boş bırakılırsa Clarity hiç yüklenmez
+        Setting::setValue('marketing.clarity_id', '', 'marketing');
         $this->get('/')->assertStatus(200)->assertDontSee('clarity.ms/tag', false);
 
         Setting::setValue('marketing.clarity_id', 'abc123xyz', 'marketing');

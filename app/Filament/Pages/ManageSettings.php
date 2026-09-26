@@ -53,7 +53,7 @@ class ManageSettings extends Page
             'marketing_gtm_head' => Setting::getValue('marketing.gtm_head', ''),
             'marketing_gtm_body' => Setting::getValue('marketing.gtm_body', ''),
             'marketing_ga4_id' => Setting::getValue('marketing.ga4_id', ''),
-            'marketing_clarity_id' => Setting::getValue('marketing.clarity_id', ''),
+            'marketing_clarity_id' => Setting::getValue('marketing.clarity_id', env('CLARITY_PROJECT_ID', 'yoe20jr1jz')),
             'consent_v2_enabled' => (string) Setting::getValue('consent.v2_enabled', '1') !== '0',
             'consent_mode' => Setting::getValue('consent.mode', 'advanced') === 'basic' ? 'basic' : 'advanced',
 

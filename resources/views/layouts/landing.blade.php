@@ -110,7 +110,7 @@
         //      'basic'    (onay yoksa gtag.js hiç yüklenmez).
         $consentV2 = (string) \Modules\Settings\Models\Setting::getValue('consent.v2_enabled', '1') !== '0';
         $consentMode = (string) \Modules\Settings\Models\Setting::getValue('consent.mode', 'advanced') === 'basic' ? 'basic' : 'advanced';
-        $clarityId = preg_replace('/[^A-Za-z0-9]/', '', (string) \Modules\Settings\Models\Setting::getValue('marketing.clarity_id', env('CLARITY_PROJECT_ID', '')));
+        $clarityId = preg_replace('/[^A-Za-z0-9]/', '', (string) \Modules\Settings\Models\Setting::getValue('marketing.clarity_id', env('CLARITY_PROJECT_ID', 'yoe20jr1jz')));
         $gtagDeferred = $consentV2 && $consentMode === 'basic';
     @endphp
     @if($consentV2)
