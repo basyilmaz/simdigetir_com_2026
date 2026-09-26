@@ -10,7 +10,10 @@ on:
 
 jobs:
   laravel-quality-gate:
-    runs-on: ubuntu-latest
+    # Sabit imaj (ubuntu-latest 19.10.2026'da Ubuntu 26'ya geçiyor). Public depo: hosted dakika ücretsiz.
+    runs-on: ubuntu-24.04
+    # Yerelde tam paket ~4-6 dk; varsayılan 360 dk yerine asılı işi erken kes.
+    timeout-minutes: 20
 
     steps:
       - name: Checkout

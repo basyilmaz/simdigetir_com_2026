@@ -12,7 +12,7 @@ name: Hostinger Deploy
 #   1. SSH setup (HOSTINGER_SSH_KEY secret → ~/.ssh/)
 #   2. Pre-deploy snapshot (önceki HEAD SHA, rollback için)
 #   3. Deploy (git fetch + reset + cache rebuild + opcache reset)
-#   4. Conv-protect verification (13 kontrol, risk-map.md baseline)
+#   4. Conv-protect verification (15 kontrol: 13 risk-map.md + 2 KVKK onayı)
 #   5. Telegram notify (başarı veya başarısız + commit SHA + verify özet)
 #   6. Cleanup SSH
 
@@ -37,7 +37,9 @@ concurrency:
 jobs:
   deploy:
     name: Deploy to Hostinger Production
-    runs-on: ubuntu-latest
+    # Sabit imaj: ubuntu-latest 19.10.2026'da Ubuntu 26'ya geçiyor; deploy sessizce değişmesin.
+    # Depo PUBLIC → GitHub-hosted dakika ücretsiz; self-hosted runner public depoda güvenlik riski (fork PR).
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     env:
       HOSTINGER_HOST: 76.13.34.119
