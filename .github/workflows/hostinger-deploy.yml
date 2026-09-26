@@ -105,6 +105,9 @@ jobs:
             php artisan config:cache 2>&1 | tail -1
             php artisan route:clear 2>&1 | tail -1
             php artisan route:cache 2>&1 | tail -1
+            # Onaylı yasal metin (resources/legal) bantla aynı sürümde yayında olsun.
+            # İçerik aynıysa sürüm artmaz; hata deploy'u kırmaz ama görünür uyarı verir.
+            php artisan legal:publish cerez-politikasi 2>&1 | tail -1 || echo "::warning::legal:publish cerez-politikasi basarisiz — /cerez-politikasi eski metinde olabilir"
 
             # Opcache reset FAIL-SOFT (2026-07-26).
             #
