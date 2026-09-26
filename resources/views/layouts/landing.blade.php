@@ -103,9 +103,64 @@
         // değiştirilecekse önce Google Ads'te eylemin ENABLED olduğu doğrulanmalı.
         $adsWhatsappLabel = trim((string) \Modules\Settings\Models\Setting::getValue('seo.gads_label_whatsapp', env('GOOGLE_ADS_LABEL_WHATSAPP', '4MFTCM_IjJAcEK7YioJD')));
         $adsPhoneLabel = trim((string) \Modules\Settings\Models\Setting::getValue('seo.gads_label_phone', env('GOOGLE_ADS_LABEL_PHONE', 'zhToCNLIjJAcEK7YioJD')));
+
+        // KVKK onayı (Dalga 1, 2026-09): Consent Mode v2 + onaya bağlı Meta Pixel / Clarity.
+        // Acil kapatma: admin → Ayarlar → Pazarlama → "Çerez onayı (v2)" kapalı → eski davranış.
+        // Mod: 'advanced' (onaysız ziyaretçide çerezsiz ping — Ads modellemesi sürer; Yılmaz 2026-09-26)
+        //      'basic'    (onay yoksa gtag.js hiç yüklenmez).
+        $consentV2 = (string) \Modules\Settings\Models\Setting::getValue('consent.v2_enabled', '1') !== '0';
+        $consentMode = (string) \Modules\Settings\Models\Setting::getValue('consent.mode', 'advanced') === 'basic' ? 'basic' : 'advanced';
+        $clarityId = preg_replace('/[^A-Za-z0-9]/', '', (string) \Modules\Settings\Models\Setting::getValue('marketing.clarity_id', env('CLARITY_PROJECT_ID', '')));
+        $gtagDeferred = $consentV2 && $consentMode === 'basic';
     @endphp
+    @if($consentV2)
+    <script>
+        // Varsayılan: her şey REDDEDİLMİŞ. Kayıtlı tercih varsa hemen uygulanır (config'ten önce).
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        window.sgOnay = (function () {
+            try {
+                var v = JSON.parse(localStorage.getItem('sg-onay-v2') || 'null');
+                return (v && typeof v === 'object' && v.v === 2) ? v : null;
+            } catch (e) { return null; }
+        })();
+        gtag('consent', 'default', {
+            'ad_storage': 'denied',
+            'analytics_storage': 'denied',
+            'ad_user_data': 'denied',
+            'ad_personalization': 'denied',
+            'wait_for_update': 500
+        });
+        gtag('set', 'ads_data_redaction', true);
+        gtag('set', 'url_passthrough', true);
+        window.sgOnayGoogle = function (o) {
+            gtag('consent', 'update', {
+                'analytics_storage': o.analitik ? 'granted' : 'denied',
+                'ad_storage': o.pazarlama ? 'granted' : 'denied',
+                'ad_user_data': o.pazarlama ? 'granted' : 'denied',
+                'ad_personalization': o.pazarlama ? 'granted' : 'denied'
+            });
+        };
+        if (window.sgOnay) { window.sgOnayGoogle(window.sgOnay); }
+    </script>
+    @endif
     @if($primaryGoogleTagId)
+    @if($gtagDeferred)
+    <script>
+        // Temel mod: gtag.js yalnız analitik ya da pazarlama onayında yüklenir.
+        window.sgGtagYukle = function () {
+            if (window.sgGtagYuklendi) return;
+            window.sgGtagYuklendi = true;
+            var s = document.createElement('script');
+            s.async = true;
+            s.src = 'https://www.googletagmanager.com/gtag/js?id={{ $primaryGoogleTagId }}';
+            document.head.appendChild(s);
+        };
+        if (window.sgOnay && (window.sgOnay.analitik || window.sgOnay.pazarlama)) { window.sgGtagYukle(); }
+    </script>
+    @else
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ $primaryGoogleTagId }}"></script>
+    @endif
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
@@ -176,14 +231,9 @@
                     trackConversion('{{ $adsWhatsappLabel }}');
                 });
             });
-            
-            // Form Submissions (Handled in submitLeadForm JS but adding global listener as backup)
-            window.addEventListener('lead_submit', function(e) {
-                gtag('event', 'generate_lead', {
-                    'event_category': 'Form',
-                    'event_label': e.detail.lead_type
-                });
-            });
+            // Form gönderimleri: trackEvent('lead_submit', …) içinde (aşağıda). Buradaki eski
+            // window 'lead_submit' dinleyicisi hiç tetiklenmediği için kaldırıldı (2026-09 —
+            // GA4'e 90 günde 0 generate_lead; DB'de 3 gönderim vardı).
         });
     </script>
     @endif
@@ -203,14 +253,37 @@
         t.src=v;s=b.getElementsByTagName(e)[0];
         s.parentNode.insertBefore(t,s)}(window, document,'script',
         'https://connect.facebook.net/en_US/fbevents.js');
+        @if($consentV2)
+        // Pazarlama onayı yoksa Pixel olay göndermez; onay verilince (grant) gönderime başlar.
+        fbq('consent', (window.sgOnay && window.sgOnay.pazarlama) ? 'grant' : 'revoke');
+        @endif
         fbq('init', '{{ $metaPixelId }}');
         fbq('track', 'PageView');
     </script>
+    @unless($consentV2)
+    {{-- JS'siz ziyaretçide görsel piksel onay alınamadan veri gönderir; onay açıkken kullanılmaz. --}}
     <noscript>
         <img height="1" width="1" style="display:none"
              src="https://www.facebook.com/tr?id={{ $metaPixelId }}&ev=PageView&noscript=1"
              alt="" />
     </noscript>
+    @endunless
+    @endif
+    @if($consentV2 && $clarityId)
+    <script>
+        // Microsoft Clarity: yalnız ANALİTİK onayında yüklenir; reddedende hiç yüklenmez.
+        window.sgClarityYukle = function () {
+            if (window.sgClarityYuklendi) return;
+            window.sgClarityYuklendi = true;
+            (function(c,l,a,r,i,t,y){
+                c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+                t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+                y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+            })(window, document, "clarity", "script", "{{ $clarityId }}");
+            window.clarity('consent');
+        };
+        if (window.sgOnay && window.sgOnay.analitik) { window.sgClarityYukle(); }
+    </script>
     @endif
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -2814,6 +2887,26 @@
             border: 1px solid var(--border-glass);
         }
         .cookie-btn-info:hover { border-color: var(--primary); color: var(--primary); }
+        .cookie-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        .cookie-title { display: block; color: var(--text-primary, #fff); font-size: 0.95rem; margin-bottom: 0.25rem; }
+        .cookie-text p { margin: 0; }
+        .cookie-prefs { display: grid; gap: 0.6rem; margin-top: 0.75rem; }
+        .cookie-prefs[hidden] { display: none; }
+        .cookie-pref { display: flex; gap: 0.6rem; align-items: flex-start; font-size: 0.82rem; line-height: 1.45; cursor: pointer; }
+        .cookie-pref input { margin-top: 0.2rem; accent-color: var(--primary); width: 1rem; height: 1rem; flex-shrink: 0; }
+        .cookie-pref b { color: var(--text-primary, #fff); }
+        .cookie-banner { max-height: 85vh; overflow-y: auto; }
+        .footer-cookie-link { color: inherit; text-decoration: underline; background: none; border: 0; padding: 0; font: inherit; cursor: pointer; }
+        @media (max-width: 600px) {
+            /* Mobil: bant ekranın yarısını kaplamasın — gerçek müşterilerin çoğu mobilde, "Kurye Çağır" görünür kalmalı */
+            .cookie-banner { padding: 0.6rem 0; max-height: 60vh; }
+            .cookie-inner { padding: 0 1rem; gap: 0.6rem; }
+            .cookie-title { font-size: 0.85rem; margin-bottom: 0.15rem; }
+            .cookie-text p { font-size: 0.72rem; line-height: 1.4; }
+            .cookie-pref { font-size: 0.72rem; }
+            .cookie-buttons { gap: 0.4rem; }
+            .cookie-btn { padding: 0.45rem 0.9rem; font-size: 0.78rem; }
+        }
 
         /* ===== P1 GLASSMORPHISM PASS ===== */
         :root {
@@ -3032,6 +3125,8 @@
             .whatsapp-float { bottom: 16px; right: 16px; width: 52px; height: 52px; font-size: 1.5rem; }
             .back-to-top { bottom: 80px; right: 20px; width: 38px; height: 38px; }
             .cookie-inner { flex-direction: column; text-align: center; }
+            .cookie-prefs { text-align: left; }
+            .cookie-buttons { flex-wrap: wrap; justify-content: center; }
             .cookie-text { min-width: auto; }
         }
         
@@ -3406,7 +3501,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; {{ date('Y') }} SimdiGetir. Tum haklari saklidir.</p>
+                <p>&copy; {{ date('Y') }} SimdiGetir. Tum haklari saklidir.@if($consentV2) · <a href="#" id="cookie-settings-link" class="footer-cookie-link">Çerez tercihleri</a>@endif</p>
                 <p>
                     Powered by <a href="https://castintech.com" target="_blank" rel="noopener" class="footer-powered-link">castintech</a>
                     | <span style="color: var(--text-secondary);">v{{ config('app.version') }}</span>
@@ -3530,19 +3625,34 @@
         });
         
         // Track events for GA
+        // Form gönderimi (lead_submit) iki ayrı olaya ayrılır (2026-09 Dalga 1):
+        //  · müşteri formları → GA4 generate_lead + Meta Lead (dönüşüm)
+        //  · kurye başvurusu  → yalnız GA4 courier_application_submit; Meta'ya Lead GİTMEZ
+        //    (kurye adayları müşteri değil — reklam optimizasyonu onlara kaymamalı)
         function trackEvent(eventName, params = {}) {
-            if (typeof gtag !== 'undefined') {
-                gtag('event', eventName, params);
+            if (eventName === 'lead_submit') {
+                var leadType = (params && params.lead_type) ? params.lead_type : 'general';
+                if (leadType === 'courier_application') {
+                    if (typeof gtag === 'function') {
+                        gtag('event', 'courier_application_submit', { 'lead_type': leadType });
+                    }
+                    return;
+                }
+                if (typeof gtag === 'function') {
+                    gtag('event', 'generate_lead', { 'lead_type': leadType, 'event_category': 'Form' });
+                }
+                if (typeof fbq === 'function') {
+                    fbq('track', 'Lead', {
+                        content_name: 'lead_form_submit',
+                        content_category: leadType,
+                        status: 'submitted'
+                    });
+                }
+                return;
             }
 
-            if (typeof fbq === 'function' && eventName === 'lead_submit') {
-                var leadType = (params && params.lead_type) ? params.lead_type : 'general';
-
-                fbq('track', 'Lead', {
-                    content_name: 'lead_form_submit',
-                    content_category: leadType,
-                    status: 'submitted'
-                });
+            if (typeof gtag === 'function') {
+                gtag('event', eventName, params);
             }
         }
         
@@ -3922,10 +4032,47 @@
     </button>
     
     <!-- Cookie/KVKK Banner -->
+    @if($consentV2)
+    {{-- Metin: vault/clients/simdigetir/hukuk/2026-09-onay-bandi-metin-taslagi.md (müşteri/hukuk onaylı hâli) --}}
+    <div class="cookie-banner" id="cookie-banner" role="dialog" aria-modal="false" aria-labelledby="cookie-title" aria-describedby="cookie-desc">
+        <div class="cookie-inner">
+            <div class="cookie-text">
+                <strong class="cookie-title" id="cookie-title">Çerez tercihleriniz</strong>
+                <p id="cookie-desc">
+                    Sitemizin çalışması için gerekli çerezleri kullanıyoruz. İzin verirseniz, sitemizi nasıl kullandığınızı
+                    anlamak (analitik) ve size daha uygun reklamlar göstermek (pazarlama) için ek çerezler de kullanacağız.
+                    Bu çerezler Google, Meta ve Microsoft hizmetleri aracılığıyla yurt dışındaki sunucularda işlenebilir.
+                    Tercihinizi istediğiniz zaman sayfanın altındaki "Çerez tercihleri" bağlantısından değiştirebilirsiniz.
+                    Ayrıntılar: <a href="/cerez-politikasi">Çerez Politikası</a> · <a href="/kvkk">KVKK Aydınlatma Metni</a>
+                </p>
+                <div class="cookie-prefs" id="cookie-prefs" hidden>
+                    <label class="cookie-pref">
+                        <input type="checkbox" checked disabled>
+                        <span><b>Zorunlu çerezler</b> — Her zaman açık. Sitenin güvenli çalışması, formların gönderilmesi ve tercihinizin hatırlanması için gereklidir.</span>
+                    </label>
+                    <label class="cookie-pref">
+                        <input type="checkbox" id="cookie-pref-analitik">
+                        <span><b>Analitik çerezler</b> — Hangi sayfaların ziyaret edildiğini ve sitede nasıl gezinildiğini anlamamızı sağlar (Google Analytics, Microsoft Clarity). Clarity tıklama ve kaydırma hareketlerini anonim kaydeder; form alanlarına yazdıklarınız kaydedilmez.</span>
+                    </label>
+                    <label class="cookie-pref">
+                        <input type="checkbox" id="cookie-pref-pazarlama">
+                        <span><b>Pazarlama çerezleri</b> — Reklamlarımızın etkisini ölçmemizi ve size ilgili reklamların gösterilmesini sağlar (Google Ads, Meta).</span>
+                    </label>
+                </div>
+            </div>
+            <div class="cookie-buttons">
+                <button type="button" class="cookie-btn cookie-btn-accept" id="cookie-accept">Tümünü kabul et</button>
+                <button type="button" class="cookie-btn cookie-btn-accept" id="cookie-reject">Reddet</button>
+                <button type="button" class="cookie-btn cookie-btn-info" id="cookie-prefs-toggle" aria-expanded="false" aria-controls="cookie-prefs">Tercihler</button>
+                <button type="button" class="cookie-btn cookie-btn-info" id="cookie-save" hidden>Seçimlerimi kaydet</button>
+            </div>
+        </div>
+    </div>
+    @else
     <div class="cookie-banner" id="cookie-banner">
         <div class="cookie-inner">
             <p class="cookie-text">
-                Bu web sitesi deneyiminizi iyilestirmek icin cerezler kullanmaktadir. 
+                Bu web sitesi deneyiminizi iyilestirmek icin cerezler kullanmaktadir.
                 Siteyi kullanmaya devam ederek <a href="/kvkk">KVKK Aydinlatma Metni</a>'ni kabul etmis olursunuz.
             </p>
             <div class="cookie-buttons">
@@ -3934,7 +4081,8 @@
             </div>
         </div>
     </div>
-    
+    @endif
+
     <script>
         // Back to Top
         const backToTop = document.getElementById('back-to-top');
@@ -3950,6 +4098,59 @@
         });
         
         // Cookie Banner
+        @if($consentV2)
+        // KVKK onayı (Dalga 1): tercih sg-onay-v2 = {analitik, pazarlama, t, v:2}.
+        // Eski 'simdigetir-cookies=accepted' örtük onaydı → bilinçli olarak taşınmaz, bant bir kez yeniden sorar.
+        (function () {
+            var KEY = 'sg-onay-v2';
+            var banner = document.getElementById('cookie-banner');
+            if (!banner) return;
+            var prefs = document.getElementById('cookie-prefs');
+            var toggle = document.getElementById('cookie-prefs-toggle');
+            var save = document.getElementById('cookie-save');
+            var boxA = document.getElementById('cookie-pref-analitik');
+            var boxP = document.getElementById('cookie-pref-pazarlama');
+
+            function goster() {
+                var o = window.sgOnay;
+                boxA.checked = !!(o && o.analitik);
+                boxP.checked = !!(o && o.pazarlama);
+                banner.classList.add('visible');
+                setCookieUiState(true);
+            }
+            function gizle() {
+                banner.classList.remove('visible');
+                setCookieUiState(false);
+            }
+            function uygula(analitik, pazarlama) {
+                var o = { analitik: !!analitik, pazarlama: !!pazarlama, t: new Date().toISOString(), v: 2 };
+                try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {}
+                window.sgOnay = o;
+                if (typeof window.sgOnayGoogle === 'function') window.sgOnayGoogle(o);
+                if (typeof window.sgGtagYukle === 'function' && (o.analitik || o.pazarlama)) window.sgGtagYukle();
+                if (typeof fbq === 'function') fbq('consent', o.pazarlama ? 'grant' : 'revoke');
+                if (o.analitik && typeof window.sgClarityYukle === 'function') window.sgClarityYukle();
+                if (!o.analitik && typeof window.clarity === 'function') window.clarity('consent', false);
+                gizle();
+            }
+
+            document.getElementById('cookie-accept').addEventListener('click', function () { uygula(true, true); });
+            document.getElementById('cookie-reject').addEventListener('click', function () { uygula(false, false); });
+            toggle.addEventListener('click', function () {
+                var acik = prefs.hidden;
+                prefs.hidden = !acik;
+                save.hidden = !acik;
+                toggle.setAttribute('aria-expanded', acik ? 'true' : 'false');
+            });
+            save.addEventListener('click', function () { uygula(boxA.checked, boxP.checked); });
+            var link = document.getElementById('cookie-settings-link');
+            if (link) link.addEventListener('click', function (e) { e.preventDefault(); goster(); });
+
+            if (!window.sgOnay) {
+                setTimeout(goster, reducedMotionEnabled ? 0 : 250);
+            }
+        })();
+        @else
         const cookieBanner = document.getElementById('cookie-banner');
         const cookieAccept = document.getElementById('cookie-accept');
         if (!localStorage.getItem('simdigetir-cookies')) {
@@ -3963,6 +4164,7 @@
             cookieBanner.classList.remove('visible');
             setCookieUiState(false);
         });
+        @endif
 
         // Trust signal counter animation — data-count attribute -> animate from 0
         // Önceki durum: span hep "0" kalıyordu (handler yoktu), 0K+/0% görünüyordu.

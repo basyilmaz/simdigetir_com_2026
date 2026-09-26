@@ -349,3 +349,12 @@
     }
 </style>
 @endpush
+
+@push('scripts')
+<script>
+    // İlçe bazlı ölçüm (Dalga 1): hangi ilçe sayfası ilgi görüyor / dönüşüyor.
+    if (typeof gtag === 'function') {
+        gtag('event', 'view_district', { 'district': @json($district['name']), 'district_slug': @json($district['slug'] ?? '') });
+    }
+</script>
+@endpush

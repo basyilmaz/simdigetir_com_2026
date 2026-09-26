@@ -127,7 +127,7 @@ jobs:
           REMOTE_EOF
           echo "deployed_sha=$(ssh -i ~/.ssh/hostinger_key -p $HOSTINGER_PORT -o BatchMode=yes $HOSTINGER_USER@$HOSTINGER_HOST 'cd /home/u473759453/domains/simdigetir.com/current && git rev-parse HEAD')" >> $GITHUB_OUTPUT
 
-      - name: Conv-protect verification (13 kontrol)
+      - name: Conv-protect verification (15 kontrol)
         id: verify
         run: |
           sleep 3  # cache propagation
@@ -150,6 +150,11 @@ jobs:
           # hepsi "kod sayfada var mı"ya bakıyordu, "kod çalışıyor mu"ya değil.
           TCALL=$(echo "$HTML" | grep -o 'trackConversion(' | wc -l || true)
           BEACON=$(echo "$HTML" | grep -c "transport_type" || true)
+          # KVKK onayı (Dalga 1, 2026-09): Consent Mode v2 varsayılanı + Reddet butonu.
+          # Admin'de "Çerez onayı (v2)" acil durumda kapatılırsa bu iki kontrol kırmızı yanar —
+          # bilinçli: onaysız etiket davranışı canlıda sessiz kalmamalı.
+          CONSENT=$(echo "$HTML" | grep -c "gtag('consent', 'default'" || true)
+          REJECT=$(echo "$HTML" | grep -c 'id="cookie-reject"' || true)
 
           FAIL=0
           [ "$TEL"   -lt 9 ] && { echo "❌ tel:    $TEL/9"; FAIL=1; }   || echo "✅ tel:    $TEL"
@@ -165,8 +170,10 @@ jobs:
           [ "$KVKK"  -lt 1 ] && { echo "❌ kvkk:   $KVKK"; FAIL=1; }    || echo "✅ kvkk:   $KVKK"
           [ "$TCALL" -lt 3 ] && { echo "❌ tcall:  $TCALL/3 — trackConversion çağrılmıyor (ölü fonksiyon)"; FAIL=1; } || echo "✅ tcall:  $TCALL"
           [ "$BEACON" -lt 1 ] && { echo "❌ beacon: $BEACON — transport_type yok, sinyal navigasyonda iptal olur"; FAIL=1; } || echo "✅ beacon: $BEACON"
+          [ "$CONSENT" -lt 1 ] && { echo "❌ consent: $CONSENT — Consent Mode v2 varsayılanı yok (KVKK)"; FAIL=1; } || echo "✅ consent: $CONSENT"
+          [ "$REJECT" -lt 1 ] && { echo "❌ reject: $REJECT — onay bandında Reddet yok (KVKK)"; FAIL=1; } || echo "✅ reject: $REJECT"
 
-          SUMMARY="tel=$TEL wa=$WA float=$FLOAT gtm=$GTM ga4=$GA4 aw=$AW pixel=$PIXEL cp=$CP cwa=$CWA fk=$FK kvkk=$KVKK tcall=$TCALL beacon=$BEACON"
+          SUMMARY="tel=$TEL wa=$WA float=$FLOAT gtm=$GTM ga4=$GA4 aw=$AW pixel=$PIXEL cp=$CP cwa=$CWA fk=$FK kvkk=$KVKK tcall=$TCALL beacon=$BEACON consent=$CONSENT reject=$REJECT"
           echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
           echo "verify_fail=$FAIL" >> $GITHUB_OUTPUT
 
@@ -174,7 +181,7 @@ jobs:
             echo "::error::Conv-protect verification FAILED — manual rollback önerilir"
             exit 1
           fi
-          echo "✅ 13/13 conv-protect PASS"
+          echo "✅ 15/15 conv-protect PASS"
 
       - name: Telegram notify — başarı
         if: success()

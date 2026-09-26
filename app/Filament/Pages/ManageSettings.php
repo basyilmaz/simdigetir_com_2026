@@ -53,6 +53,9 @@ class ManageSettings extends Page
             'marketing_gtm_head' => Setting::getValue('marketing.gtm_head', ''),
             'marketing_gtm_body' => Setting::getValue('marketing.gtm_body', ''),
             'marketing_ga4_id' => Setting::getValue('marketing.ga4_id', ''),
+            'marketing_clarity_id' => Setting::getValue('marketing.clarity_id', ''),
+            'consent_v2_enabled' => (string) Setting::getValue('consent.v2_enabled', '1') !== '0',
+            'consent_mode' => Setting::getValue('consent.mode', 'advanced') === 'basic' ? 'basic' : 'advanced',
 
             // Checkout
             'checkout_bank_transfer_title' => Setting::getValue('checkout.bank_transfer_title', 'Havale / EFT Odeme Talimati'),
@@ -192,6 +195,22 @@ class ManageSettings extends Page
                                     ->label('GTM Body Script')
                                     ->rows(5)
                                     ->helperText('<body> açılışına eklenecek GTM kodu'),
+                                Forms\Components\TextInput::make('marketing_clarity_id')
+                                    ->label('Microsoft Clarity Proje ID')
+                                    ->placeholder('ör. abc123xyz')
+                                    ->maxLength(32)
+                                    ->helperText('Yalnız ziyaretçi analitik çerezlerine onay verirse yüklenir.'),
+                                Forms\Components\Toggle::make('consent_v2_enabled')
+                                    ->label('Çerez onayı (v2 — KVKK, Consent Mode v2)')
+                                    ->helperText('ACİL KAPATMA: kapatılırsa eski bant ve onaysız etiket davranışına dönülür. Yalnız sorun anında kapatın.'),
+                                Forms\Components\Select::make('consent_mode')
+                                    ->label('Onay modu')
+                                    ->options([
+                                        'advanced' => 'Gelişmiş — onaysız ziyaretçide çerezsiz ping (Ads modellemesi sürer)',
+                                        'basic' => 'Temel — onay yoksa Google etiketi hiç yüklenmez',
+                                    ])
+                                    ->default('advanced')
+                                    ->required(),
                             ]),
 
                         Forms\Components\Tabs\Tab::make('Checkout')
@@ -357,6 +376,9 @@ class ManageSettings extends Page
         Setting::setValue('marketing.gtm_head', $data['marketing_gtm_head'], 'marketing', $userId);
         Setting::setValue('marketing.gtm_body', $data['marketing_gtm_body'], 'marketing', $userId);
         Setting::setValue('marketing.ga4_id', $data['marketing_ga4_id'], 'marketing', $userId);
+        Setting::setValue('marketing.clarity_id', trim((string) ($data['marketing_clarity_id'] ?? '')), 'marketing', $userId);
+        Setting::setValue('consent.v2_enabled', ! empty($data['consent_v2_enabled']) ? '1' : '0', 'marketing', $userId);
+        Setting::setValue('consent.mode', ($data['consent_mode'] ?? 'advanced') === 'basic' ? 'basic' : 'advanced', 'marketing', $userId);
 
         // Checkout
         Setting::setValue('checkout.bank_transfer_title', $data['checkout_bank_transfer_title'], 'checkout', $userId);
