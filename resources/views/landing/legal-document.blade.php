@@ -17,8 +17,8 @@
     <div class="container">
         <div class="legal-shell">
             @if (! empty($tableOfContents))
-                <aside class="glass legal-toc" aria-label="Icerik ozeti">
-                    <p class="legal-toc-eyebrow">Icerik Ozeti</p>
+                <aside class="glass legal-toc" aria-label="İçerik özeti">
+                    <p class="legal-toc-eyebrow">İçerik Özeti</p>
                     <nav class="legal-toc-links">
                         @foreach ($tableOfContents as $item)
                             <a href="#{{ $item['id'] }}" class="{{ ($item['level'] ?? 'h2') === 'h3' ? 'is-child' : '' }}">
@@ -34,7 +34,7 @@
                     <h1 style="font-size:2rem; margin-bottom:1rem;">{{ $document->title }}</h1>
                     @if($document->published_at)
                         <p style="color:var(--text-muted); margin-bottom:1rem;">
-                            Yayin Tarihi: {{ $document->published_at->format('Y-m-d H:i') }} | Versiyon: v{{ $document->version }}
+                            Yayın tarihi: {{ $document->published_at->format('d.m.Y') }} · Sürüm {{ $document->version }}
                         </p>
                     @endif
                     @if (filled($document->summary))
@@ -43,7 +43,7 @@
                 </div>
 
                 @if (! empty($tableOfContents))
-                    <div class="legal-toc-mobile" aria-label="Bolum listesi">
+                    <div class="legal-toc-mobile" aria-label="Bölüm listesi">
                         @foreach ($tableOfContents as $item)
                             <a href="#{{ $item['id'] }}" class="{{ ($item['level'] ?? 'h2') === 'h3' ? 'is-child' : '' }}">
                                 {{ $item['label'] }}
@@ -158,6 +158,36 @@
     .legal-content ol {
         margin-top: 0;
         margin-bottom: 1rem;
+    }
+
+    /* Çerez tablosu: dar ekranda sayfa değil tablo kayar */
+    .legal-content table {
+        display: block;
+        overflow-x: auto;
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1.25rem;
+        font-size: 0.92rem;
+        line-height: 1.5;
+    }
+
+    .legal-content th,
+    .legal-content td {
+        padding: 0.6rem 0.75rem;
+        border-bottom: 1px solid var(--border-color, rgba(127, 127, 127, 0.25));
+        text-align: left;
+        vertical-align: top;
+    }
+
+    .legal-content th {
+        color: var(--text-primary);
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .legal-content code {
+        font-size: 0.85em;
+        white-space: nowrap;
     }
 
     @media (max-width: 960px) {

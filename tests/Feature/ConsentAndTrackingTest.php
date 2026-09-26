@@ -135,8 +135,29 @@ class ConsentAndTrackingTest extends TestCase
             ->assertSee('Ceyhun Aslan — SimdiGetir Kurye Hizmetleri', false)
             ->assertSee('Yeşilce Mahallesi Aytekin Sokak No:5/2 Kağıthane / İstanbul', false)
             ->assertSee('simdigetir34@gmail.com', false)
+            ->assertSee('Yurt Dışına Aktarım', false)
+            ->assertSee('aktarım araçları çerçevesinde', false)
             ->assertSee('Son Güncelleme: 27.09.2026', false)
             ->assertSee('href="/cerez-politikasi"', false);
+    }
+
+    public function test_legal_publish_command_publishes_approved_cookie_policy(): void
+    {
+        $this->artisan('legal:publish', ['slug' => 'cerez-politikasi'])->assertExitCode(0);
+        $this->artisan('legal:publish', ['slug' => 'cerez-politikasi'])->assertExitCode(0);
+
+        $document = \App\Models\LegalDocument::query()->where('slug', 'cerez-politikasi')->firstOrFail();
+        $this->assertSame(1, $document->version, 'Aynı içerik ikinci kez yayınlanınca sürüm artmamalı');
+        $this->assertStringNotContainsString('<!--', $document->content);
+
+        $this->get('/cerez-politikasi')->assertStatus(200)
+            ->assertSee('Çerez Politikası', false)
+            ->assertSee('simdigetir_session', false)
+            ->assertSee('aktarım araçları çerçevesinde', false)
+            ->assertSee('Yeşilce Mahallesi Aytekin Sokak No:5/2', false)
+            ->assertDontSee('anonim', false);
+
+        $this->artisan('legal:publish', ['slug' => 'yok'])->assertExitCode(1);
     }
 
     public function test_district_and_neighborhood_pages_emit_view_district(): void

@@ -4056,7 +4056,7 @@
                     </label>
                     <label class="cookie-pref">
                         <input type="checkbox" id="cookie-pref-analitik">
-                        <span><b>Analitik çerezler</b> — Hangi sayfaların ziyaret edildiğini, ziyaretçilerin sitede nasıl gezindiğini ve nerede zorlandığını anlamamızı sağlar. Bu amaçla Google Analytics ve Microsoft Clarity kullanılır. Microsoft Clarity, sayfadaki tıklama ve kaydırma hareketlerini anonim olarak kaydeder; form alanlarına yazdığınız bilgiler kaydedilmez.</span>
+                        <span><b>Analitik çerezler</b> — Hangi sayfaların ziyaret edildiğini, ziyaretçilerin sitede nasıl gezindiğini ve nerede zorlandığını anlamamızı sağlar. Bu amaçla Google Analytics ve Microsoft Clarity kullanılır. Microsoft Clarity, sayfadaki tıklama ve kaydırma hareketlerini kaydeder; form alanlarına yazdığınız bilgiler ve hassas metinler maskelenir.</span>
                     </label>
                     <label class="cookie-pref">
                         <input type="checkbox" id="cookie-pref-pazarlama">

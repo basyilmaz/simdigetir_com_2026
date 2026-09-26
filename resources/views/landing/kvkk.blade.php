@@ -122,14 +122,21 @@
                 </div>
 
                 <div class="kvkk-section">
-                    <h2><span class="kvkk-section-number">05</span> Kişisel Verilerin Toplanma Yöntemi ve Hukuki Sebebi</h2>
+                    <h2><span class="kvkk-section-number">05</span> Yurt Dışına Aktarım</h2>
+                    <p>
+                        Sitemizde, yalnızca onay vermeniz hâlinde, analitik ve reklam ölçümü amacıyla Google (Google Analytics, Google Ads), Meta ve Microsoft (Clarity) hizmetleri kullanılır. Bu hizmetler kapsamında IP adresi, tarayıcı bilgisi ve sayfa kullanım verileri yurt dışındaki sunuculara aktarılabilir. Bu aktarım KVKK'nın 9. maddesinde öngörülen aktarım araçları çerçevesinde gerçekleştirilir. Analitik ve pazarlama çerezlerine verdiğiniz onayı sitedeki "Çerez tercihleri" bağlantısından istediğiniz zaman geri alabilirsiniz.
+                    </p>
+                </div>
+
+                <div class="kvkk-section">
+                    <h2><span class="kvkk-section-number">06</span> Kişisel Verilerin Toplanma Yöntemi ve Hukuki Sebebi</h2>
                     <p>
                         Kişisel verileriniz; web sitemiz üzerindeki formlar, telefon görüşmeleri, e-posta yazışmaları ve benzeri yollarla toplanmaktadır. Bu veriler KVKK'nın 5. maddesinde yer alan hukuki sebeplere dayanarak işlenmektedir.
                     </p>
                 </div>
 
                 <div class="kvkk-section">
-                    <h2><span class="kvkk-section-number">06</span> Veri Sahibinin Hakları</h2>
+                    <h2><span class="kvkk-section-number">07</span> Veri Sahibinin Hakları</h2>
                     <p>KVKK'nın 11. maddesi uyarınca aşağıdaki haklara sahipsiniz:</p>
                     <ul class="kvkk-list">
                         <li>
@@ -168,7 +175,7 @@
                 </div>
 
                 <div class="kvkk-section kvkk-contact">
-                    <h2><span class="kvkk-section-number">07</span> İletişim</h2>
+                    <h2><span class="kvkk-section-number">08</span> İletişim</h2>
                     <p>KVKK kapsamındaki haklarınızı kullanmak için aşağıdaki iletişim bilgilerinden bize ulaşabilirsiniz:</p>
                     <div class="kvkk-contact-grid">
                         <div class="kvkk-contact-item">
