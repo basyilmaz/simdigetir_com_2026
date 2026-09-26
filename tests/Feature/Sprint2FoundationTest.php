@@ -114,7 +114,7 @@ class Sprint2FoundationTest extends TestCase
         $this->get('/cerez-politikasi')
             ->assertOk()
             ->assertSee('Cerez Politikasi')
-            ->assertSee('Icerik Ozeti')
+            ->assertSee('İçerik Özeti')
             ->assertSee('#veri-kullanimi', false)
             ->assertSee('#saklama', false);
 

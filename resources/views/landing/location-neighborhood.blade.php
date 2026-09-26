@@ -227,3 +227,12 @@
     }
 </style>
 @endpush
+
+@push('scripts')
+<script>
+    // Mahalle bazlı ölçüm (Dalga 1)
+    if (typeof gtag === 'function') {
+        gtag('event', 'view_district', { 'district': @json($district['name']), 'district_slug': @json($districtSlug), 'neighborhood': @json($neighborhoodName) });
+    }
+</script>
+@endpush
