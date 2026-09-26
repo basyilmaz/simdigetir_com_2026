@@ -121,7 +121,11 @@
         window.sgOnay = (function () {
             try {
                 var v = JSON.parse(localStorage.getItem('sg-onay-v2') || 'null');
-                return (v && typeof v === 'object' && v.v === 2) ? v : null;
+                if (!v || typeof v !== 'object' || v.v !== 2) return null;
+                // Çerez Politikası: tercih 12 ay saklanır; süresi dolunca bant yeniden sorar.
+                var t = Date.parse(v.t);
+                if (!t || Date.now() - t > 365 * 24 * 60 * 60 * 1000) return null;
+                return v;
             } catch (e) { return null; }
         })();
         gtag('consent', 'default', {
@@ -4048,15 +4052,15 @@
                 <div class="cookie-prefs" id="cookie-prefs" hidden>
                     <label class="cookie-pref">
                         <input type="checkbox" checked disabled>
-                        <span><b>Zorunlu çerezler</b> — Her zaman açık. Sitenin güvenli çalışması, formların gönderilmesi ve tercihinizin hatırlanması için gereklidir.</span>
+                        <span><b>Zorunlu çerezler</b> — Her zaman açık. Sitenin güvenli çalışması, formların gönderilmesi ve tercihinizin hatırlanması için gereklidir. Kapatılamaz.</span>
                     </label>
                     <label class="cookie-pref">
                         <input type="checkbox" id="cookie-pref-analitik">
-                        <span><b>Analitik çerezler</b> — Hangi sayfaların ziyaret edildiğini ve sitede nasıl gezinildiğini anlamamızı sağlar (Google Analytics, Microsoft Clarity). Clarity tıklama ve kaydırma hareketlerini anonim kaydeder; form alanlarına yazdıklarınız kaydedilmez.</span>
+                        <span><b>Analitik çerezler</b> — Hangi sayfaların ziyaret edildiğini, ziyaretçilerin sitede nasıl gezindiğini ve nerede zorlandığını anlamamızı sağlar. Bu amaçla Google Analytics ve Microsoft Clarity kullanılır. Microsoft Clarity, sayfadaki tıklama ve kaydırma hareketlerini anonim olarak kaydeder; form alanlarına yazdığınız bilgiler kaydedilmez.</span>
                     </label>
                     <label class="cookie-pref">
                         <input type="checkbox" id="cookie-pref-pazarlama">
-                        <span><b>Pazarlama çerezleri</b> — Reklamlarımızın etkisini ölçmemizi ve size ilgili reklamların gösterilmesini sağlar (Google Ads, Meta).</span>
+                        <span><b>Pazarlama çerezleri</b> — Reklamlarımızın etkisini ölçmemizi ve size ilgili reklamların gösterilmesini sağlar. Bu amaçla Google Ads ve Meta (Facebook/Instagram) kullanılır.</span>
                     </label>
                 </div>
             </div>

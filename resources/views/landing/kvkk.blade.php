@@ -26,13 +26,13 @@
         <div style="max-width: 900px; margin: 0 auto;">
             <div class="glass kvkk-content" style="padding: 3rem;">
                 <div class="kvkk-update-badge">
-                    <i class="fa-solid fa-calendar"></i> Son Güncelleme: {{ date('d.m.Y') }}
+                    <i class="fa-solid fa-calendar"></i> Son Güncelleme: 27.09.2026
                 </div>
 
                 <div class="kvkk-section">
                     <h2><span class="kvkk-section-number">01</span> Veri Sorumlusu</h2>
                     <p>
-                        SimdiGetir Kurye Hizmetleri ("SimdiGetir" veya "Şirket") olarak, 6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") kapsamında veri sorumlusu sıfatıyla kişisel verilerinizi işlemekteyiz.
+                        Ceyhun Aslan — SimdiGetir Kurye Hizmetleri (şahıs şirketi; "SimdiGetir"), Yeşilce Mahallesi Aytekin Sokak No:5/2 Kağıthane / İstanbul adresinde mukim olarak, 6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") kapsamında veri sorumlusu sıfatıyla kişisel verilerinizi işlemektedir.
                     </p>
                 </div>
 
@@ -73,7 +73,7 @@
                         <li>
                             <i class="fa-solid fa-shield-halved"></i>
                             <div>
-                                <strong>Dijital İzler:</strong> IP adresi, sayfa görüntüleme verileri, UTM parametreleri
+                                <strong>Dijital İzler:</strong> IP adresi, sayfa görüntüleme verileri, UTM parametreleri, çerezler ve benzeri teknolojilerle toplanan kullanım verileri (bkz. <a href="/cerez-politikasi">Çerez Politikası</a>)
                             </div>
                         </li>
                     </ul>
@@ -175,7 +175,7 @@
                             <i class="fa-solid fa-envelope"></i>
                             <div>
                                 <strong>E-posta</strong>
-                                <span>{{ \Modules\Settings\Models\Setting::getValue('contact.email', 'kvkk@simdigetir.com') }}</span>
+                                <span>simdigetir34@gmail.com</span>
                             </div>
                         </div>
                         <div class="kvkk-contact-item">
@@ -183,6 +183,13 @@
                             <div>
                                 <strong>Telefon</strong>
                                 <span>{{ \Modules\Settings\Models\Setting::getValue('contact.phone', '+90 551 356 72 92') }}</span>
+                            </div>
+                        </div>
+                        <div class="kvkk-contact-item kvkk-contact-item--wide">
+                            <i class="fa-solid fa-location-dot"></i>
+                            <div>
+                                <strong>Adres</strong>
+                                <span>Yeşilce Mahallesi Aytekin Sokak No:5/2 Kağıthane / İstanbul</span>
                             </div>
                         </div>
                     </div>
@@ -314,6 +321,10 @@
         color: var(--text-primary);
         display: block;
         margin-bottom: 0.15rem;
+    }
+
+    .kvkk-contact-item--wide {
+        grid-column: 1 / -1;
     }
 
     .kvkk-contact-grid {

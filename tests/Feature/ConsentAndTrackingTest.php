@@ -123,6 +123,22 @@ class ConsentAndTrackingTest extends TestCase
         $this->assertGreaterThanOrEqual(3, substr_count($html, 'trackConversion('));
     }
 
+    public function test_consent_choice_expires_after_twelve_months(): void
+    {
+        $this->get('/')->assertStatus(200)
+            ->assertSee('Date.now() - t > 365 * 24 * 60 * 60 * 1000', false);
+    }
+
+    public function test_kvkk_page_names_data_controller_address_and_contact(): void
+    {
+        $this->get('/kvkk')->assertStatus(200)
+            ->assertSee('Ceyhun Aslan — SimdiGetir Kurye Hizmetleri', false)
+            ->assertSee('Yeşilce Mahallesi Aytekin Sokak No:5/2 Kağıthane / İstanbul', false)
+            ->assertSee('simdigetir34@gmail.com', false)
+            ->assertSee('Son Güncelleme: 27.09.2026', false)
+            ->assertSee('href="/cerez-politikasi"', false);
+    }
+
     public function test_district_and_neighborhood_pages_emit_view_district(): void
     {
         $this->get('/kurye/sisli')->assertStatus(200)
