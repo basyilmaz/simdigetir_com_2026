@@ -19,7 +19,7 @@
                                 @if(!empty($testimonial['avatar_image_url']))
                                     <img
                                         src="{{ \App\Support\ResponsiveImage::resolveUrl($testimonial['avatar_image_url']) }}"
-                                        alt="{{ $testimonial['avatar_image_alt'] ?? ($testimonial['author_name'] ?? 'Musteri') }}"
+                                        alt="{{ $testimonial['avatar_image_alt'] ?? ($testimonial['author_name'] ?? 'Müşteri') }}"
                                         srcset="{{ $testimonial['avatar_image_srcset'] ?? \App\Support\ResponsiveImage::buildSrcset($testimonial['avatar_image_url']) }}"
                                         sizes="{{ \App\Support\ResponsiveImage::normalizeSizes($testimonial['avatar_image_sizes'] ?? null, '56px') }}"
                                         loading="lazy"

@@ -1,13 +1,13 @@
 @extends('layouts.landing')
 
-@section('title', $landingContent['meta_title'] ?? 'SimdiGetir - Hizli ve Guvenilir Kurye Hizmeti')
-@section('meta_description', $landingContent['meta_description'] ?? 'Hizli ve guvenilir kurye hizmeti. Akilli rotalama, anlik takip, 7/24 hizmet.')
+@section('title', $landingContent['meta_title'] ?? 'SimdiGetir - İstanbul Hızlı ve Güvenilir Moto Kurye Hizmeti')
+@section('meta_description', $landingContent['meta_description'] ?? 'İstanbul genelinde 7/24 motorlu, acil ve araçlı kurye. Akıllı rotalama ve anlık takip ile hızlı teslimat.')
 @section('meta_keywords', $landingContent['meta_keywords'] ?? 'kurye, moto kurye, acil kurye, istanbul kurye')
 
 @section('robots', $landingContent['robots'] ?? 'index, follow')
 @section('canonical_url', $landingContent['canonical_url'] ?? url()->current())
 @section('og_title', $landingContent['og_title'] ?? ($landingContent['meta_title'] ?? 'SimdiGetir'))
-@section('og_description', $landingContent['og_description'] ?? ($landingContent['meta_description'] ?? 'Hizli ve guvenilir kurye hizmeti'))
+@section('og_description', $landingContent['og_description'] ?? ($landingContent['meta_description'] ?? 'İstanbul genelinde 7/24 hızlı ve güvenilir kurye hizmeti'))
 @section('og_image', $landingContent['og_image'] ?? asset('images/og-banner.png'))
 
 @section('structured_data')
@@ -32,17 +32,41 @@
                 '@id' => url('/').'#organization',
                 'name' => 'SimdiGetir Kurye',
                 'alternateName' => 'SimdiGetir',
-                'description' => (string) ($landingContent['meta_description'] ?? 'Hizli ve guvenilir kurye hizmeti. Akilli rotalama, anlik takip, 7/24 hizmet.'),
+                'description' => (string) ($landingContent['meta_description'] ?? 'İstanbul genelinde 7/24 motorlu, acil ve araçlı kurye. Akıllı rotalama ve anlık takip ile hızlı teslimat.'),
                 'url' => url('/'),
                 'telephone' => '+905513567292',
                 'email' => 'webgetir@simdigetir.com',
+                // Dalga 2 (GEO): marka bilgi kartı + AI aramanın markayı doğrulayacağı bağlar.
+                // Sokak adresi bilinçli olarak yok — Google İşletme Profili ile NAP eşitlemesi ayrı iş.
+                'logo' => asset('images/logo.svg'),
+                'image' => asset('images/og-banner.png'),
+                'openingHours' => 'Mo-Su 00:00-23:59',
+                'areaServed' => [
+                    '@type' => 'City',
+                    'name' => 'İstanbul',
+                ],
+                'contactPoint' => [
+                    '@type' => 'ContactPoint',
+                    'telephone' => '+905513567292',
+                    'contactType' => 'customer service',
+                    'areaServed' => 'TR',
+                    'availableLanguage' => ['Turkish'],
+                ],
+                'makesOffer' => array_map(fn (string $service) => [
+                    '@type' => 'Offer',
+                    'itemOffered' => ['@type' => 'Service', 'name' => $service, 'areaServed' => 'İstanbul'],
+                ], ['Motorlu Kurye', 'Acil Kurye', 'Araçlı Kurye']),
+                'sameAs' => array_values(array_filter(array_map(
+                    fn (string $key) => trim((string) \Modules\Settings\Models\Setting::getValue('social.'.$key, '')),
+                    ['instagram', 'facebook', 'linkedin', 'twitter', 'youtube']
+                ), fn (string $url) => str_starts_with($url, 'https://'))),
             ],
             [
                 '@context' => 'https://schema.org',
                 '@type' => 'WebSite',
                 'name' => 'SimdiGetir',
                 'url' => url('/'),
-                'description' => (string) ($landingContent['meta_description'] ?? 'Hizli ve guvenilir kurye hizmeti'),
+                'description' => (string) ($landingContent['meta_description'] ?? 'İstanbul genelinde 7/24 hızlı ve güvenilir kurye hizmeti'),
                 'publisher' => [
                     '@id' => url('/').'#organization',
                 ],
@@ -583,7 +607,7 @@
                     </button>
                 </form>
                 <p class="form-consent-note">
-                    Formu gondererek <a href="{{ url('/kvkk') }}" target="_blank" rel="noopener">KVKK Aydinlatma Metni</a> kapsaminda iletisime gecilmesini kabul etmis olursunuz.
+                    Formu göndererek <a href="{{ url('/kvkk') }}" target="_blank" rel="noopener">KVKK Aydınlatma Metni</a> kapsamında iletişime geçilmesini kabul etmiş olursunuz.
                 </p>
                 <div id="corporate-feedback" class="form-feedback" aria-live="polite"></div>
                 
@@ -779,7 +803,7 @@
                 form.reset();
                 window.setLandingFormFeedback(
                     feedbackNode,
-                    'Talebiniz alindi. Ekibimiz en kisa surede sizinle iletisime gececek.',
+                    'Talebiniz alındı. Ekibimiz en kısa sürede sizinle iletişime geçecek.',
                     'success'
                 );
                 submitBtn.disabled = false;

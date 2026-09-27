@@ -2,12 +2,12 @@
 
 @section('title', $landingContent['meta_title'] ?? 'Sıkça Sorulan Sorular - SimdiGetir')
 @section('meta_description', $landingContent['meta_description'] ?? 'SimdiGetir kurye hizmetleri hakkında sıkça sorulan sorular. Merak ettiklerinizi anında öğrenin!')
-@section('meta_keywords', $landingContent['meta_keywords'] ?? 'kurye sss, kurye sikca sorulan sorular')
+@section('meta_keywords', $landingContent['meta_keywords'] ?? 'kurye sss, kurye sıkça sorulan sorular')
 
 @section('robots', $landingContent['robots'] ?? 'index, follow')
 @section('canonical_url', $landingContent['canonical_url'] ?? url()->current())
 @section('og_title', $landingContent['og_title'] ?? ($landingContent['meta_title'] ?? 'SimdiGetir'))
-@section('og_description', $landingContent['og_description'] ?? ($landingContent['meta_description'] ?? 'Hizli ve guvenilir kurye hizmeti'))
+@section('og_description', $landingContent['og_description'] ?? ($landingContent['meta_description'] ?? 'Hızlı ve güvenilir kurye hizmeti'))
 @section('og_image', $landingContent['og_image'] ?? asset('images/og-banner.png'))
 
 @section('structured_data')

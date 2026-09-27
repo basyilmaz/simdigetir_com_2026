@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="@yield('meta_description', 'SimdiGetir - Hizli ve Guvenilir Kurye Hizmeti. 7/24 teslimat. Zamanin paradan daha degerli oldugu anlarda yaninizdayiz.')">
-    <meta name="keywords" content="@yield('meta_keywords', 'kurye, moto kurye, acil kurye, aracli kurye, istanbul kurye, hizli teslimat, ayni gun teslimat, kurye hizmeti, 7/24 kurye, moto kurye istanbul')">
+    <meta name="description" content="@yield('meta_description', 'SimdiGetir - Hızlı ve Güvenilir Kurye Hizmeti. 7/24 teslimat. Zamanın paradan daha değerli olduğu anlarda yanınızdayız.')">
+    <meta name="keywords" content="@yield('meta_keywords', 'kurye, moto kurye, acil kurye, araçlı kurye, istanbul kurye, hızlı teslimat, aynı gün teslimat, kurye hizmeti, 7/24 kurye, moto kurye istanbul')">
     <meta name="author" content="SimdiGetir">
     <meta name="robots" content="@yield('robots', 'index, follow')">
     <link rel="canonical" href="@yield('canonical_url', url()->current())">
@@ -32,8 +32,8 @@
     @endphp
 
     <!-- Open Graph -->
-    <meta property="og:title" content="@hasSection('og_title')@yield('og_title')@else@yield('title', 'SimdiGetir - Hizli ve Guvenilir Kurye')@endif">
-    <meta property="og:description" content="@hasSection('og_description')@yield('og_description')@else@yield('meta_description', 'Hizli ve guvenilir kurye hizmeti. 7/24 teslimat.')@endif">
+    <meta property="og:title" content="@hasSection('og_title')@yield('og_title')@else@yield('title', 'SimdiGetir - Hızlı ve Güvenilir Kurye')@endif">
+    <meta property="og:description" content="@hasSection('og_description')@yield('og_description')@else@yield('meta_description', 'Hızlı ve güvenilir kurye hizmeti. 7/24 teslimat.')@endif">
     <meta property="og:type" content="@yield('og_type', 'website')">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:site_name" content="SimdiGetir">
@@ -44,8 +44,8 @@
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="@hasSection('og_title')@yield('og_title')@else@yield('title', 'SimdiGetir - Hizli ve Guvenilir Kurye')@endif">
-    <meta name="twitter:description" content="@hasSection('og_description')@yield('og_description')@else@yield('meta_description', 'Hizli ve guvenilir kurye hizmeti. 7/24 teslimat.')@endif">
+    <meta name="twitter:title" content="@hasSection('og_title')@yield('og_title')@else@yield('title', 'SimdiGetir - Hızlı ve Güvenilir Kurye')@endif">
+    <meta name="twitter:description" content="@hasSection('og_description')@yield('og_description')@else@yield('meta_description', 'Hızlı ve güvenilir kurye hizmeti. 7/24 teslimat.')@endif">
     <meta name="twitter:image" content="{{ $resolvedOgImage }}">
     
     <!-- Geo Tags (Istanbul) -->
@@ -54,7 +54,7 @@
     <meta name="geo.position" content="@yield('geo_position', '41.0882;29.0014')">
     <meta name="ICBM" content="@yield('geo_position', '41.0882, 29.0014')">
     
-    <title>@yield('title', 'SimdiGetir - Hizli ve Guvenilir Kurye')</title>
+    <title>@yield('title', 'SimdiGetir - Hızlı ve Güvenilir Kurye')</title>
     
     <!-- Favicon & PWA -->
     @php
@@ -3254,7 +3254,7 @@
     {!! \Modules\Settings\Models\Setting::getValue('marketing.gtm_body', '') !!}
     
     <!-- Skip Navigation -->
-    <a href="#main-content" class="skip-nav">Ana icerige gec</a>
+    <a href="#main-content" class="skip-nav">Ana içeriğe geç</a>
     
     <!-- Preloader -->
     <div class="preloader" id="preloader">
@@ -3270,7 +3270,7 @@
             <span>I</span>
             <span>R</span>
         </div>
-        <div class="preloader-subtitle">Kurye Sistemi Yukleniyor...</div>
+        <div class="preloader-subtitle">Kurye Sistemi Yükleniyor...</div>
     </div>
     
     <!-- Custom Cursor -->
@@ -3280,9 +3280,9 @@
         $sitePhone = \Modules\Settings\Models\Setting::getValue('contact.phone', '+90 551 356 72 92');
         $siteWhatsapp = \Modules\Settings\Models\Setting::getValue('contact.whatsapp', '905513567292');
         $siteEmail = \Modules\Settings\Models\Setting::getValue('contact.email', 'webgetir@simdigetir.com');
-        $siteAddress = \Modules\Settings\Models\Setting::getValue('contact.address', 'Kagithane / Istanbul');
+        $siteAddress = \Modules\Settings\Models\Setting::getValue('contact.address', 'Kağıthane / İstanbul');
         $hoursLabel = \Modules\Settings\Models\Setting::getValue('business.hours_label', '7/24 Aktif Hizmet');
-        $hoursWeekdays = \Modules\Settings\Models\Setting::getValue('business.hours_weekdays', 'Pzt-Cum 00:00 - 23:59');
+        $hoursWeekdays = \Modules\Settings\Models\Setting::getValue('business.hours_weekdays', 'Her gün 00:00 - 23:59');
         $facebookUrl = \Modules\Settings\Models\Setting::getValue('social.facebook', '');
         $instagramUrl = \Modules\Settings\Models\Setting::getValue('social.instagram', '');
         $twitterUrl = \Modules\Settings\Models\Setting::getValue('social.twitter', '');
@@ -3330,12 +3330,12 @@
                 
                 <nav class="nav">
                     <a href="/">Ana Sayfa</a>
-                    <a href="/hakkimizda">Hakkimizda</a>
+                    <a href="/hakkimizda">Hakkımızda</a>
                     <a href="/hizmetler">Hizmetler</a>
-                    <a href="/siparis-takip">Siparis Takip</a>
-                    <a href="/hesabim/giris">Hesabim</a>
+                    <a href="/siparis-takip">Sipariş Takip</a>
+                    <a href="/hesabim/giris">Hesabım</a>
                     <a href="/sss">SSS</a>
-                    <a href="/iletisim">Iletisim</a>
+                    <a href="/iletisim">İletişim</a>
                 </nav>
                 
                 <div class="nav-right">
@@ -3350,7 +3350,7 @@
                         </a>
                     @endif
                     <a href="tel:{{ preg_replace('/[^0-9+]/', '', (string) $sitePhone) }}" class="btn btn-accent">
-                        <i class="fa-solid fa-phone"></i> Kurye Cagir
+                        <i class="fa-solid fa-phone"></i> Kurye Çağır
                     </a>
                     <button class="theme-toggle-btn" id="theme-toggle" aria-label="Tema Degistir" title="Tema Degistir">
                         <i class="fa-solid fa-sun icon-sun"></i>
@@ -3375,17 +3375,17 @@
         </div>
         
         <p class="offcanvas-desc">
-            Zamanin paradan daha degerli oldugu anlarda yaninizdayiz. Istanbul'un her noktasina 7/24 hizli ve guvenilir teslimat.
+            Zamanın paradan daha değerli olduğu anlarda yanınızdayız. İstanbul'un her noktasına 7/24 hızlı ve güvenilir teslimat.
         </p>
         
         <ul class="offcanvas-nav">
             <li><a href="/">Ana Sayfa <i class="fa-solid fa-arrow-right"></i></a></li>
-            <li><a href="/hakkimizda">Hakkimizda <i class="fa-solid fa-arrow-right"></i></a></li>
+            <li><a href="/hakkimizda">Hakkımızda <i class="fa-solid fa-arrow-right"></i></a></li>
             <li><a href="/hizmetler">Hizmetler <i class="fa-solid fa-arrow-right"></i></a></li>
-            <li><a href="/siparis-takip">Siparis Takip <i class="fa-solid fa-arrow-right"></i></a></li>
-            <li><a href="/hesabim/giris">Hesabim <i class="fa-solid fa-arrow-right"></i></a></li>
+            <li><a href="/siparis-takip">Sipariş Takip <i class="fa-solid fa-arrow-right"></i></a></li>
+            <li><a href="/hesabim/giris">Hesabım <i class="fa-solid fa-arrow-right"></i></a></li>
             <li><a href="/sss">SSS <i class="fa-solid fa-arrow-right"></i></a></li>
-            <li><a href="/iletisim">Iletisim <i class="fa-solid fa-arrow-right"></i></a></li>
+            <li><a href="/iletisim">İletişim <i class="fa-solid fa-arrow-right"></i></a></li>
             @if ($headerB2BCtaEnabled && $headerB2BCtaLabel !== '' && $headerB2BCtaHref !== '')
                 <li>
                     <a
@@ -3402,7 +3402,7 @@
         </ul>
         
         <div class="offcanvas-contact">
-            <h4>Iletisim</h4>
+            <h4>İletişim</h4>
             <div class="offcanvas-contact-item">
                 <div class="offcanvas-contact-icon"><i class="fa-solid fa-location-dot"></i></div>
                 <span style="color:var(--text-secondary); font-size:0.9rem;">{{ $siteAddress }}</span>
@@ -3455,7 +3455,7 @@
             <div class="footer-grid">
                 <div class="footer-brand">
                     @include('components.logo', ['size' => 'md'])
-                    <p>Zamanin paradan daha degerli oldugu anlarda yaninizdayiz. 7/24 hizli ve guvenilir teslimat.</p>
+                    <p>Zamanın paradan daha değerli olduğu anlarda yanınızdayız. 7/24 hızlı ve güvenilir teslimat.</p>
                     <div class="footer-social">
                         <a href="{{ $instagramUrl }}" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
                         <a href="{{ $facebookUrl }}" target="_blank" rel="noopener" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
@@ -3467,34 +3467,34 @@
                     <ul>
                         <li><a href="/hizmetler">Motorlu Kurye</a></li>
                         <li><a href="/hizmetler">Acil Kurye</a></li>
-                        <li><a href="/hizmetler">Aracli Kurye</a></li>
+                        <li><a href="/hizmetler">Araçlı Kurye</a></li>
                         <li><a href="/kurumsal">Kurumsal</a></li>
                     </ul>
                 </div>
                 <div>
                     <h4>Hizmet Bölgeleri</h4>
                     <ul>
-                        <li><a href="/kurye">Tum Istanbul</a></li>
-                        <li><a href="/kurye/sisli">Sisli Kurye</a></li>
-                        <li><a href="/kurye/besiktas">Besiktas Kurye</a></li>
-                        <li><a href="/kurye/kadikoy">Kadikoy Kurye</a></li>
-                        <li><a href="/kurye/uskudar">Uskudar Kurye</a></li>
-                        <li><a href="/kurye/sariyer">Sariyer Kurye</a></li>
+                        <li><a href="/kurye">Tüm İstanbul</a></li>
+                        <li><a href="/kurye/sisli">Şişli Kurye</a></li>
+                        <li><a href="/kurye/besiktas">Beşiktaş Kurye</a></li>
+                        <li><a href="/kurye/kadikoy">Kadıköy Kurye</a></li>
+                        <li><a href="/kurye/uskudar">Üsküdar Kurye</a></li>
+                        <li><a href="/kurye/sariyer">Sarıyer Kurye</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4>Sirket</h4>
+                    <h4>Şirket</h4>
                     <ul>
-                        <li><a href="/hakkimizda">Hakkimizda</a></li>
-                        <li><a href="/siparis-takip">Siparis Takip</a></li>
-                        <li><a href="/hesabim/giris">Hesabim</a></li>
+                        <li><a href="/hakkimizda">Hakkımızda</a></li>
+                        <li><a href="/siparis-takip">Sipariş Takip</a></li>
+                        <li><a href="/hesabim/giris">Hesabım</a></li>
                         <li><a href="/sss">SSS</a></li>
                         <li><a href="/kurye-basvuru">Kurye Ol</a></li>
                         <li><a href="/kvkk">KVKK</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4>Iletisim</h4>
+                    <h4>İletişim</h4>
                     <ul>
                         <li><i class="fa-solid fa-phone"></i> {{ $sitePhone }}</li>
                         <li><i class="fa-solid fa-envelope"></i> {{ $siteEmail }}</li>
@@ -3502,14 +3502,14 @@
                     </ul>
                 </div>
             </div>
-            <div class="footer-trust-row" aria-label="Guven gostergeleri">
+            <div class="footer-trust-row" aria-label="Güven göstergeleri">
                 <a href="/kvkk" class="footer-trust-item">
                     <i class="fa-solid fa-shield-halved"></i>
                     <span>KVKK Uyumlu</span>
                 </a>
                 <div class="footer-trust-item">
                     <i class="fa-solid fa-lock"></i>
-                    <span>SSL Guvenli</span>
+                    <span>SSL Güvenli</span>
                 </div>
                 <div class="footer-trust-item">
                     <i class="fa-solid fa-headset"></i>
@@ -3517,11 +3517,11 @@
                 </div>
                 <div class="footer-trust-item">
                     <i class="fa-solid fa-location-dot"></i>
-                    <span>Anlik Takip</span>
+                    <span>Anlık Takip</span>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; {{ date('Y') }} SimdiGetir. Tum haklari saklidir.@if($consentV2) · <a href="#" id="cookie-settings-link" class="footer-cookie-link">Çerez tercihleri</a>@endif</p>
+                <p>&copy; {{ date('Y') }} SimdiGetir. Tüm hakları saklıdır.@if($consentV2) · <a href="#" id="cookie-settings-link" class="footer-cookie-link">Çerez tercihleri</a>@endif</p>
                 <p>
                     Powered by <a href="https://castintech.com" target="_blank" rel="noopener" class="footer-powered-link">castintech</a>
                     | <span style="color: var(--text-secondary);">v{{ config('app.version') }}</span>
@@ -4042,12 +4042,12 @@
     </script>
     
     <!-- WhatsApp Floating Button -->
-    <a href="{{ $whatsappUrl }}?text=Merhaba" class="whatsapp-float" target="_blank" rel="noopener" aria-label="WhatsApp ile iletisime gecin">
+    <a href="{{ $whatsappUrl }}?text=Merhaba" class="whatsapp-float" target="_blank" rel="noopener" aria-label="WhatsApp ile iletişime geçin">
         <i class="fa-brands fa-whatsapp"></i>
     </a>
     
     <!-- Back to Top -->
-    <button class="back-to-top" id="back-to-top" aria-label="Sayfa basina don">
+    <button class="back-to-top" id="back-to-top" aria-label="Sayfa başına dön">
         <i class="fa-solid fa-arrow-up"></i>
     </button>
     
@@ -4092,8 +4092,8 @@
     <div class="cookie-banner" id="cookie-banner">
         <div class="cookie-inner">
             <p class="cookie-text">
-                Bu web sitesi deneyiminizi iyilestirmek icin cerezler kullanmaktadir.
-                Siteyi kullanmaya devam ederek <a href="/kvkk">KVKK Aydinlatma Metni</a>'ni kabul etmis olursunuz.
+                Bu web sitesi deneyiminizi iyileştirmek için çerezler kullanmaktadır.
+                Siteyi kullanmaya devam ederek <a href="/kvkk">KVKK Aydınlatma Metni</a>'ni kabul etmiş olursunuz.
             </p>
             <div class="cookie-buttons">
                 <button class="cookie-btn cookie-btn-accept" id="cookie-accept">Kabul Et</button>

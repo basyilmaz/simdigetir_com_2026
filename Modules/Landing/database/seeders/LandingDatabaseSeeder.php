@@ -78,7 +78,7 @@ class LandingDatabaseSeeder extends Seeder
                 'sort_order' => 3,
                 'payload' => [
                     'features_badge_text' => 'Neden Bizi Tercih Etmelisiniz?',
-                    'features_title_html' => "<span class='gradient-text'>Avantajlarimiz</span>",
+                    'features_title_html' => "<span class='gradient-text'>Avantajlarımız</span>",
                     'features_subtitle_text' => '',
                 ],
             ]
@@ -92,9 +92,9 @@ class LandingDatabaseSeeder extends Seeder
                 'is_active' => true,
                 'sort_order' => 4,
                 'payload' => [
-                    'process_badge_text' => 'Nasil Calisir?',
+                    'process_badge_text' => 'Nasıl Çalışır?',
                     'process_title_html' => "3 Adimda <span class='gradient-text'>Teslimat</span>",
-                    'process_subtitle_text' => '3 basit adimda gonderinizi en hizli sekilde teslim ediyoruz.',
+                    'process_subtitle_text' => '3 basit adımda gönderinizi en hızlı şekilde teslim ediyoruz.',
                 ],
             ]
         );
@@ -118,8 +118,8 @@ class LandingDatabaseSeeder extends Seeder
                 'is_active' => true,
                 'sort_order' => 6,
                 'payload' => [
-                    'testimonials_badge_text' => 'Musteri Yorumlari',
-                    'testimonials_title_html' => "Musterilerimiz <span class='gradient-text'>Ne Diyor?</span>",
+                    'testimonials_badge_text' => 'Müşteri Yorumları',
+                    'testimonials_title_html' => "Müşterilerimiz <span class='gradient-text'>Ne Diyor?</span>",
                 ],
             ]
         );
@@ -132,8 +132,8 @@ class LandingDatabaseSeeder extends Seeder
                 'is_active' => true,
                 'sort_order' => 7,
                 'payload' => [
-                    'main_cta_title_html' => "Gonderinizi <span class='gradient-text'>Bize Emanet Edin</span>",
-                    'main_cta_description_text' => 'Zamanin degerli oldugu anlarda yaninizdayiz.',
+                    'main_cta_title_html' => "Gönderinizi <span class='gradient-text'>Bize Emanet Edin</span>",
+                    'main_cta_description_text' => 'Zamanın değerli olduğu anlarda yanınızdayız.',
                     'main_cta_phone_href' => 'tel:+905513567292',
                     'main_cta_phone_icon' => 'fa-phone',
                     'main_cta_phone_text' => '0551 356 72 92',

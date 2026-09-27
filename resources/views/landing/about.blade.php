@@ -2,12 +2,12 @@
 
 @section('title', $landingContent['meta_title'] ?? 'Hakkımızda - SimdiGetir Hızlı ve Güvenilir Kurye')
 @section('meta_description', $landingContent['meta_description'] ?? 'SimdiGetir - 7/24 güvenilir ve hızlı teslimat ile İstanbul\'un lider kurye şirketi.')
-@section('meta_keywords', $landingContent['meta_keywords'] ?? 'simdigetir hakkimizda, kurye sirketi istanbul')
+@section('meta_keywords', $landingContent['meta_keywords'] ?? 'simdigetir hakkımızda, kurye şirketi istanbul')
 
 @section('robots', $landingContent['robots'] ?? 'index, follow')
 @section('canonical_url', $landingContent['canonical_url'] ?? url()->current())
 @section('og_title', $landingContent['og_title'] ?? ($landingContent['meta_title'] ?? 'SimdiGetir'))
-@section('og_description', $landingContent['og_description'] ?? ($landingContent['meta_description'] ?? 'Hizli ve guvenilir kurye hizmeti'))
+@section('og_description', $landingContent['og_description'] ?? ($landingContent['meta_description'] ?? 'Hızlı ve güvenilir kurye hizmeti'))
 @section('og_image', $landingContent['og_image'] ?? asset('images/og-banner.png'))
 
 @section('structured_data')
@@ -16,7 +16,7 @@
         ->filter(fn ($item) => is_array($item) && (bool) ($item['is_active'] ?? true))
         ->values();
     $aboutStatPrimaryValue = (string) data_get($aboutFunfacts, '0.value', '2020');
-    $aboutStatPrimaryLabel = (string) data_get($aboutFunfacts, '0.label', 'Kurulus Yili');
+    $aboutStatPrimaryLabel = (string) data_get($aboutFunfacts, '0.label', 'Kuruluş Yılı');
     $aboutStatSecondaryValue = (string) data_get($aboutFunfacts, '1.value', '500+');
     $aboutStatSecondaryLabel = (string) data_get($aboutFunfacts, '1.label', 'Aktif Kurye');
 

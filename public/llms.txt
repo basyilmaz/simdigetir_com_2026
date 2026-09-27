@@ -1,0 +1,38 @@
+# SimdiGetir
+
+> SimdiGetir, İstanbul genelinde 7 gün 24 saat motorlu kurye, acil kurye ve araçlı kurye hizmeti veren bir kurye firmasıdır. Kurye çağırmak için telefon veya WhatsApp: +90 551 356 72 92.
+
+Bu dosya yapay zeka asistanları için sitedeki temel bilgilerin özetidir. Tüm bilgiler sitenin kendi sayfalarından alınmıştır.
+
+## Hizmetler
+
+- [Motorlu Kurye](https://simdigetir.com/hizmetler): Trafiği atlatarak hızlı teslimat, akıllı rota optimizasyonu.
+- [Acil Kurye](https://simdigetir.com/hizmetler): Acil gönderiler en yakın müsait kuryeye atanır.
+- [Araçlı Kurye](https://simdigetir.com/hizmetler): Motosiklete sığmayan gönderiler için araçlı taşıma.
+- [Kurumsal Çözümler](https://simdigetir.com/kurumsal): API entegrasyonu, raporlama paneli, özel fiyatlandırma, öncelikli destek, aylık faturalama, toplu gönderi.
+
+## Hizmet bölgeleri
+
+İstanbul'un 39 ilçesi ve bu ilçelerdeki 211 mahalle için ayrı sayfalar vardır: [Hizmet bölgeleri](https://simdigetir.com/kurye).
+
+Avrupa Yakası: Arnavutköy, Avcılar, Bağcılar, Bahçelievler, Bakırköy, Başakşehir, Bayrampaşa, Beşiktaş, Beylikdüzü, Beyoğlu, Büyükçekmece, Çatalca, Esenler, Esenyurt, Eyüpsultan, Fatih, Gaziosmanpaşa, Güngören, Kağıthane, Küçükçekmece, Sarıyer, Silivri, Sultangazi, Şişli, Zeytinburnu.
+
+Anadolu Yakası: Adalar, Ataşehir, Beykoz, Çekmeköy, Kadıköy, Kartal, Maltepe, Pendik, Sancaktepe, Sultanbeyli, Şile, Tuzla, Ümraniye, Üsküdar.
+
+## Çalışma saatleri
+
+7 gün 24 saat.
+
+## İletişim
+
+- Telefon ve WhatsApp: +90 551 356 72 92
+- [İletişim sayfası](https://simdigetir.com/iletisim)
+- [Kurumsal teklif](https://simdigetir.com/kurumsal)
+
+## Diğer sayfalar
+
+- [Sıkça Sorulan Sorular](https://simdigetir.com/sss)
+- [Hakkımızda](https://simdigetir.com/hakkimizda)
+- [Kurye olarak başvuru](https://simdigetir.com/kurye-basvuru)
+- [KVKK Aydınlatma Metni](https://simdigetir.com/kvkk)
+- [Çerez Politikası](https://simdigetir.com/cerez-politikasi)

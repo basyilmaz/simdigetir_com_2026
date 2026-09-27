@@ -7,7 +7,7 @@
 @section('robots', $landingContent['robots'] ?? 'index, follow')
 @section('canonical_url', $landingContent['canonical_url'] ?? url()->current())
 @section('og_title', $landingContent['og_title'] ?? ($landingContent['meta_title'] ?? 'SimdiGetir'))
-@section('og_description', $landingContent['og_description'] ?? ($landingContent['meta_description'] ?? 'Hizli ve guvenilir kurye hizmeti'))
+@section('og_description', $landingContent['og_description'] ?? ($landingContent['meta_description'] ?? 'Hızlı ve güvenilir kurye hizmeti'))
 @section('og_image', $landingContent['og_image'] ?? asset('images/og-banner.png'))
 
 @section('structured_data')
@@ -343,7 +343,7 @@
                     </button>
                 </form>
                 <p class="form-consent-note">
-                    Formu gondererek <a href="{{ url('/kvkk') }}" target="_blank" rel="noopener">KVKK Aydinlatma Metni</a> kapsaminda sizinle iletisime gecilmesini kabul etmis olursunuz.
+                    Formu göndererek <a href="{{ url('/kvkk') }}" target="_blank" rel="noopener">KVKK Aydınlatma Metni</a> kapsamında sizinle iletişime geçilmesini kabul etmis olursunuz.
                 </p>
                 <div id="corporate-feedback" class="form-feedback" aria-live="polite"></div>
 
@@ -495,7 +495,7 @@
                 form.reset();
                 window.setLandingFormFeedback(
                     feedbackNode,
-                    'Talebiniz alindi. Size ozel teklif icin ekibimiz en gec 24 saat icinde ulasacak.',
+                    'Talebiniz alındı. Size özel teklif için ekibimiz en geç 24 saat içinde ulaşacak.',
                     'success'
                 );
                 submitBtn.disabled = false;

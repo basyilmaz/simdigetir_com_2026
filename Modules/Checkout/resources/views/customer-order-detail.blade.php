@@ -253,7 +253,7 @@
                         <div class="checkout-muted">{{ optional($item->created_at)->format('Y-m-d H:i') }}</div>
                         <div>
                             @if ($item->file_url)
-                                <a href="{{ $item->file_url }}" target="_blank" rel="noreferrer" class="order-detail-proof-link">Dosyayi ac</a>
+                                <a href="{{ $item->file_url }}" target="_blank" rel="noreferrer" class="order-detail-proof-link">Dosyayı aç</a>
                             @else
                                 Dosya baglantisi yok.
                             @endif
