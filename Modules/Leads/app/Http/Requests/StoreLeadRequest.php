@@ -20,7 +20,9 @@ class StoreLeadRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'type' => ['sometimes', 'in:corporate_quote,courier_apply,contact'],
+            // courier_application: sitedeki kurye başvuru formunun gönderdiği tür. İlk sürümden beri yalnız
+            // courier_apply kabul ediliyordu → her kurye başvurusu 422 ile reddedildi (0 kayıt, Şub–Eyl 2026).
+            'type' => ['sometimes', 'in:corporate_quote,courier_apply,courier_application,contact'],
             'name' => ['required', 'string', 'max:255'],
             'company_name' => ['nullable', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:20'],
@@ -45,6 +47,7 @@ class StoreLeadRequest extends FormRequest
             'name.required' => 'İsim alanı zorunludur.',
             'phone.required' => 'Telefon alanı zorunludur.',
             'email.email' => 'Geçerli bir e-posta adresi giriniz.',
+            'type.in' => 'Geçersiz talep türü.',
         ];
     }
 }
