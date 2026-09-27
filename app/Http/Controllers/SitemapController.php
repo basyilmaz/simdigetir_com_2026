@@ -16,7 +16,23 @@ class SitemapController extends Controller
     {
         $locations = config('istanbul-locations');
         $baseUrl = rtrim(config('app.url', 'https://simdigetir.com'), '/');
-        $today = now()->format('Y-m-d');
+        // lastmod "her gün bugün" olmaz (Google o zaman lastmod'a güvenmeyi bırakır).
+        $view = fn (string $name) => resource_path("views/landing/{$name}.blade.php");
+        $locationsFile = config_path('istanbul-locations.php');
+        $staticSources = [
+            '/' => [$view('home')],
+            '/hakkimizda' => [$view('about')],
+            '/hizmetler' => [$view('services')],
+            '/kurumsal' => [$view('corporate')],
+            '/kurye-basvuru' => [$view('courier-apply')],
+            '/iletisim' => [$view('contact')],
+            '/sss' => [$view('faq')],
+            '/kvkk' => [$view('kvkk')],
+            '/kurye' => [$view('location-index'), $locationsFile],
+        ];
+        $districtLastmod = $this->fileLastmod([$view('location-district'), $locationsFile]);
+        $neighborhoodLastmod = $this->fileLastmod([$view('location-neighborhood'), $locationsFile]);
+        $this->seen = [];
 
         $staticDefaults = [
             ['url' => '/', 'priority' => '1.0', 'changefreq' => 'daily'],
@@ -44,7 +60,7 @@ class SitemapController extends Controller
                 'url' => $path,
                 'priority' => (string) ($override?->priority ?? $default['priority']),
                 'changefreq' => (string) ($override?->changefreq ?? $default['changefreq']),
-                'lastmod' => $override?->lastmod_at?->format('Y-m-d') ?? $today,
+                'lastmod' => $override?->lastmod_at?->format('Y-m-d') ?? $this->fileLastmod($staticSources[$path] ?? []),
             ];
         }
 
@@ -86,7 +102,7 @@ class SitemapController extends Controller
 
             $priority = (string) ($override?->priority ?? ($meta['sitemap_priority'] ?? '0.8'));
             $changefreq = (string) ($override?->changefreq ?? ($meta['sitemap_changefreq'] ?? 'weekly'));
-            $lastmod = $override?->lastmod_at?->format('Y-m-d') ?? $page->updated_at?->format('Y-m-d') ?? $today;
+            $lastmod = $override?->lastmod_at?->format('Y-m-d') ?? $page->updated_at?->format('Y-m-d');
 
             $xml .= $this->urlEntry($baseUrl.$path, $lastmod, $changefreq, $priority);
         }
@@ -102,7 +118,7 @@ class SitemapController extends Controller
 
             $xml .= $this->urlEntry(
                 $baseUrl.$path,
-                $override?->lastmod_at?->format('Y-m-d') ?? ($legal->updated_at?->format('Y-m-d') ?? $today),
+                $override?->lastmod_at?->format('Y-m-d') ?? $legal->updated_at?->format('Y-m-d'),
                 (string) ($override?->changefreq ?? 'yearly'),
                 (string) ($override?->priority ?? '0.3')
             );
@@ -112,7 +128,7 @@ class SitemapController extends Controller
         foreach ($locations as $districtSlug => $district) {
             $xml .= $this->urlEntry(
                 $baseUrl . '/kurye/' . $districtSlug,
-                $today,
+                $districtLastmod,
                 'weekly',
                 '0.8'
             );
@@ -121,7 +137,7 @@ class SitemapController extends Controller
             foreach ($district['neighborhoods'] ?? [] as $nSlug => $nName) {
                 $xml .= $this->urlEntry(
                     $baseUrl . '/kurye/' . $districtSlug . '/' . $nSlug,
-                    $today,
+                    $neighborhoodLastmod,
                     'monthly',
                     '0.6'
                 );
@@ -135,13 +151,34 @@ class SitemapController extends Controller
         ]);
     }
 
-    private function urlEntry(string $loc, string $lastmod, string $changefreq, string $priority): string
+    /** @var array<string, true> Aynı URL ikinci kez yazılmaz (statik liste + CMS sayfası çakışması). */
+    private array $seen = [];
+
+    private function urlEntry(string $loc, ?string $lastmod, string $changefreq, string $priority): string
     {
+        if (isset($this->seen[$loc])) {
+            return '';
+        }
+        $this->seen[$loc] = true;
+
         return "  <url>\n" .
                "    <loc>{$loc}</loc>\n" .
-               "    <lastmod>{$lastmod}</lastmod>\n" .
+               ($lastmod ? "    <lastmod>{$lastmod}</lastmod>\n" : '') .
                "    <changefreq>{$changefreq}</changefreq>\n" .
                "    <priority>{$priority}</priority>\n" .
                "  </url>\n";
+    }
+
+    /**
+     * Dosyaların en son değişim tarihi. Deploy `git reset` yalnız değişen dosyalara dokunduğu için
+     * bu tarih gerçek içerik değişimini izler; bilinmiyorsa null (lastmod yazılmaz).
+     *
+     * @param  array<int, string>  $files
+     */
+    private function fileLastmod(array $files): ?string
+    {
+        $times = array_filter(array_map(fn (string $f) => is_file($f) ? filemtime($f) : false, $files));
+
+        return $times ? date('Y-m-d', max($times)) : null;
     }
 }

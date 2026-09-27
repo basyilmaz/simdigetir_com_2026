@@ -476,7 +476,7 @@
                 form.reset();
                 window.setLandingFormFeedback(
                     feedbackNode,
-                    'Basvurunuz alindi. Ekibimiz en kisa surede sizinle iletisime gececek.',
+                    'Başvurunuz alındı. Ekibimiz en kısa sürede sizinle iletişime geçecek.',
                     'success'
                 );
                 submitBtn.disabled = false;

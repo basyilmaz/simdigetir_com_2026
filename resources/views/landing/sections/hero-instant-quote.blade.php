@@ -9,12 +9,12 @@
     $requestTimeoutSeconds = (float) config('landing.quote_widget.request_timeout_seconds', 8.2);
     $whatsappHref = (string) ($landingContent['main_cta_secondary_href'] ?? 'https://wa.me/905513567292');
     $callHref = (string) ($landingContent['main_cta_phone_href'] ?? 'tel:+905513567292');
-    $quoteWidgetTitle = (string) ($landingContent['quote_widget_title_text'] ?? 'Aninda Fiyat Hesapla');
-    $quoteWidgetSubtitle = (string) ($landingContent['quote_widget_subtitle_text'] ?? 'Alinis ve teslimat adresini girin, tahmini fiyat ve sureyi aninda gorun.');
-    $pickupLabel = (string) ($landingContent['quote_widget_pickup_label_text'] ?? 'Alinis Adresi');
-    $pickupPlaceholder = (string) ($landingContent['quote_widget_pickup_placeholder_text'] ?? 'Orn: Sisli Mecidiyekoy');
+    $quoteWidgetTitle = (string) ($landingContent['quote_widget_title_text'] ?? 'Anında Fiyat Hesapla');
+    $quoteWidgetSubtitle = (string) ($landingContent['quote_widget_subtitle_text'] ?? 'Alınış ve teslimat adresini girin, tahmini fiyat ve süreyi anında görün.');
+    $pickupLabel = (string) ($landingContent['quote_widget_pickup_label_text'] ?? 'Alınış Adresi');
+    $pickupPlaceholder = (string) ($landingContent['quote_widget_pickup_placeholder_text'] ?? 'Örn: Şişli Mecidiyeköy');
     $dropoffLabel = (string) ($landingContent['quote_widget_dropoff_label_text'] ?? 'Teslimat Adresi');
-    $dropoffPlaceholder = (string) ($landingContent['quote_widget_dropoff_placeholder_text'] ?? 'Orn: Kadikoy Moda');
+    $dropoffPlaceholder = (string) ($landingContent['quote_widget_dropoff_placeholder_text'] ?? 'Örn: Kadıköy Moda');
     $serviceLabel = (string) ($landingContent['quote_widget_service_label_text'] ?? 'Hizmet Tipi');
     $submitLabel = (string) ($landingContent['quote_widget_submit_label_text'] ?? 'Fiyat Hesapla');
     $whatsappLabel = (string) ($landingContent['quote_widget_whatsapp_label_text'] ?? 'WhatsApp ile Devam Et');

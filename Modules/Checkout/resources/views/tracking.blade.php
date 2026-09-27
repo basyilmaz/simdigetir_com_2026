@@ -1,4 +1,4 @@
-<x-checkout::layouts.public title="Siparis Takip" description="SimdiGetir siparis takip ekrani">
+<x-checkout::layouts.public title="Sipariş Takip" description="SimdiGetir sipariş takip ekranı">
 @php
     $order = (array) ($tracking['order'] ?? []);
     $timeline = (array) ($tracking['timeline'] ?? []);
@@ -22,7 +22,7 @@
     $paymentLabel = fn (?string $state): string => match ((string) $state) {
         'pending' => 'Beklemede',
         'awaiting_reconcile' => 'Kontrol ediliyor',
-        'cash_on_delivery' => 'Kapida odeme',
+        'cash_on_delivery' => 'Kapıda ödeme',
         'succeeded' => 'Tamamlandi',
         'failed' => 'Basarisiz',
         'cancelled' => 'Iptal edildi',
@@ -47,12 +47,12 @@
         return (string) max(1, (int) ceil(((int) $seconds) / 60)).' dk';
     };
     $eventLabel = fn (?string $eventType): string => match ((string) $eventType) {
-        'eta_update' => 'Tahmini varis guncellendi',
+        'eta_update' => 'Tahmini varış güncellendi',
         'courier_assigned' => 'Kurye atama bildirimi',
-        'courier_arriving' => 'Kurye yaklasiyor',
+        'courier_arriving' => 'Kurye yaklaşıyor',
         'pickup_confirmed' => 'Alis islemi tamamlandi',
         'delivery_confirmed' => 'Teslimat onaylandi',
-        default => trim((string) $eventType) !== '' ? ucfirst(str_replace('_', ' ', (string) $eventType)) : 'Kurye guncellemesi',
+        default => trim((string) $eventType) !== '' ? ucfirst(str_replace('_', ' ', (string) $eventType)) : 'Kurye güncellemesi',
     };
     $proofStageLabel = fn (?string $stage): string => match ((string) $stage) {
         'pickup' => 'Alis kaniti',
@@ -201,19 +201,19 @@
         <article class="checkout-card checkout-card--hero">
             <div class="checkout-lead">
                 <div class="section-badge">
-                    <i class="fa-solid fa-route"></i> Acik siparisler icin
+                    <i class="fa-solid fa-route"></i> Açık siparişler için
                 </div>
                 <div class="checkout-meta">
                     <span class="checkout-chip">Telefon + siparis no ile</span>
-                    <span class="checkout-chip checkout-chip--info">Anlik durum ve kanit kayitlari</span>
+                    <span class="checkout-chip checkout-chip--info">Anlık durum ve kanıt kayıtları</span>
                 </div>
-                <h1>Siparisinizi tek ekrandan takip edin.</h1>
-                <p>{{ $pageCopy['intro'] ?? 'Siparis numaraniz ve sipariste kullandiginiz telefon ile guncel durum bilgilerini goruntuleyin.' }}</p>
+                <h1>Siparişinizi tek ekrandan takip edin.</h1>
+                <p>{{ $pageCopy['intro'] ?? 'Sipariş numaranız ve siparişte kullandığınız telefon ile güncel durum bilgilerini görüntüleyin.' }}</p>
             </div>
 
             <form method="GET" action="{{ route('checkout.tracking') }}" class="checkout-form-grid checkout-form-grid--inline tracking-form">
                 <div class="checkout-field">
-                    <label for="tracking-order-no">Siparis Numarasi</label>
+                    <label for="tracking-order-no">Sipariş Numarası</label>
                     <input id="tracking-order-no" name="order_no" type="text" value="{{ $prefillOrderNo }}" placeholder="ORN: ORD20260314ABCDE" autocomplete="off" required>
                 </div>
                 <div class="checkout-field">
@@ -221,18 +221,18 @@
                     <input id="tracking-phone" name="phone" type="tel" inputmode="tel" value="{{ $prefillPhone }}" placeholder="0551 356 72 92" autocomplete="tel" required>
                 </div>
                 <div class="checkout-actions">
-                    <button type="submit" class="btn btn-primary">Siparisi Sorgula</button>
+                    <button type="submit" class="btn btn-primary">Siparişi Sorgula</button>
                 </div>
             </form>
 
             @if ($lookupError)
                 <div class="checkout-alert checkout-alert--error">
                     <div>{{ $lookupError }}</div>
-                    <div class="checkout-note" style="margin-top:8px;">{{ $pageCopy['error_help'] ?? 'Bilgiler eslesmiyorsa destek hattimizla iletisime gecin; ekip siparis kaydini kontrol etsin.' }}</div>
+                    <div class="checkout-note" style="margin-top:8px;">{{ $pageCopy['error_help'] ?? 'Bilgiler eşleşmiyorsa destek hattımızla iletişime geçin; ekip sipariş kaydını kontrol etsin.' }}</div>
                 </div>
             @elseif (! $lookupSubmitted)
                 <div class="checkout-alert checkout-alert--info">
-                    {{ $pageCopy['help'] ?? 'Siparis numarasini SMS, e-posta veya musteri panelinizdeki siparis kartindan bulabilirsiniz.' }}
+                    {{ $pageCopy['help'] ?? 'Sipariş numarasını SMS, e-posta veya müşteri panelinizdeki sipariş kartından bulabilirsiniz.' }}
                 </div>
             @endif
         </article>
@@ -240,30 +240,30 @@
         <aside class="checkout-card checkout-card--support">
             <div class="checkout-lead" style="gap:10px;">
                 <div class="section-badge">
-                    <i class="fa-solid fa-headset"></i> Destek ve guven
+                    <i class="fa-solid fa-headset"></i> Destek ve güven
                 </div>
-                <h2>Takipte zorlanirsaniz hizli destek alin.</h2>
-                <p>{{ $support['support_note'] ?? 'Destek ekibimiz telefon, WhatsApp veya e-posta uzerinden yardimci olur.' }}</p>
+                <h2>Takipte zorlanırsanız hızlı destek alın.</h2>
+                <p>{{ $support['support_note'] ?? 'Destek ekibimiz telefon, WhatsApp veya e-posta üzerinden yardımcı olur.' }}</p>
             </div>
 
             <div class="checkout-list" style="margin-top:18px;">
                 <div class="checkout-list-item">
-                    <strong>Canli destek kanallari</strong>
+                    <strong>Canlı destek kanalları</strong>
                     <div class="tracking-hero-actions">
                         <a href="{{ $support['phone_href'] ?? 'tel:+905513567292' }}">{{ $support['phone_display'] ?? '+90 551 356 72 92' }}</a>
                         <a href="{{ $support['whatsapp_href'] ?? 'https://wa.me/905513567292' }}" target="_blank" rel="noopener">WhatsApp destegi</a>
-                        <a href="{{ $support['contact_href'] ?? route('contact') }}">Iletisim sayfasi</a>
+                        <a href="{{ $support['contact_href'] ?? route('contact') }}">İletişim sayfası</a>
                     </div>
                 </div>
                 <div class="checkout-list-item">
                     <strong>Bilmeniz gerekenler</strong>
-                    <p>Takip akisi durum gecmisi, kurye hareketleri ve alis/teslim kanitlarini ayni ekranda sunar.</p>
+                    <p>Takip akışı durum geçmişi, kurye hareketleri ve alış/teslim kanıtlarını aynı ekranda sunar.</p>
                 </div>
                 <div class="checkout-list-item">
-                    <strong>Yasal baglantilar</strong>
+                    <strong>Yasal bağlantılar</strong>
                     <div class="tracking-hero-actions">
                         <a href="{{ $support['privacy_href'] ?? url('/kvkk') }}">KVKK</a>
-                        <a href="{{ $support['terms_href'] ?? url('/kullanim-kosullari') }}">Kullanim kosullari</a>
+                        <a href="{{ $support['terms_href'] ?? url('/kullanim-kosullari') }}">Kullanım koşulları</a>
                     </div>
                 </div>
             </div>
@@ -280,7 +280,7 @@
         >
             <div class="tracking-status-bar">
                 <div class="checkout-alert checkout-alert--info" style="flex:1;">
-                    Canli takip acik. Bilgiler her <strong data-tracking-countdown>30</strong> sn yenilenir.
+                    Canlı takip açık. Bilgiler her <strong data-tracking-countdown>30</strong> sn yenilenir.
                 </div>
                 <button type="button" class="btn btn-outline" data-tracking-toggle>Otomatik Yenilemeyi Durdur</button>
             </div>
@@ -290,8 +290,8 @@
             <section class="checkout-card checkout-card--panel">
                 <div class="tracking-card-header">
                     <div>
-                        <h2>Siparis Ozeti</h2>
-                        <p>Aktif siparisin durum, odeme ve rota bilgisini buradan takip edin.</p>
+                        <h2>Sipariş Özeti</h2>
+                        <p>Aktif siparişin durum, ödeme ve rota bilgisini buradan takip edin.</p>
                     </div>
                     <span class="badge" data-tracking-state-badge>Durum: {{ $stateLabel($order['state'] ?? null) }}</span>
                 </div>
@@ -299,29 +299,29 @@
                     <div class="row"><small>Siparis No</small><strong>{{ $order['order_no'] ?? '-' }}</strong></div>
                     <div class="row"><small>Odeme</small><strong>{{ $paymentLabel($order['payment_state'] ?? null) }}</strong></div>
                     <div class="row"><small>Toplam</small><strong>{{ $order['total_amount_formatted'] ?? '-' }}</strong></div>
-                    <div class="row"><small>Alis adresi</small><strong>{{ $order['pickup_address'] ?? '-' }}</strong></div>
+                    <div class="row"><small>Alış adresi</small><strong>{{ $order['pickup_address'] ?? '-' }}</strong></div>
                     <div class="row"><small>Teslimat adresi</small><strong>{{ $order['dropoff_address'] ?? '-' }}</strong></div>
-                    <div class="row"><small>Son guncelleme</small><strong>{{ $latestTrackingEvent['note'] ?? 'Yeni durum bilgisi bekleniyor.' }}</strong></div>
-                    <div class="row"><small>Tahmini varis</small><strong>{{ $formatEta($latestTrackingEvent['eta_seconds'] ?? null) }}</strong></div>
+                    <div class="row"><small>Son güncelleme</small><strong>{{ $latestTrackingEvent['note'] ?? 'Yeni durum bilgisi bekleniyor.' }}</strong></div>
+                    <div class="row"><small>Tahmini varış</small><strong>{{ $formatEta($latestTrackingEvent['eta_seconds'] ?? null) }}</strong></div>
                 </div>
             </section>
 
             <section class="checkout-card checkout-card--panel">
                 <div class="tracking-card-header">
                     <div>
-                        <h2>Durum Gecmisi</h2>
-                        <p>Siparisin sistemde hangi adimlardan gectigini izleyin.</p>
+                        <h2>Durum Geçmişi</h2>
+                        <p>Siparişin sistemde hangi adımlardan geçtiğini izleyin.</p>
                     </div>
                 </div>
                 <div class="timeline" data-tracking-timeline>
                     @forelse ($timeline as $item)
                         <article class="item">
                             <strong>{{ $stateLabel($item['to_state'] ?? null) }}</strong>
-                            <p>{{ ! empty($item['from_state']) ? 'Bir onceki asama: '.$stateLabel($item['from_state']) : 'Siparisiniz sisteme alindi.' }}</p>
+                            <p>{{ ! empty($item['from_state']) ? 'Bir önceki aşama: '.$stateLabel($item['from_state']) : 'Siparişiniz sisteme alındı.' }}</p>
                             <small>{{ $formatDate($item['created_at'] ?? null) }}</small>
                         </article>
                     @empty
-                        <div class="empty">Henuz yeni bir guncelleme yok.</div>
+                        <div class="empty">Henüz yeni bir güncelleme yok.</div>
                     @endforelse
                 </div>
             </section>
@@ -332,7 +332,7 @@
                 <div class="tracking-card-header">
                     <div>
                         <h2>Kurye Hareketleri</h2>
-                        <p>Kurye tarafindan kayda gecen not ve ETA guncellemeleri.</p>
+                        <p>Kurye tarafından kayda geçen not ve ETA güncellemeleri.</p>
                     </div>
                 </div>
                 <div class="events" data-tracking-events>
@@ -343,7 +343,7 @@
                             <small>ETA: {{ $formatEta($item['eta_seconds'] ?? null) }} | {{ $formatDate($item['created_at'] ?? null) }}</small>
                         </article>
                     @empty
-                        <div class="empty">Aktif kurye hareketi henuz kaydedilmedi.</div>
+                        <div class="empty">Aktif kurye hareketi henüz kaydedilmedi.</div>
                     @endforelse
                 </div>
             </section>
@@ -351,8 +351,8 @@
             <section class="checkout-card checkout-card--panel">
                 <div class="tracking-card-header">
                     <div>
-                        <h2>Teslimat Kanitlari</h2>
-                        <p>Alis ve teslim aninda toplanan gorsel veya imza kayitlari.</p>
+                        <h2>Teslimat Kanıtları</h2>
+                        <p>Alış ve teslim anında toplanan görsel veya imza kayıtları.</p>
                     </div>
                 </div>
                 <div class="proofs" data-tracking-proofs>
@@ -360,14 +360,14 @@
                         <article class="item">
                             <strong>{{ $proofStageLabel($item['stage'] ?? null) }} / {{ $proofTypeLabel($item['proof_type'] ?? null) }}</strong>
                             @if (! empty($item['file_url']))
-                                <p><a class="proof-link" href="{{ $item['file_url'] }}" target="_blank" rel="noreferrer">Dosyayi ac</a></p>
+                                <p><a class="proof-link" href="{{ $item['file_url'] }}" target="_blank" rel="noreferrer">Dosyayı aç</a></p>
                             @else
-                                <p>Dosya baglantisi henuz eklenmedi.</p>
+                                <p>Dosya bağlantısı henüz eklenmedi.</p>
                             @endif
                             <small>{{ $formatDate($item['created_at'] ?? null) }}</small>
                         </article>
                     @empty
-                        <div class="empty">Alis veya teslimata ait kanit dosyasi henuz eklenmedi.</div>
+                        <div class="empty">Alış veya teslimata ait kanıt dosyası henüz eklenmedi.</div>
                     @endforelse
                 </div>
             </section>
@@ -412,15 +412,15 @@ document.addEventListener('DOMContentLoaded', function () {
   const paymentLabels = {
     pending: 'Beklemede',
     awaiting_reconcile: 'Kontrol ediliyor',
-    cash_on_delivery: 'Kapida odeme',
+    cash_on_delivery: 'Kapıda ödeme',
     succeeded: 'Tamamlandi',
     failed: 'Basarisiz',
     cancelled: 'Iptal edildi',
   };
   const eventLabels = {
-    eta_update: 'Tahmini varis guncellendi',
+    eta_update: 'Tahmini varış güncellendi',
     courier_assigned: 'Kurye atama bildirimi',
-    courier_arriving: 'Kurye yaklasiyor',
+    courier_arriving: 'Kurye yaklaşıyor',
     pickup_confirmed: 'Alis islemi tamamlandi',
     delivery_confirmed: 'Teslimat onaylandi',
   };
@@ -443,7 +443,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const stateLabel = (value) => stateLabels[String(value || '')] || String(value || '-').replace(/_/g, ' ');
   const paymentLabel = (value) => paymentLabels[String(value || '')] || String(value || '-').replace(/_/g, ' ');
-  const eventLabel = (value) => eventLabels[String(value || '')] || String(value || 'Kurye guncellemesi').replace(/_/g, ' ');
+  const eventLabel = (value) => eventLabels[String(value || '')] || String(value || 'Kurye güncellemesi').replace(/_/g, ' ');
   const proofStageLabel = (value) => proofStageLabels[String(value || '')] || String(value || 'Kanit').replace(/_/g, ' ');
   const proofTypeLabel = (value) => proofTypeLabels[String(value || '')] || String(value || 'Dosya').replace(/_/g, ' ');
   const formatEta = (value) => {
@@ -501,10 +501,10 @@ document.addEventListener('DOMContentLoaded', function () {
       ['Siparis No', order.order_no || '-'],
       ['Odeme', paymentLabel(order.payment_state)],
       ['Toplam', order.total_amount_formatted || '-'],
-      ['Alis adresi', order.pickup_address || '-'],
+      ['Alış adresi', order.pickup_address || '-'],
       ['Teslimat adresi', order.dropoff_address || '-'],
-      ['Son guncelleme', latestEvent?.note || 'Yeni durum bilgisi bekleniyor.'],
-      ['Tahmini varis', formatEta(latestEvent?.eta_seconds)],
+      ['Son güncelleme', latestEvent?.note || 'Yeni durum bilgisi bekleniyor.'],
+      ['Tahmini varış', formatEta(latestEvent?.eta_seconds)],
     ].map(([label, value]) => `<div class="row"><small>${escapeHtml(label)}</small><strong>${escapeHtml(value)}</strong></div>`).join('');
   };
 
@@ -514,12 +514,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (!Array.isArray(timeline) || timeline.length === 0) {
-      timelineNode.innerHTML = '<div class="empty">Henuz yeni bir guncelleme yok.</div>';
+      timelineNode.innerHTML = '<div class="empty">Henüz yeni bir güncelleme yok.</div>';
       return;
     }
 
     timelineNode.innerHTML = timeline.map((item) => {
-      const fromState = item?.from_state ? `Bir onceki asama: ${stateLabel(item.from_state)}` : 'Siparisiniz sisteme alindi.';
+      const fromState = item?.from_state ? `Bir önceki aşama: ${stateLabel(item.from_state)}` : 'Siparişiniz sisteme alındı.';
       return `
         <article class="item">
           <strong>${escapeHtml(stateLabel(item?.to_state))}</strong>
@@ -536,7 +536,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (!Array.isArray(trackingEvents) || trackingEvents.length === 0) {
-      eventsNode.innerHTML = '<div class="empty">Aktif kurye hareketi henuz kaydedilmedi.</div>';
+      eventsNode.innerHTML = '<div class="empty">Aktif kurye hareketi henüz kaydedilmedi.</div>';
       return;
     }
 
@@ -555,15 +555,15 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (!Array.isArray(proofs) || proofs.length === 0) {
-      proofsNode.innerHTML = '<div class="empty">Alis veya teslimata ait kanit dosyasi henuz eklenmedi.</div>';
+      proofsNode.innerHTML = '<div class="empty">Alış veya teslimata ait kanıt dosyası henüz eklenmedi.</div>';
       return;
     }
 
     proofsNode.innerHTML = proofs.map((item) => {
       const fileUrl = String(item?.file_url || '').trim();
       const fileLink = fileUrl !== ''
-        ? `<a class="proof-link" href="${escapeHtml(fileUrl)}" target="_blank" rel="noreferrer">Dosyayi ac</a>`
-        : 'Dosya baglantisi henuz eklenmedi.';
+        ? `<a class="proof-link" href="${escapeHtml(fileUrl)}" target="_blank" rel="noreferrer">Dosyayı aç</a>`
+        : 'Dosya bağlantısı henüz eklenmedi.';
 
       return `
         <article class="item">

@@ -147,15 +147,15 @@ class PublicOrderTrackingTest extends TestCase
         $response = $this->get('/siparis-takip?order_no=ORD-TRACK-002&phone=05550000072');
 
         $response->assertOk();
-        $response->assertSee('Siparis Takip');
+        $response->assertSee('Sipariş Takip');
         $response->assertSee('ORD-TRACK-002');
         $response->assertSee('Teslim edildi');
         $response->assertSee('Maslak');
-        $response->assertSee('Durum Gecmisi');
+        $response->assertSee('Durum Geçmişi');
         $response->assertSee('Kurye Hareketleri');
-        $response->assertSee('Teslimat Kanitlari');
+        $response->assertSee('Teslimat Kanıtları');
         $response->assertSee('Teslimat adimina gecildi');
-        $response->assertSee('Dosyayi ac');
+        $response->assertSee('Dosyayı aç');
         $response->assertSee('data-tracking-autorefresh', false);
         $response->assertSee('data-tracking-summary', false);
         $response->assertSee('data-tracking-timeline', false);

@@ -1,4 +1,20 @@
+# Tüm tarayıcılar: yönetim ve API dışında her şey açık.
 User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/
+Disallow: /storage/
+
+# Yapay zeka arama ve asistan tarayıcıları (GEO — Dalga 2, 2026-09-27): bilinçli olarak izinli.
+# Hizmet bölgeleri ve SSS'nin ChatGPT, Perplexity, Copilot, Claude ve Google yanıtlarında doğru görünmesi için.
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: PerplexityBot
+User-agent: ClaudeBot
+User-agent: Claude-SearchBot
+User-agent: Google-Extended
+User-agent: Bingbot
 Allow: /
 Disallow: /admin
 Disallow: /api/

@@ -154,7 +154,7 @@ class ManageSettings extends Page
                                     ->placeholder('7/24 Aktif Hizmet'),
                                 Forms\Components\TextInput::make('business_hours_weekdays')
                                     ->label('Hafta İçi Çalışma Saatleri')
-                                    ->placeholder('Pzt-Cum 00:00 - 23:59'),
+                                    ->placeholder('Her gün 00:00 - 23:59'),
                                 Forms\Components\TextInput::make('business_hours_weekend')
                                     ->label('Hafta Sonu Çalışma Saatleri')
                                     ->placeholder('Cts-Paz 00:00 - 23:59'),

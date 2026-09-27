@@ -2,7 +2,7 @@
 
 @section('title', ($document->title ?? 'Yasal Metin').' - SimdiGetir')
 @section('meta_description', $document->summary ?? 'Yasal bilgilendirme metni')
-@section('meta_keywords', 'kvkk, cerez politikasi, kullanim kosullari, yasal metin')
+@section('meta_keywords', 'kvkk, çerez politikası, kullanım koşulları, yasal metin')
 @section('robots', 'index, follow')
 @section('canonical_url', url('/'.ltrim((string) ($document->slug ?? ''), '/')))
 @section('og_title', ($document->title ?? 'Yasal Metin').' - SimdiGetir')

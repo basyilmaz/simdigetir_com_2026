@@ -235,7 +235,7 @@
                     </button>
                 </form>
                 <p class="form-consent-note">
-                    Mesajinizi gondererek <a href="{{ url('/kvkk') }}" target="_blank" rel="noopener">KVKK Aydinlatma Metni</a> kapsaminda sizinle iletisime gecilmesini kabul etmis olursunuz.
+                    Mesajınızı göndererek <a href="{{ url('/kvkk') }}" target="_blank" rel="noopener">KVKK Aydınlatma Metni</a> kapsamında sizinle iletişime geçilmesini kabul etmis olursunuz.
                 </p>
                 <div id="contact-feedback" class="form-feedback" aria-live="polite"></div>
                 
@@ -487,7 +487,7 @@
                 form.reset();
                 window.setLandingFormFeedback(
                     feedbackNode,
-                    'Mesajiniz alindi. En kisa surede sizinle iletisime gececegiz.',
+                    'Mesajınız alındı. En kısa sürede sizinle iletişime geçeceğiz.',
                     'success'
                 );
                 submitBtn.disabled = false;

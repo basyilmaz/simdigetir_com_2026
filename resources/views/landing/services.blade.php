@@ -2,12 +2,12 @@
 
 @section('title', $landingContent['meta_title'] ?? 'Hizmetlerimiz - SimdiGetir Profesyonel Kurye Hizmetleri')
 @section('meta_description', $landingContent['meta_description'] ?? 'SimdiGetir profesyonel kurye hizmetleri. Motorlu kurye, acil kurye ve araçlı kurye hizmetleri ile 7/24 yanınızdayız.')
-@section('meta_keywords', $landingContent['meta_keywords'] ?? 'motorlu kurye, acil kurye, aracli kurye, istanbul kurye')
+@section('meta_keywords', $landingContent['meta_keywords'] ?? 'motorlu kurye, acil kurye, araçlı kurye, istanbul kurye')
 
 @section('robots', $landingContent['robots'] ?? 'index, follow')
 @section('canonical_url', $landingContent['canonical_url'] ?? url()->current())
 @section('og_title', $landingContent['og_title'] ?? ($landingContent['meta_title'] ?? 'SimdiGetir'))
-@section('og_description', $landingContent['og_description'] ?? ($landingContent['meta_description'] ?? 'Hizli ve guvenilir kurye hizmeti'))
+@section('og_description', $landingContent['og_description'] ?? ($landingContent['meta_description'] ?? 'Hızlı ve güvenilir kurye hizmeti'))
 @section('og_image', $landingContent['og_image'] ?? asset('images/og-banner.png'))
 
 @section('structured_data')

@@ -428,7 +428,7 @@
                                         <strong>{{ $stateLabel($item->stage) }} / {{ $stateLabel($item->proof_type) }}</strong>
                                         <div class="checkout-muted">
                                             @if ($item->file_url)
-                                                <a href="{{ $item->file_url }}" target="_blank" rel="noreferrer" class="portal-proof-link">Dosyayi ac</a>
+                                                <a href="{{ $item->file_url }}" target="_blank" rel="noreferrer" class="portal-proof-link">Dosyayı aç</a>
                                             @else
                                                 Dosya baglantisi yok.
                                             @endif
