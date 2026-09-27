@@ -7,7 +7,9 @@ use App\Models\FormSubmission;
 use App\Support\FormDefinitionDefaults;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
+use Modules\AdsCore\Services\ConversionPipelineService;
 use Modules\Leads\Models\Lead;
 
 class FormSubmissionController extends Controller
@@ -63,7 +65,7 @@ class FormSubmissionController extends Controller
         $companyName = trim((string) ($validated['company_name'] ?? $request->input('company_name', '')));
 
         if ($definition->target_type === 'lead' && class_exists(Lead::class)) {
-            Lead::query()->create([
+            $lead = Lead::query()->create([
                 'type' => (string) ($validated['type'] ?? 'contact'),
                 'name' => (string) ($validated['name'] ?? 'Anonim'),
                 'company_name' => $companyName !== '' ? $companyName : null,
@@ -81,6 +83,26 @@ class FormSubmissionController extends Controller
             ]);
 
             $submission->update(['status' => 'forwarded_to_leads']);
+
+            // Dalga 4: form ↔ reklam tıklaması eşleşmesi. Yalnız pazarlama onayı (Dalga 1 bandı) verilmişse
+            // ve kurye başvurusu değilse reklam dönüşüm kaydı açılır. Hata formu bozmaz.
+            if ($request->boolean('consent_marketing') && ! in_array($lead->type, ['courier_apply', 'courier_application'], true)) {
+                try {
+                    app(ConversionPipelineService::class)->captureLead($lead, [
+                        'gclid' => $validated['gclid'] ?? null,
+                        'gbraid' => $validated['gbraid'] ?? null,
+                        'wbraid' => $validated['wbraid'] ?? null,
+                        'fbclid' => $validated['fbclid'] ?? null,
+                        'client_ip_address' => $request->ip(),
+                        'client_user_agent' => (string) $request->userAgent(),
+                    ]);
+                } catch (\Throwable $exception) {
+                    Log::warning('Form lead conversion pipeline failed', [
+                        'lead_id' => $lead->id,
+                        'error' => $exception->getMessage(),
+                    ]);
+                }
+            }
         }
 
         return response()->json([
@@ -134,6 +156,11 @@ class FormSubmissionController extends Controller
         $rules['utm_term'] = ['nullable', 'string', 'max:100'];
         $rules['utm_content'] = ['nullable', 'string', 'max:100'];
         $rules['company_name'] = $rules['company_name'] ?? ['nullable', 'string', 'max:255'];
+        // Dalga 4: reklam tıklama kimlikleri — tarayıcı yalnız pazarlama onayıyla gönderir.
+        foreach (['gclid', 'gbraid', 'wbraid', 'fbclid'] as $clickId) {
+            $rules[$clickId] = ['nullable', 'string', 'max:255'];
+        }
+        $rules['consent_marketing'] = ['nullable', 'boolean'];
 
         return $rules;
     }
