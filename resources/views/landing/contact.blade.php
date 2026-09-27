@@ -458,6 +458,8 @@
             utm_source: new URLSearchParams(window.location.search).get('utm_source'),
             utm_medium: new URLSearchParams(window.location.search).get('utm_medium'),
             utm_campaign: new URLSearchParams(window.location.search).get('utm_campaign'),
+            // Dalga 4: reklam tıklaması eşleşmesi — yalnız pazarlama onayıyla dolu gelir
+            ...(typeof window.sgTiklamaKimlikleri === 'function' ? window.sgTiklamaKimlikleri() : {}),
         };
         
         try {

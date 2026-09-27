@@ -40,7 +40,8 @@ class LeadApiController extends Controller
         $attribution = $this->attributionResolver->fromRequest($request);
 
         $lead = Lead::create([
-            'type' => $request->input('type', 'contact'),
+            // Formun gönderdiği 'courier_application' tablodaki ENUM değerine (courier_apply) eşlenir.
+            'type' => $request->input('type') === 'courier_application' ? 'courier_apply' : $request->input('type', 'contact'),
             'name' => $request->input('name'),
             'company_name' => $request->input('company_name'),
             'phone' => $request->input('phone'),
@@ -56,19 +57,23 @@ class LeadApiController extends Controller
             'status' => 'new',
         ]);
 
-        try {
-            $this->conversionPipeline->captureLead($lead, [
-                'gclid' => $attribution['gclid'] ?? null,
-                'fbclid' => $attribution['fbclid'] ?? null,
-                'external_id' => $attribution['external_id'] ?? null,
-                'client_ip_address' => $request->ip(),
-                'client_user_agent' => (string) $request->userAgent(),
-            ]);
-        } catch (\Throwable $exception) {
-            Log::warning('Lead conversion pipeline failed', [
-                'lead_id' => $lead->id,
-                'error' => $exception->getMessage(),
-            ]);
+        // Dalga 4: kurye başvurusu reklam dönüşümü değildir. (Site formları tıklama kimliğini zaten yalnız
+        // pazarlama onayıyla gönderir; bu uç genel API olduğu için burada ayrıca onay aranmaz.)
+        if ($lead->type !== 'courier_apply') {
+            try {
+                $this->conversionPipeline->captureLead($lead, [
+                    'gclid' => $attribution['gclid'] ?? null,
+                    'fbclid' => $attribution['fbclid'] ?? null,
+                    'external_id' => $attribution['external_id'] ?? null,
+                    'client_ip_address' => $request->ip(),
+                    'client_user_agent' => (string) $request->userAgent(),
+                ]);
+            } catch (\Throwable $exception) {
+                Log::warning('Lead conversion pipeline failed', [
+                    'lead_id' => $lead->id,
+                    'error' => $exception->getMessage(),
+                ]);
+            }
         }
 
         return response()->json([

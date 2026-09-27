@@ -144,6 +144,22 @@
                 'ad_user_data': o.pazarlama ? 'granted' : 'denied',
                 'ad_personalization': o.pazarlama ? 'granted' : 'denied'
             });
+            if (o.pazarlama) { window.sgTiklamaKimlikleri(); }
+        };
+        // Dalga 4: form ↔ reklam tıklaması eşleşmesi. Tıklama kimlikleri YALNIZ pazarlama onayıyla
+        // saklanır ve formla gönderilir; onay yoksa boş döner (hiçbir kimlik tutulmaz).
+        window.sgTiklamaKimlikleri = function () {
+            if (!(window.sgOnay && window.sgOnay.pazarlama)) return {};
+            var KEY = 'sg-tiklama', ids = {};
+            try { ids = JSON.parse(sessionStorage.getItem(KEY) || '{}') || {}; } catch (e) { ids = {}; }
+            var q = new URLSearchParams(window.location.search);
+            ['gclid', 'gbraid', 'wbraid', 'fbclid'].forEach(function (k) {
+                var v = q.get(k);
+                if (v) ids[k] = v.slice(0, 255);
+            });
+            try { sessionStorage.setItem(KEY, JSON.stringify(ids)); } catch (e) {}
+            ids.consent_marketing = true;
+            return ids;
         };
         if (window.sgOnay) { window.sgOnayGoogle(window.sgOnay); }
     </script>

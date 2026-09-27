@@ -31,6 +31,9 @@ class ConversionPipelineService
                 'referrer' => $lead->referrer,
                 'client_ip_address' => $context['client_ip_address'] ?? null,
                 'client_user_agent' => $context['client_user_agent'] ?? null,
+                // iOS/uygulama reklam tıklamaları gclid yerine gbraid/wbraid taşır (Dalga 4)
+                'gbraid' => $context['gbraid'] ?? null,
+                'wbraid' => $context['wbraid'] ?? null,
             ],
         ]);
 
@@ -183,7 +186,7 @@ class ConversionPipelineService
      */
     private function resolvePlatforms(?string $source, ?string $medium, array $context = []): array
     {
-        $gclid = trim((string) ($context['gclid'] ?? ''));
+        $gclid = trim((string) ($context['gclid'] ?? $context['gbraid'] ?? $context['wbraid'] ?? ''));
         $fbclid = trim((string) ($context['fbclid'] ?? ''));
 
         if ($gclid !== '' && $fbclid === '') {
