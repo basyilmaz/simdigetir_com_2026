@@ -111,6 +111,17 @@ jobs:
             # İçerik aynıysa sürüm artmaz; hata deploy'u kırmaz ama görünür uyarı verir.
             php artisan legal:publish cerez-politikasi 2>&1 | tail -1 || echo "::warning::legal:publish cerez-politikasi basarisiz — /cerez-politikasi eski metinde olabilir"
 
+            # Web kökü (public_html) repodaki public/ ile AYNI klasör değil; 18.03.2026'dan beri elle
+            # kopyalanıyordu → robots.txt / llms.txt / IndexNow anahtarı / yeni görseller canlıya çıkmıyordu
+            # (2026-09-27 ölçüldü). public/ dosyaları web köküne kopyalanır: index.php HARİÇ (web kökündeki
+            # uygulamaya yönlendirir), silme YOK (yalnız ekler/günceller).
+            WEBROOT=/home/u473759453/domains/simdigetir.com/public_html
+            if [ -d "$WEBROOT" ]; then
+              (cd public && find . -type f ! -name index.php ! -path './storage/*' -exec cp --parents -f {} "$WEBROOT/" \;) \
+                && echo "public/ -> public_html senkron tamam" \
+                || echo "::warning::public_html senkronu basarisiz — statik dosyalar eski olabilir"
+            fi
+
             # Opcache reset FAIL-SOFT (2026-07-26).
             #
             # Hostinger'da `opcache_reset()` false donuyor ve script exit 1 veriyordu; uzak
