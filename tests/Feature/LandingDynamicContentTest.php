@@ -203,7 +203,8 @@ class LandingDynamicContentTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('hero-secondary-title');
-        $this->assertSame(1, substr_count($response->getContent(), '<h1 class="animate__animated animate__fadeInUp animate__delay-1s">'));
+        $this->assertSame(1, substr_count($response->getContent(), '<h1 class="animate__animated animate__fadeInUp">'));
+        $this->assertSame(1, substr_count($response->getContent(), '<h1 '));
     }
 
     public function test_home_contains_deterministic_quote_continue_path_hooks(): void

@@ -213,7 +213,7 @@ class LandingContentResolver
             ],
             'hero_badge_text' => '7/24 Aktif Hizmet',
             'hero_title_html' => "Zamanın <span class=\"gradient-text\">Değerli</span> Olduğu<br>Anlarda Yanınızdayız",
-            'hero_description_text' => "İstanbul'un en hızlı kurye ağı. Gönderinizi teslim alır, en kısa rotadan güvenle ulaştırırız.",
+            'hero_description_text' => "Şimdi Getir ile İstanbul içi moto kurye ve acil kurye: İstanbul'un en hızlı kurye ağı. Gönderinizi teslim alır, en kısa rotadan güvenle ulaştırırız.",
             'hero_slide2_image_url' => null,
             'hero_slide2_image_alt' => 'Kuryeman',
             'hero_slide2_image_srcset' => null,

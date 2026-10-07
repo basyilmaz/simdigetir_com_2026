@@ -103,15 +103,15 @@
                                     {{ $landingContent['hero_badge_text'] ?? '7/24 Aktif Hizmet' }}
                                 </div>
                                 
-                                <h1 class="animate__animated animate__fadeInUp animate__delay-1s">
+                                <h1 class="animate__animated animate__fadeInUp">
                                     {!! $landingContent['hero_title_html'] ?? "Zamanın <span class='gradient-text'>Değerli</span> Olduğu<br>Anlarda Yanınızdayız" !!}
                                 </h1>
                                 
-                                <p class="animate__animated animate__fadeInUp animate__delay-2s">
-                                    {{ $landingContent['hero_description_text'] ?? "İstanbul'un en hızlı kurye ağı. Gönderinizi teslim alır, en kısa rotadan güvenle ulaştırırız." }}
+                                <p class="animate__animated animate__fadeInUp">
+                                    {{ $landingContent['hero_description_text'] ?? "Şimdi Getir ile İstanbul içi moto kurye ve acil kurye: İstanbul'un en hızlı kurye ağı. Gönderinizi teslim alır, en kısa rotadan güvenle ulaştırırız." }}
                                 </p>
                                 
-                                <div class="hero-buttons animate__animated animate__fadeInUp animate__delay-3s">
+                                <div class="hero-buttons animate__animated animate__fadeInUp">
                                     <a href="tel:+905513567292" class="btn btn-primary">
                                         <i class="fa-solid fa-phone"></i> Kurye Çağır
                                     </a>
@@ -122,7 +122,7 @@
                                 
                                 @include('landing.sections.hero-instant-quote', ['landingContent' => $landingContent])
 
-                                <div class="hero-stats animate__animated animate__fadeInUp animate__delay-4s">
+                                <div class="hero-stats animate__animated animate__fadeInUp">
                                     <div class="hero-stat">
                                         <div class="hero-stat-value"><span data-count="724">0</span></div>
                                         <div class="hero-stat-label">7/24 Aktif</div>
@@ -138,7 +138,7 @@
                                 </div>
                             </div>
                             
-                            <div class="hero-visual animate__animated animate__fadeInRight animate__delay-2s">
+                            <div class="hero-visual animate__animated animate__fadeInRight">
                                 <div class="hero-card">
                                     <div class="floating-orb orb-1"></div>
                                     <div class="floating-orb orb-2"></div>

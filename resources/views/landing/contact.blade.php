@@ -94,14 +94,14 @@
             <span class="pulse"></span>
             {{ $landingContent['hero_badge_text'] ?? 'Müşteri Servisi Aktif' }}
         </div>
-        <h1 class="animate__animated animate__fadeInUp animate__delay-1s" style="font-size: 3rem;">
+        <h1 class="animate__animated animate__fadeInUp" style="font-size: 3rem;">
             {!! $landingContent['hero_title_html'] ?? "<span class='gradient-text'>7/24</span> Yanınızdayız" !!}
         </h1>
-        <p class="animate__animated animate__fadeInUp animate__delay-2s" style="max-width: 600px; margin: 0 auto;">
+        <p class="animate__animated animate__fadeInUp" style="max-width: 600px; margin: 0 auto;">
             {{ $landingContent['hero_description_text'] ?? 'Uzman ekibimiz sorularınızı yanıtlamak için her zaman hazır.' }}
         </p>
-        <div class="animate__animated animate__fadeInUp animate__delay-3s" style="margin-top: 3rem;">
-            <img src="{{ asset('images/hero-contact.svg') }}" alt="SimdiGetir İletişim" width="550" height="400" loading="lazy" decoding="async" style="max-width: 550px; width: 100%; border-radius: 20px;">
+        <div class="animate__animated animate__fadeInUp" style="margin-top: 3rem;">
+            <img src="{{ asset('images/hero-contact.svg') }}" alt="SimdiGetir İletişim" width="550" height="400" loading="eager" fetchpriority="high" decoding="async" style="max-width: 550px; width: 100%; border-radius: 20px;">
         </div>
     </div>
 </section>
