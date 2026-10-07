@@ -65,9 +65,19 @@
 </script>
 @endsection
 
+@push('styles')
+<style>
+    /* Mobil: arama/WhatsApp düğmeleri ilk ekranda kalsın (satır içi 10rem boşluk ve 3rem başlık telefonda düğmeleri aşağı itiyordu) */
+    @media (max-width: 768px) {
+        .hero-hizmetler { padding: 7rem 0 2.5rem !important; }
+        .hero-hizmetler h1 { font-size: 2rem !important; }
+    }
+</style>
+@endpush
+
 @section('content')
 <!-- Hero Section -->
-<section class="hero" style="min-height: auto; padding: 10rem 0 4rem;">
+<section class="hero hero-hizmetler" style="min-height: auto; padding: 10rem 0 4rem;">
     <div class="container" style="text-align: center;">
         <div class="hero-badge animate__animated animate__fadeInUp">
             <span class="pulse"></span>
@@ -79,6 +89,14 @@
         <p class="animate__animated animate__fadeInUp" style="max-width: 650px; margin: 0 auto;">
             {{ $landingContent['hero_description_text'] ?? 'İstanbul içi moto kurye, araçlı kurye ve acil kurye hizmeti. Ekspres gönderileriniz için hemen kurye çağırın; hızlı, güvenilir, profesyonel.' }}
         </p>
+        <div class="hero-buttons" style="justify-content: center; margin-top: 2rem;">
+            <a href="tel:+905513567292" class="btn btn-primary">
+                <i class="fa-solid fa-phone"></i> Kurye Çağır
+            </a>
+            <a href="https://wa.me/905513567292?text={{ urlencode('Merhaba, kurye çağırmak istiyorum.') }}" target="_blank" rel="noopener" class="btn btn-outline">
+                <i class="fa-brands fa-whatsapp"></i> WhatsApp
+            </a>
+        </div>
         <div class="animate__animated animate__fadeInUp" style="margin-top: 3rem;">
             <img src="{{ asset('images/hero-services.svg') }}" alt="SimdiGetir Hizmetleri" width="600" height="400" loading="eager" fetchpriority="high" decoding="async" style="max-width: 600px; width: 100%; border-radius: 20px;">
         </div>

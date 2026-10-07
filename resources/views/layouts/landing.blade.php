@@ -3234,9 +3234,32 @@
             font-weight: 700;
         }
 
+        /* Çerez bandı açıkken WhatsApp düğmesi bandın gerçek yüksekliği kadar yukarıda ve bandın önünde kalır
+           (mobilde bant ~100 px'den uzun; sabit -104px düğmeyi bandın altında bırakıyordu). --cookie-banner-h: setCookieUiState */
         body.has-cookie-banner .whatsapp-float,
         body.has-cookie-banner .back-to-top {
-            transform: translateY(-104px);
+            transform: translateY(calc(-1 * var(--cookie-banner-h, 104px)));
+            z-index: 1001;
+        }
+
+        /* Telefonda başlıkta arama düğmesi: .nav-right .btn 992 px altında gizleniyor */
+        .header-call-btn { display: none; }
+        @media (max-width: 992px) {
+            .header-call-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.4rem;
+                min-height: 44px;
+                padding: 0 0.9rem;
+                border-radius: 12px;
+                background: var(--accent);
+                color: #fff;
+                font-weight: 700;
+                font-size: 0.9rem;
+                text-decoration: none;
+                white-space: nowrap;
+            }
+            .header-call-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
         }
 
         body.offcanvas-open .whatsapp-float,
@@ -3351,6 +3374,9 @@
                     @endif
                     <a href="tel:{{ preg_replace('/[^0-9+]/', '', (string) $sitePhone) }}" class="btn btn-accent">
                         <i class="fa-solid fa-phone"></i> Kurye Çağır
+                    </a>
+                    <a href="tel:{{ preg_replace('/[^0-9+]/', '', (string) $sitePhone) }}" class="header-call-btn" aria-label="Kurye çağırmak için arayın">
+                        <i class="fa-solid fa-phone" aria-hidden="true"></i> Ara
                     </a>
                     <button class="theme-toggle-btn" id="theme-toggle" aria-label="Tema Degistir" title="Tema Degistir">
                         <i class="fa-solid fa-sun icon-sun"></i>
@@ -3613,6 +3639,16 @@
         const offcanvasClose = document.getElementById('offcanvas-close');
 
         function setCookieUiState(isVisible) {
+            var bant = document.getElementById('cookie-banner');
+            if (isVisible && bant) {
+                document.documentElement.style.setProperty('--cookie-banner-h', (bant.offsetHeight + 8) + 'px');
+                if (!bant.dataset.yukseklikIzleniyor && 'ResizeObserver' in window) {
+                    bant.dataset.yukseklikIzleniyor = '1';
+                    new ResizeObserver(function () {
+                        document.documentElement.style.setProperty('--cookie-banner-h', (bant.offsetHeight + 8) + 'px');
+                    }).observe(bant);
+                }
+            }
             document.body.classList.toggle('has-cookie-banner', Boolean(isVisible));
         }
         
