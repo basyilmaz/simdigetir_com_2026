@@ -4215,6 +4215,35 @@
             counterEls.forEach((el) => counterObserver.observe(el));
         }
     </script>
+    <script>
+        // WhatsApp hazır mesajı (2026-10-07, Yılmaz onayı — castagent google-ads/2026-10-07-s1-whatsapp-hazir-mesaj-plani.md).
+        // İlk mesajda gönderi bilgisini ister; iş arayan ile müşteri ilk mesajda ayrışır.
+        // Yalnız tarayıcıda href'in ?text= alanı değişir: sunucu HTML'i, numara ve dönüşüm dinleyicileri
+        // (a[href*="wa.me"], tıklama anında this.href okur) aynı kalır; deploy kapısındaki wa sayımı etkilenmez.
+        (function () {
+            function waHazirMesaj(href) {
+                var ALANLAR = '\nAlım yeri: \nTeslim yeri: \nNe gönderiyorum: ';
+                var m = /^(https?:\/\/wa\.me\/\d+)(?:\?(.*))?$/i.exec(href || '');
+                if (!m) return href;
+                var metin = '';
+                (m[2] || '').split('&').forEach(function (p) {
+                    var i = p.indexOf('=');
+                    if (i > 0 && p.slice(0, i) === 'text') {
+                        try { metin = decodeURIComponent(p.slice(i + 1).replace(/\+/g, ' ')); } catch (e) { metin = ''; }
+                    }
+                });
+                metin = metin.trim();
+                if (/Alım yeri:/i.test(metin)) return href;
+                if (metin === '' || /^merhaba[.!]?$/i.test(metin)) metin = 'Merhaba, kurye çağırmak istiyorum.' + ALANLAR;
+                else metin = metin.replace(/[.!]?$/, '.') + ALANLAR;
+                return m[1] + '?text=' + encodeURIComponent(metin);
+            }
+            document.querySelectorAll('a[href*="wa.me"]').forEach(function (a) {
+                var yeni = waHazirMesaj(a.getAttribute('href'));
+                if (yeni && yeni !== a.getAttribute('href')) a.setAttribute('href', yeni);
+            });
+        })();
+    </script>
     <!-- Swiper JS -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     
