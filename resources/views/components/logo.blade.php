@@ -31,6 +31,16 @@
 
     $logoLightUrl = $logoLightUrl !== '' ? $logoLightUrl : $defaultLogoLightUrl;
     $logoDarkUrl = $logoDarkUrl !== '' ? $logoDarkUrl : $defaultLogoDarkUrl;
+
+    // Önbellek sürüm eki (2026-10-07): logolar 185/122 KB → 23 KB yeniden sıkıştırıldı ama Cloudflare
+    // eski dosyayı 7 gün (max-age=604800) önbellekten veriyordu. Yalnız sitenin kendi logo dosyalarına,
+    // sorgu dizesi yoksa eklenir; dosya değişirse bu değer de değiştirilir.
+    $logoSurum = '20261007';
+    $logoSurumEkle = static function (string $url) use ($logoSurum): string {
+        return (str_contains($url, '/images/logo-') && ! str_contains($url, '?')) ? $url.'?v='.$logoSurum : $url;
+    };
+    $logoLightUrl = $logoSurumEkle($logoLightUrl);
+    $logoDarkUrl = $logoSurumEkle($logoDarkUrl);
 @endphp
 
 <a
