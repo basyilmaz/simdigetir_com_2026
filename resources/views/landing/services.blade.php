@@ -73,14 +73,14 @@
             <span class="pulse"></span>
             {{ $landingContent['hero_badge_text'] ?? 'Profesyonel Hizmetler' }}
         </div>
-        <h1 class="animate__animated animate__fadeInUp animate__delay-1s" style="font-size: 3rem;">
+        <h1 class="animate__animated animate__fadeInUp" style="font-size: 3rem;">
             {!! $landingContent['hero_title_html'] ?? "Akıllı Kurye <span class='gradient-text'>Çözümleri</span>" !!}
         </h1>
-        <p class="animate__animated animate__fadeInUp animate__delay-2s" style="max-width: 650px; margin: 0 auto;">
-            {{ $landingContent['hero_description_text'] ?? 'Gönderinize en uygun hizmeti sunuyoruz. Hızlı, güvenilir, profesyonel.' }}
+        <p class="animate__animated animate__fadeInUp" style="max-width: 650px; margin: 0 auto;">
+            {{ $landingContent['hero_description_text'] ?? 'İstanbul içi moto kurye, araçlı kurye ve acil kurye hizmeti. Ekspres gönderileriniz için hemen kurye çağırın; hızlı, güvenilir, profesyonel.' }}
         </p>
-        <div class="animate__animated animate__fadeInUp animate__delay-3s" style="margin-top: 3rem;">
-            <img src="{{ asset('images/hero-services.svg') }}" alt="SimdiGetir Hizmetleri" width="600" height="400" loading="lazy" decoding="async" style="max-width: 600px; width: 100%; border-radius: 20px;">
+        <div class="animate__animated animate__fadeInUp" style="margin-top: 3rem;">
+            <img src="{{ asset('images/hero-services.svg') }}" alt="SimdiGetir Hizmetleri" width="600" height="400" loading="eager" fetchpriority="high" decoding="async" style="max-width: 600px; width: 100%; border-radius: 20px;">
         </div>
     </div>
 </section>

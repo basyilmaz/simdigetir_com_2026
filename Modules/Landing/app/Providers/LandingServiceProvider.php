@@ -74,7 +74,7 @@ class LandingServiceProvider extends ServiceProvider
                     'meta_keywords' => 'motorlu kurye, moto kurye istanbul, acil kurye, araçlı kurye, hızlı teslimat, aynı gün teslim, kurye hizmeti fiyat, istanbul kurye',
                     'hero_badge_text' => 'Profesyonel Hizmetler',
                     'hero_title_html' => "Akıllı Kurye <span class='gradient-text'>Çözümleri</span>",
-                    'hero_description_text' => 'Gönderinize en uygun hizmeti sunuyoruz. Hızlı, güvenilir, profesyonel.',
+                    'hero_description_text' => 'İstanbul içi moto kurye, araçlı kurye ve acil kurye hizmeti. Ekspres gönderileriniz için hemen kurye çağırın; hızlı, güvenilir, profesyonel.',
                 ],
             ],
             'landing.contact' => [

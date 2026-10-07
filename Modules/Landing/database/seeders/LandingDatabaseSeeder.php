@@ -35,7 +35,7 @@ class LandingDatabaseSeeder extends Seeder
                 'payload' => [
                     'hero_badge_text' => '7/24 Aktif Hizmet',
                     'hero_title_html' => "Zamanın <span class='gradient-text'>Değerli</span> Olduğu<br>Anlarda Yanınızdayız",
-                    'hero_description_text' => "İstanbul'un en hızlı kurye ağı. Gönderinizi teslim alır, en kısa rotadan güvenle ulaştırırız.",
+                    'hero_description_text' => "Şimdi Getir ile İstanbul içi moto kurye ve acil kurye: İstanbul'un en hızlı kurye ağı. Gönderinizi teslim alır, en kısa rotadan güvenle ulaştırırız.",
                 ],
             ]
         );
@@ -213,7 +213,7 @@ class LandingDatabaseSeeder extends Seeder
             heroPayload: [
                 'hero_badge_text' => 'Profesyonel Hizmetler',
                 'hero_title_html' => "Akıllı Kurye <span class='gradient-text'>Çözümleri</span>",
-                'hero_description_text' => 'Gönderinize en uygun hizmeti sunuyoruz. Hızlı, güvenilir, profesyonel.',
+                'hero_description_text' => 'İstanbul içi moto kurye, araçlı kurye ve acil kurye hizmeti. Ekspres gönderileriniz için hemen kurye çağırın; hızlı, güvenilir, profesyonel.',
             ],
             sortOrder: 1
         );
