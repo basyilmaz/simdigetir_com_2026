@@ -24,7 +24,6 @@ class SitemapController extends Controller
             '/hakkimizda' => [$view('about')],
             '/hizmetler' => [$view('services')],
             '/kurumsal' => [$view('corporate')],
-            '/kurye-basvuru' => [$view('courier-apply')],
             '/iletisim' => [$view('contact')],
             '/sss' => [$view('faq')],
             '/kvkk' => [$view('kvkk')],
@@ -39,7 +38,6 @@ class SitemapController extends Controller
             ['url' => '/hakkimizda', 'priority' => '0.8', 'changefreq' => 'monthly'],
             ['url' => '/hizmetler', 'priority' => '0.9', 'changefreq' => 'weekly'],
             ['url' => '/kurumsal', 'priority' => '0.8', 'changefreq' => 'monthly'],
-            ['url' => '/kurye-basvuru', 'priority' => '0.7', 'changefreq' => 'monthly'],
             ['url' => '/iletisim', 'priority' => '0.7', 'changefreq' => 'monthly'],
             ['url' => '/sss', 'priority' => '0.6', 'changefreq' => 'monthly'],
             ['url' => '/kvkk', 'priority' => '0.3', 'changefreq' => 'yearly'],
@@ -80,7 +78,7 @@ class SitemapController extends Controller
             'contact' => '/iletisim',
             'faq' => '/sss',
             'corporate' => '/kurumsal',
-            'courier-apply' => '/kurye-basvuru',
+            // 'courier-apply' => '/kurye-basvuru' — kurye alımı kapalı (2026-11-09), sitemap'e girmez.
         ];
 
         $landingPages = LandingPage::query()->where('is_active', true)->get();

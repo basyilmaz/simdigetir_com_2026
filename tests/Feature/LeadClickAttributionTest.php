@@ -57,10 +57,10 @@ class LeadClickAttributionTest extends TestCase
             'phone' => '05551112233',
             'message' => 'Başvuru',
             'gclid' => 'gclid-kurye',
-        ])->assertStatus(201);
+        ])->assertStatus(422);
 
-        // Kurye başvurusu artık kaydediliyor (önceden her başvuru 422 ile reddediliyordu)
-        $this->assertDatabaseHas('leads', ['type' => 'courier_apply', 'name' => 'Kurye Aday']);
+        // Kurye alımı kapalı (2026-11-09): kurye başvurusu türü reddedilir, kayıt açılmaz.
+        $this->assertDatabaseMissing('leads', ['name' => 'Kurye Aday']);
         $this->assertSame(0, DB::table('ad_events')->count());
     }
 
@@ -74,7 +74,5 @@ class LeadClickAttributionTest extends TestCase
         foreach (['/iletisim', '/kurumsal'] as $page) {
             $this->get($page)->assertStatus(200)->assertSee('window.sgTiklamaKimlikleri() : {}', false);
         }
-        // Kurye başvuru formu reklam kimliği göndermez
-        $this->get('/kurye-basvuru')->assertStatus(200)->assertDontSee('window.sgTiklamaKimlikleri() : {}', false);
     }
 }
