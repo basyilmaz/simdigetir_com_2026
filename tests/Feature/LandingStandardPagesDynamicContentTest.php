@@ -145,24 +145,23 @@ class LandingStandardPagesDynamicContentTest extends TestCase
         $corporateResponse->assertDontSee('İşletmenize Özel Özel Teklif');
     }
 
-    public function test_courier_apply_page_uses_inline_feedback_pattern(): void
+    public function test_courier_apply_page_is_closed(): void
     {
+        // Kurye alımı kapalı (2026-11-09): form yok, sayfa 410 + noindex.
         $response = $this->get('/kurye-basvuru');
 
-        $response->assertStatus(200);
-        $response->assertSee('courier-feedback');
-        $response->assertSee('setLandingFormFeedback');
+        $response->assertStatus(410);
+        $response->assertSee('Şu anda kurye alımı yapılmıyor');
+        $response->assertDontSee('courier-feedback');
     }
 
     public function test_landing_layout_renders_page_script_stack_once(): void
     {
         $contactContent = $this->get('/iletisim')->getContent();
         $corporateContent = $this->get('/kurumsal')->getContent();
-        $courierContent = $this->get('/kurye-basvuru')->getContent();
 
         $this->assertSame(1, substr_count($contactContent, 'async function submitContactForm(event)'));
         $this->assertSame(1, substr_count($corporateContent, 'async function submitCorporateForm(event)'));
-        $this->assertSame(1, substr_count($courierContent, 'async function submitCourierForm(event)'));
     }
 
     public function test_faq_page_renders_db_backed_faq_items()

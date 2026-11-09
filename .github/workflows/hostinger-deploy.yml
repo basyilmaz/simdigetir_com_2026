@@ -182,7 +182,7 @@ jobs:
           [ "$PIXEL" -lt 1 ] && { echo "❌ pixel:  $PIXEL"; FAIL=1; }   || echo "✅ pixel:  $PIXEL"
           [ "$CP"    -lt 1 ] && { echo "❌ cp:     $CP"; FAIL=1; }      || echo "✅ cp:     $CP"
           [ "$CWA"   -lt 1 ] && { echo "❌ cwa:    $CWA"; FAIL=1; }     || echo "✅ cwa:    $CWA"
-          [ "$FK"    -lt 1 ] && { echo "❌ fk:     $FK"; FAIL=1; }      || echo "✅ fk:     $FK"
+          [ "$FK"    -gt 0 ] && { echo "❌ fk:     $FK — kurye alımı kapalı, /kurye-basvuru bağlantısı olmamalı"; FAIL=1; } || echo "✅ fk:     $FK (kurye bağlantısı yok)"
           [ "$KVKK"  -lt 1 ] && { echo "❌ kvkk:   $KVKK"; FAIL=1; }    || echo "✅ kvkk:   $KVKK"
           [ "$TCALL" -lt 3 ] && { echo "❌ tcall:  $TCALL/3 — trackConversion çağrılmıyor (ölü fonksiyon)"; FAIL=1; } || echo "✅ tcall:  $TCALL"
           [ "$BEACON" -lt 1 ] && { echo "❌ beacon: $BEACON — transport_type yok, sinyal navigasyonda iptal olur"; FAIL=1; } || echo "✅ beacon: $BEACON"

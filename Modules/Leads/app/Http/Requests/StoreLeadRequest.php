@@ -20,9 +20,9 @@ class StoreLeadRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // courier_application: sitedeki kurye başvuru formunun gönderdiği tür. İlk sürümden beri yalnız
-            // courier_apply kabul ediliyordu → her kurye başvurusu 422 ile reddedildi (0 kayıt, Şub–Eyl 2026).
-            'type' => ['sometimes', 'in:corporate_quote,courier_apply,courier_application,contact'],
+            // Kurye alımı kapalı (2026-11-09): courier_apply / courier_application artık kabul edilmez (422).
+            // Yeniden açılırsa iki türü buraya geri ekle (form courier_application gönderir, tabloya courier_apply yazılır).
+            'type' => ['sometimes', 'in:corporate_quote,contact'],
             'name' => ['required', 'string', 'max:255'],
             'company_name' => ['nullable', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:20'],
