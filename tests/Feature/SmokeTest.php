@@ -24,7 +24,6 @@ class SmokeTest extends TestCase
             '/hakkimizda',
             '/hizmetler',
             '/kurumsal',
-            '/kurye-basvuru',
             '/iletisim',
             '/sss',
             '/kvkk',

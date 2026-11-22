@@ -3515,7 +3515,6 @@
                         <li><a href="/siparis-takip">Sipariş Takip</a></li>
                         <li><a href="/hesabim/giris">Hesabım</a></li>
                         <li><a href="/sss">SSS</a></li>
-                        <li><a href="/kurye-basvuru">Kurye Ol</a></li>
                         <li><a href="/kvkk">KVKK</a></li>
                     </ul>
                 </div>
