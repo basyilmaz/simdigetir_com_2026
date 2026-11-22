@@ -29,7 +29,7 @@ Plan: `plans/...`
 | GTM container `GTM-WDBCNZV4` | ⬜ Korundu / ⬜ DEĞİŞTİ 🚨 |
 | GA4 `G-XYCY1D28EF` config | ⬜ Korundu / ⬜ DEĞİŞTİ 🚨 |
 | Google Ads `AW-17989545006` config | ⬜ Korundu / ⬜ DEĞİŞTİ 🚨 |
-| Meta Pixel `1657531168735846` | ⬜ Korundu / ⬜ DEĞİŞTİ 🚨 |
+| Meta Pixel `321760916162419` | ⬜ Korundu / ⬜ DEĞİŞTİ 🚨 |
 | `gtag('event','click_phone',...)` listener | ⬜ Korundu / ⬜ DEĞİŞTİ 🚨 |
 | `gtag('event','click_whatsapp',...)` listener | ⬜ Korundu / ⬜ DEĞİŞTİ 🚨 |
 | KVKK Aydınlatma Metni link | ⬜ Korundu / ⬜ DEĞİŞTİ 🚨 |
@@ -102,7 +102,7 @@ echo "wa.me: $(grep -c 'href=\"https://wa.me/905513567292' /tmp/sdg.html) (≥5?
 echo "GTM: $(grep -c 'GTM-WDBCNZV4' /tmp/sdg.html) (≥1?)"
 echo "GA4: $(grep -c 'G-XYCY1D28EF' /tmp/sdg.html) (≥1?)"
 echo "AW: $(grep -c 'AW-17989545006' /tmp/sdg.html) (≥1?)"
-echo "Pixel: $(grep -c '1657531168735846' /tmp/sdg.html) (≥1?)"
+echo "Pixel: $(grep -c '321760916162419' /tmp/sdg.html) (≥1?)"
 ```
 
 ## 📚 Referans Belgeler (Castagent vault)
