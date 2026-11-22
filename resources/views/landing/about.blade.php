@@ -225,11 +225,11 @@
             <div class="cta-content">
                 <h2>Bizimle <span class="gradient-text">Çalışmak</span> İster misiniz?</h2>
                 <p>
-                    Kurye olarak ekibimize katılın veya kurumsal çözümlerimiz hakkında bilgi alın!
+                    Kurumsal çözümlerimiz hakkında bilgi alın, gönderileriniz için kurye çağırın!
                 </p>
                 <div class="cta-buttons">
-                    <a href="/kurye-basvuru" class="btn btn-accent">
-                        <i class="fa-solid fa-user-plus"></i> Kurye Ol
+                    <a href="/kurumsal" class="btn btn-accent">
+                        <i class="fa-solid fa-building"></i> Kurumsal Çözümler
                     </a>
                     <a href="/iletisim" class="btn btn-outline">
                         <i class="fa-solid fa-envelope"></i> İletişime Geç

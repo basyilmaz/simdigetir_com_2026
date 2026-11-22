@@ -25,7 +25,7 @@ Plan: `plans/...`
 | `href="https://wa.me/905513567292"` link sayısı | ⬜ Aynı / ⬜ Arttı / ⬜ AZALDI 🚨 |
 | `.whatsapp-float` sticky button | ⬜ Korundu / ⬜ DEĞİŞTİ 🚨 |
 | Hero CTA "Hemen Ara" + "WhatsApp" | ⬜ Korundu / ⬜ DEĞİŞTİ 🚨 |
-| Footer "Kurye Ol" link (`/kurye-basvuru`) | ⬜ Korundu / ⬜ Silindi 🚨 |
+| `/kurye-basvuru` bağlantısı (kurye alımı kapalı, 2026-11-09) | ⬜ Yok / ⬜ GERİ GELDİ 🚨 |
 | GTM container `GTM-WDBCNZV4` | ⬜ Korundu / ⬜ DEĞİŞTİ 🚨 |
 | GA4 `G-XYCY1D28EF` config | ⬜ Korundu / ⬜ DEĞİŞTİ 🚨 |
 | Google Ads `AW-17989545006` config | ⬜ Korundu / ⬜ DEĞİŞTİ 🚨 |

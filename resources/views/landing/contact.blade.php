@@ -220,7 +220,6 @@
                             <option value="Genel Bilgi">Genel Bilgi</option>
                             <option value="Fiyat Teklifi">Fiyat Teklifi</option>
                             <option value="Kurumsal Hizmet">Kurumsal Hizmet</option>
-                            <option value="Kurye Başvurusu">Kurye Başvurusu</option>
                             <option value="Şikayet/Öneri">Şikayet/Öneri</option>
                         </select>
                     </div>

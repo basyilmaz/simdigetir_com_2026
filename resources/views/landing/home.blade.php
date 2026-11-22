@@ -673,52 +673,7 @@
 </section>
 @endif
 
-<!-- Courier CTA Section — Default DISABLED (Yılmaz 2026-05-16: hizmet alanlar ile karışmaması için iş başvuru CTA ana akıştan çıkarıldı; footer link kalır SEO için) -->
-@if(data_get($landingContent, 'sections_visible.courier_cta', false))
-<section class="section">
-    <div class="container">
-        <div class="responsive-stack" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
-            <div class="glass" style="padding: 3rem; text-align: center; background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(34, 211, 238, 0.05) 100%);">
-                                <div
-                    class="delivery-lottie-wrap"
-                    data-delivery-lottie
-                    data-lottie-src="{{ asset('animations/delivery-rider.json') }}"
-                    data-lottie-state="idle"
-                    aria-hidden="true"
-                >
-                    <div class="delivery-lottie-canvas" data-delivery-lottie-canvas></div>
-                    <span class="delivery-lottie-fallback" data-delivery-lottie-fallback>
-                        <i class="fa-solid fa-motorcycle"></i>
-                    </span>
-                </div>
-                <h3 style="margin-bottom: 1rem; font-size: 1.75rem;">{{ $landingContent['courier_cta_card_title_text'] ?? 'Kurye Ailemize Katıl' }}</h3>
-                <p style="color: var(--text-secondary); margin-bottom: 2rem;">
-                    {{ $landingContent['courier_cta_card_description_text'] ?? 'Esnek çalışma saatleri, hızlı ödeme!' }}
-                </p>
-                <a href="/kurye-basvuru" class="btn btn-primary">
-                    <i class="fa-solid fa-user-plus"></i> Hemen Başvur
-                </a>
-            </div>
-            <div>
-                <h2 style="font-size: 2rem; margin-bottom: 1.5rem;">
-                    {!! $landingContent['courier_cta_side_title_html'] ?? "<span class='gradient-text'>Kurye Ol</span>, Özgürce Kazan" !!}
-                </h2>
-                <ul style="list-style: none; color: var(--text-secondary);">
-                    @foreach(($landingContent['courier_cta_features'] ?? []) as $feature)
-                        <li style="margin-bottom: 1.25rem; display: flex; align-items: center; gap: 1rem;">
-                            <i class="fa-solid {{ $feature['icon_class'] ?? 'fa-circle-check' }}" style="color: var(--accent); font-size: 1.5rem;"></i>
-                            <div>
-                                <strong style="color: var(--text-primary);">{{ $feature['title'] ?? '' }}</strong><br>
-                                <span style="font-size: 0.9rem;">{{ $feature['subtitle'] ?? '' }}</span>
-                            </div>
-                        </li>
-                    @endforeach
-                </ul>
-            </div>
-        </div>
-    </div>
-</section>
-@endif
+{{-- Kurye alımı kapalı (2026-11-09): "Kurye Ol" bölümü kaldırıldı. --}}
 @endsection
 
 @push('scripts')

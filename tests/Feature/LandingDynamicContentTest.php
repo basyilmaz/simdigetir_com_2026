@@ -280,25 +280,18 @@ class LandingDynamicContentTest extends TestCase
         $response->assertSee('if (!shouldReduceMotion && totalSlides > 1)', false);
     }
 
-    public function test_home_contains_lottie_micro_animation_lazy_and_fallback_contract(): void
+    public function test_home_courier_section_stays_hidden_even_when_enabled(): void
     {
-        // Lottie animasyonu "Courier CTA" bölümünün içinde; o bölüm de 2026-05-16'da
-        // varsayılan kapalı yapıldı (iş başvuru CTA'sı ana akıştan çıkarıldı, footer
-        // linki SEO için kaldı). sections_visible panel içeriğindeki AKTİF section'lardan
-        // türetilir — bölümü açmak için section kaydı gerekiyor.
+        // Kurye alımı kapalı (2026-11-09): "Kurye Ol" bölümü (Lottie animasyonu dahil) şablondan kaldırıldı.
+        // Panelden courier_cta bölümü açılsa bile ana sayfada kurye başvurusu görünmez.
         $this->enableLandingSection('courier_cta');
 
         $response = $this->get('/');
 
         $response->assertStatus(200);
-        $response->assertSee('data-delivery-lottie', false);
-        $response->assertSee('delivery-rider.json', false);
-        $response->assertSee('data-lottie-state="idle"', false);
-        $response->assertSee('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js', false);
-        $response->assertSee("if (typeof IntersectionObserver === 'undefined')", false);
-        $response->assertSee("rootMargin: '240px 0px'", false);
-        $response->assertSee("showFallback('library-failed');", false);
-        $response->assertSee("showFallback('asset-failed');", false);
+        $response->assertDontSee('data-delivery-lottie=', false);
+        $response->assertDontSee('/kurye-basvuru', false);
+        $response->assertDontSee('Kurye Ailemize Katıl');
     }
 
     public function test_home_includes_google_ads_tag_by_default(): void
@@ -483,8 +476,8 @@ class LandingDynamicContentTest extends TestCase
         $response->assertSee('Dynamic services subtitle text.');
         $response->assertSee('Dynamic FAQ Title');
         $response->assertSee('Dynamic FAQ description text.');
-        $response->assertSee('Dynamic Courier CTA');
-        $response->assertSee('Dynamic CTA description.');
+        // Kurye alımı kapalı: kurye CTA içeriği panelde olsa da gösterilmez.
+        $response->assertDontSee('Dynamic Courier CTA');
         $response->assertSee('Dynamic Corporate Form');
         $response->assertSee('Dynamic corporate subtitle.');
     }
@@ -627,8 +620,8 @@ class LandingDynamicContentTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Dinamik Kurumsal Avantaj');
-        $response->assertSee('Dinamik Kurye Ozelligi');
-        $response->assertSee('Dinamik kurye alt aciklamasi.');
+        // Kurye alımı kapalı: kurye özellikleri gösterilmez.
+        $response->assertDontSee('Dinamik Kurye Ozelligi');
     }
     public function test_home_hides_inactive_managed_sections()
     {
