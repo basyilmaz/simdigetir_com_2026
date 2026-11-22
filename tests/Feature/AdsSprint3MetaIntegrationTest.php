@@ -87,13 +87,13 @@ class AdsSprint3MetaIntegrationTest extends TestCase
     public function test_meta_conversion_push_uses_graph_api_when_credentials_are_configured(): void
     {
         config()->set('adscore.meta.enabled', true);
-        config()->set('adscore.meta.pixel_id', '1657531168735846');
+        config()->set('adscore.meta.pixel_id', '321760916162419');
         config()->set('adscore.meta.access_token', 'test-access-token');
         config()->set('adscore.meta.graph_base_url', 'https://graph.facebook.com');
         config()->set('adscore.meta.graph_version', 'v22.0');
 
         Http::fake([
-            'https://graph.facebook.com/v22.0/1657531168735846/events' => Http::response([
+            'https://graph.facebook.com/v22.0/321760916162419/events' => Http::response([
                 'events_received' => 1,
                 'fbtrace_id' => 'trace-123',
             ], 200),
@@ -140,7 +140,7 @@ class AdsSprint3MetaIntegrationTest extends TestCase
         $this->assertSame(1, (int) ($response['events_received'] ?? 0));
 
         Http::assertSent(function ($request): bool {
-            $urlMatches = $request->url() === 'https://graph.facebook.com/v22.0/1657531168735846/events';
+            $urlMatches = $request->url() === 'https://graph.facebook.com/v22.0/321760916162419/events';
             $hasData = is_string($request['data'] ?? null) && str_contains((string) $request['data'], '"event_name":"Lead"');
             $hasToken = ($request['access_token'] ?? null) === 'test-access-token';
 
@@ -157,7 +157,7 @@ class AdsSprint3MetaIntegrationTest extends TestCase
         config()->set('adscore.meta.graph_version', 'v22.0');
 
         Http::fake([
-            'https://graph.facebook.com/v22.0/1657531168735846/events' => Http::response([
+            'https://graph.facebook.com/v22.0/321760916162419/events' => Http::response([
                 'events_received' => 1,
                 'fbtrace_id' => 'trace-connection-123',
             ], 200),
@@ -170,7 +170,7 @@ class AdsSprint3MetaIntegrationTest extends TestCase
             'access_token' => 'connection-token-123',
             'meta' => [
                 'capi_enabled' => true,
-                'pixel_id' => '1657531168735846',
+                'pixel_id' => '321760916162419',
                 'test_event_code' => 'TEST-EVENT-1',
             ],
         ]);
@@ -210,7 +210,7 @@ class AdsSprint3MetaIntegrationTest extends TestCase
         $this->assertSame(1, (int) ($response['events_received'] ?? 0));
 
         Http::assertSent(function ($request): bool {
-            $urlMatches = $request->url() === 'https://graph.facebook.com/v22.0/1657531168735846/events';
+            $urlMatches = $request->url() === 'https://graph.facebook.com/v22.0/321760916162419/events';
             $hasToken = ($request['access_token'] ?? null) === 'connection-token-123';
             $hasTestEventCode = ($request['test_event_code'] ?? null) === 'TEST-EVENT-1';
 

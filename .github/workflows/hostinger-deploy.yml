@@ -155,7 +155,10 @@ jobs:
           GTM=$(echo "$HTML" | grep -c 'GTM-WDBCNZV4' || true)
           GA4=$(echo "$HTML" | grep -c 'G-XYCY1D28EF' || true)
           AW=$(echo "$HTML" | grep -c 'AW-17989545006' || true)
-          PIXEL=$(echo "$HTML" | grep -c '1657531168735846' || true)
+          # Pixel kimliği DB ayarından gelir; ads:meta-repoint-pixel deploy SONRASI koşar. Kapı pikselin varlığını denetler,
+          # hedef veri seti henüz yayında değilse görünür uyarı verir.
+          PIXEL=$(echo "$HTML" | grep -c "fbq('init', '[0-9]\{10,\}')" || true)
+          PIXEL_HEDEF=$(echo "$HTML" | grep -c "fbq('init', '321760916162419')" || true)
           CP=$(echo "$HTML" | grep -c 'click_phone' || true)
           CWA=$(echo "$HTML" | grep -c 'click_whatsapp' || true)
           FK=$(echo "$HTML" | grep -c '/kurye-basvuru' || true)
@@ -180,6 +183,7 @@ jobs:
           [ "$GA4"   -lt 1 ] && { echo "❌ ga4:    $GA4"; FAIL=1; }     || echo "✅ ga4:    $GA4"
           [ "$AW"    -lt 1 ] && { echo "❌ aw:     $AW"; FAIL=1; }      || echo "✅ aw:     $AW"
           [ "$PIXEL" -lt 1 ] && { echo "❌ pixel:  $PIXEL"; FAIL=1; }   || echo "✅ pixel:  $PIXEL"
+          if [ "$PIXEL_HEDEF" -lt 1 ]; then echo "::warning::Meta Pixel hedef veri seti 321760916162419 canlıda değil; ads:meta-repoint-pixel çalıştırılmalı"; fi
           [ "$CP"    -lt 1 ] && { echo "❌ cp:     $CP"; FAIL=1; }      || echo "✅ cp:     $CP"
           [ "$CWA"   -lt 1 ] && { echo "❌ cwa:    $CWA"; FAIL=1; }     || echo "✅ cwa:    $CWA"
           [ "$FK"    -gt 0 ] && { echo "❌ fk:     $FK — kurye alımı kapalı, /kurye-basvuru bağlantısı olmamalı"; FAIL=1; } || echo "✅ fk:     $FK (kurye bağlantısı yok)"

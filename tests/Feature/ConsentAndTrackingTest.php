@@ -52,7 +52,7 @@ class ConsentAndTrackingTest extends TestCase
         $html = $this->get('/')->assertStatus(200)->getContent();
 
         $revoke = strpos($html, "fbq('consent', (window.sgOnay && window.sgOnay.pazarlama) ? 'grant' : 'revoke');");
-        $init = strpos($html, "fbq('init', '1657531168735846');");
+        $init = strpos($html, "fbq('init', '321760916162419');");
         $this->assertNotFalse($revoke);
         $this->assertNotFalse($init);
         $this->assertLessThan($init, $revoke, 'Pixel onayı init öncesi ayarlanmalı');

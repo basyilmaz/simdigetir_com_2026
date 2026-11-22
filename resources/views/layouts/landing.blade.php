@@ -6,6 +6,7 @@
     <meta name="description" content="@yield('meta_description', 'SimdiGetir - Hızlı ve Güvenilir Kurye Hizmeti. 7/24 teslimat. Zamanın paradan daha değerli olduğu anlarda yanınızdayız.')">
     <meta name="keywords" content="@yield('meta_keywords', 'kurye, moto kurye, acil kurye, araçlı kurye, istanbul kurye, hızlı teslimat, aynı gün teslimat, kurye hizmeti, 7/24 kurye, moto kurye istanbul')">
     <meta name="author" content="SimdiGetir">
+    <meta name="facebook-domain-verification" content="pob8lhq6fp8jh6dykxwekd13mnxth4" />
     <meta name="robots" content="@yield('robots', 'index, follow')">
     <link rel="canonical" href="@yield('canonical_url', url()->current())">
     
@@ -260,7 +261,7 @@
 
     <!-- Meta Pixel -->
     @php
-        $metaPixelIdRaw = (string) \Modules\Settings\Models\Setting::getValue('marketing.meta_pixel_id', env('META_PIXEL_ID', '1657531168735846'));
+        $metaPixelIdRaw = (string) \Modules\Settings\Models\Setting::getValue('marketing.meta_pixel_id', env('META_PIXEL_ID', '321760916162419'));
         $metaPixelId = preg_replace('/\D+/', '', $metaPixelIdRaw);
     @endphp
     @if($metaPixelId)

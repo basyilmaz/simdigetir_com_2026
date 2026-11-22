@@ -89,7 +89,7 @@ class AdConnectionResource extends Resource
                         ->inline(false),
                     Forms\Components\TextInput::make('meta.pixel_id')
                         ->label('Meta Pixel ID')
-                        ->placeholder('1657531168735846')
+                        ->placeholder('321760916162419')
                         ->helperText('Sadece rakam girin.')
                         ->dehydrateStateUsing(function (?string $state): ?string {
                             if ($state === null) {

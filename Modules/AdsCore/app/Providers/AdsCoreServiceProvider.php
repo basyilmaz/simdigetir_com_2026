@@ -5,6 +5,7 @@ namespace Modules\AdsCore\Providers;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Modules\AdsCore\Console\AdsHealthCheckCommand;
+use Modules\AdsCore\Console\AdsMetaRepointPixelCommand;
 use Modules\AdsCore\Services\AdsProviderManager;
 use Modules\AdsCore\Services\CampaignLifecycleService;
 use Modules\AdsCore\Services\ConversionPipelineService;
@@ -54,6 +55,7 @@ class AdsCoreServiceProvider extends ServiceProvider
     {
         $this->commands([
             AdsHealthCheckCommand::class,
+            AdsMetaRepointPixelCommand::class,
         ]);
     }
 
